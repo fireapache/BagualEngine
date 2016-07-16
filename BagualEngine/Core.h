@@ -4,38 +4,6 @@
 
 using namespace std;
 
-//class Pixel
-//{
-//
-//public:
-//
-//	int x;
-//	int y;
-//	int colour;
-//
-//	Pixel()							: x(0), y(0), colour(0) {}
-//	Pixel(int x, int y)				: x(x), y(y) {}
-//	Pixel(int x, int y, int colour) : x(x), y(y), colour(colour) {}
-//	Pixel(const Pixel &p)			: x(p.x), y(p.y), colour(p.colour) {}
-//	~Pixel() {}
-//
-//	inline const Pixel& operator-(const Pixel &p) const
-//	{
-//		return Pixel(x - p.x, y - p.y);
-//	}
-//
-//	inline const Pixel& operator+(const Pixel &p) const
-//	{
-//		return Pixel(x + p.x, y + p.y);
-//	}
-//
-//	inline float operator|(const Pixel &p) const
-//	{
-//		return sqrt(pow(float(x - p.x), 2.0f) + pow(float(y - p.y), 2.0f));
-//	}
-//
-//};
-
 template <typename T>
 class Vector2
 {
@@ -113,6 +81,7 @@ public:
 	T p1;
 	T p2;
 
+	Line()							: p1(T()), p2(T()) {}
 	Line(const T &p1, const T &p2)	: p1(p1), p2(p2) {}
 	Line(const Line<T> &l)			: p1(l.p1), p2(l.p2) {}
 	~Line() {}
@@ -120,3 +89,33 @@ public:
 };
 
 typedef Vector2<int> Pixel;
+
+template <typename T>
+class Box : public Line<T>
+{
+
+public:
+
+	Box()							: p1(T()), p2(T()) {}
+
+	Box(const T &p1, const T &p2)
+	{
+		this->p1 = p1;
+		this->p2 = p2;
+	}
+
+	Box(const Box<T> &b)			: p1(b.p1), p2(b.p2) {}
+	~Box() {}
+
+	template <typename Y>
+	bool IsIn(const Vector2<Y> &v) const
+	{
+		bool result = true;
+
+		if (v.x < p1.x || v.x > p2.x) result = false;
+		else if (v.y < p1.y || v.y > p2.y) result = false;
+
+		return result;
+	}
+
+};
