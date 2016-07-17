@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.h"
+#include "BagualTypes.h"
+
 
 template <typename T>
 T CrossProduct(const Vector2<T> &p1, const Vector2<T> &p2)
@@ -37,5 +38,5 @@ bool LinesIntersection(const Line<Vector2<T>> &l1, const Line<Vector2<T>> &l2, V
 template <typename T>
 T Lerp(T x, T y, float a)
 {
-	return static_cast<int>(x * (1 - a) + y * a);
+	return static_cast<T>(x * (1 - a) + y * a);
 }

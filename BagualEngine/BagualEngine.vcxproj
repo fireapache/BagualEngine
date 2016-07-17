@@ -117,11 +117,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BagualCamera.cpp" />
+    <ClCompile Include="BagualCameraManager.cpp" />
+    <ClCompile Include="BagualDraw.cpp" />
+    <ClCompile Include="BagualEngine.cpp" />
+    <ClCompile Include="BagualRenderer.cpp" />
+    <ClCompile Include="BagualSettins.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core.h" />
-    <ClInclude Include="Math.h" />
+    <ClInclude Include="BagualCamera.h" />
+    <ClInclude Include="BagualCameraManager.h" />
+    <ClInclude Include="BagualCameraSettings.h" />
+    <ClInclude Include="BagualDraw.h" />
+    <ClInclude Include="BagualEngine.h" />
+    <ClInclude Include="BagualSettings.h" />
+    <ClInclude Include="BagualTypes.h" />
+    <ClInclude Include="BagualMath.h" />
+    <ClInclude Include="BagualRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
