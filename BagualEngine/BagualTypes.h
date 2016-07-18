@@ -38,12 +38,12 @@ public:
 };
 
 template <typename T>
-class Vector3 : public Vector2<T>
+class Vector3
 {
 
 public:
 
-	T z;
+	T x, y, z;
 
 	Vector3()				: x(0), y(0), z(0) {}
 	Vector3(T x, T y)		: x(x), y(y), z(0) {}
@@ -78,8 +78,7 @@ class Line
 	
 public:
 
-	T p1;
-	T p2;
+	T p1, p2;
 
 	Line()							: p1(T()), p2(T()) {}
 	Line(const T &p1, const T &p2)	: p1(p1), p2(p2) {}
@@ -91,10 +90,12 @@ public:
 typedef Vector2<int> Pixel;
 
 template <typename T>
-class Box : public Line<T>
+class Box
 {
 
 public:
+
+	T p1, p2;
 
 	Box()							: p1(T()), p2(T()) {}
 

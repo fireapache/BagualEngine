@@ -1,5 +1,10 @@
 #include "BagualDraw.h"
 
+// In case of not using Windows C++ compiler...
+#ifndef INT_MAX
+#define INT_MAX 2147483647
+#endif
+
 bool IsLineOnScreen(CameraSettings &camera, Line<Pixel> &line)
 {
 	Box<Pixel> viewport(

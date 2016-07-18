@@ -3,7 +3,18 @@
 
 void CameraManager::AddCamera(Camera *camera)
 {
-	if (find(cameras.begin(), cameras.end(), camera) == cameras.end())
+	bool found = false;
+
+	for (const auto& cam : cameras)
+	{
+		if (cam == camera)
+		{
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
 	{
 		cameras.push_back(camera);
 		camera->SetupScreen();
@@ -12,9 +23,17 @@ void CameraManager::AddCamera(Camera *camera)
 
 void CameraManager::RemoveCamera(Camera *camera)
 {
-	vector<Camera*>::iterator it;
-	it = find(cameras.begin(), cameras.end(), camera);
-	if (it != cameras.end()) cameras.erase(it);
+	auto itr = cameras.begin();
+
+	while (itr != cameras.end())
+	{
+		if (*itr == camera)
+		{
+			cameras.erase(itr);
+		}
+
+		itr++;
+	}
 }
 
 vector<Camera*> CameraManager::cameras = {};
