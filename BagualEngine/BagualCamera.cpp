@@ -26,12 +26,6 @@ void Camera::SetupScreen()
 	surface = SDL_GetWindowSurface(BagualSettings::window);
 
 	int *pixels = (int*)surface->pixels;
-	int **screen = new int*[height];
-
-	for (int i = 0; i < height; i++)
-	{
-		screen[i] = &pixels[i * width];
-	}
 
 	edges[0] = Line<Pixel>(Pixel(0, 0), Pixel(0, height - 1));
 	edges[1] = Line<Pixel>(Pixel(0, height - 1), Pixel(width - 1, height - 1));
@@ -39,7 +33,7 @@ void Camera::SetupScreen()
 	edges[3] = Line<Pixel>(Pixel(width - 1, 0), Pixel(0, 0));
 
 	settings.SetScreenEdges(edges);
-	settings.SetScreen(screen);
+	settings.SetScreen(pixels);
 	settings.SetSurface(surface);
 	settings.SetWidth(width);
 	settings.SetHeight(height);

@@ -13,7 +13,7 @@ class CameraSettings
 
 	SDL_Surface *surface = nullptr;
 
-	int **screen = nullptr;
+	int *screen = nullptr;
 
 public:
 
@@ -21,7 +21,7 @@ public:
 
 	int GetWidth() const { return width; }
 	int GetHeight() const { return height; }
-	int** GetScreen() const { return screen; }
+	int* GetScreen() const { return screen; }
 
 	const Line<Pixel>& GetScreenEdge(int i) const { return screenEdges[i]; }
 
@@ -37,6 +37,6 @@ public:
 		screenEdges[3] = edges[3];
 	}
 	void SetSurface(SDL_Surface *surface) { this->surface = surface; }
-	void SetScreen(int **screen) { this->screen = screen; }
+	void SetScreen(int *screen) { this->screen = screen; }
 
 };

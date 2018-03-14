@@ -62,20 +62,20 @@ bool IsLineOnScreen(CameraSettings &camera, Line<Pixel> &line)
 void DrawLine(CameraSettings &camera, const Line<Pixel> &line)
 {
 	int x, y;
-	int **screen = camera.GetScreen();
-	float dist, step;
+	int *screen = camera.GetScreen();
+	const int width = camera.GetWidth();
 	Line<Pixel> l(line);
 
 	if (IsLineOnScreen(camera, l) == false) return;
 
-	dist = l.p1 | l.p2;
-	step = 1.0f / dist;
+	const float dist = l.p1 | l.p2;
+	const float step = 1.0f / dist;
 
 	for (float a = 0.0f; a <= 1.0f; a += step)
 	{
 		x = Lerp(l.p1.x, l.p2.x, a);
 		y = Lerp(l.p1.y, l.p2.y, a);
-		screen[y][x] = 0xFF0000;
+		screen[x + width * y] = 0xFF0000;
 	}
 
 }
