@@ -1,4 +1,5 @@
 #include "BCamera.h"
+#include "iostream"
 
 using namespace Bagual::Draw;
 

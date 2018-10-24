@@ -9,6 +9,7 @@ namespace Bagual
 	class BagualEngine
 	{
 		bool toQuit;
+		bool pause;
 
 		void Init();
 		void LoadData();

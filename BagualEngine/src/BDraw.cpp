@@ -1,4 +1,5 @@
 #include "BDraw.h"
+#include "iostream"
 
 using namespace Bagual::Math;
 
@@ -105,7 +106,7 @@ namespace Bagual
 			int dy = line.p2.y - line.p1.y;
 			int xi = 1;
 
-			if (dy < 0)
+			if (dx < 0)
 			{
 				xi = -1;
 				dx = -dx;
@@ -135,8 +136,12 @@ namespace Bagual
 			// Getting a copy so we can change its values
 			BLine<BPixel> l(line);
 
+			//std::cout << "P1: (" << line.p1.x << "," << line.p1.y << ") P2: (" << line.p2.x << "," << line.p2.y << ")" << std::endl;
+
 			// Checks if line is on screen and clamps it
 			if (IsLineOnScreen(camera, l) == false) return;
+
+			//std::cout << "P1: (" << l.p1.x << "," << l.p1.y << ") P2: (" << l.p2.x << "," << l.p2.y << ")" << std::endl;
 
 			if (std::abs(line.p2.y - line.p1.y) < std::abs(line.p2.x - line.p1.x))
 			{

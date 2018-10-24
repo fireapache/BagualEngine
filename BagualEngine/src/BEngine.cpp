@@ -12,6 +12,7 @@ namespace Bagual
 	{
 		SDL_Window *window;
 		toQuit = false;
+		pause = false;
 
 		SDL_Init(SDL_INIT_VIDEO);
 
@@ -44,12 +45,15 @@ namespace Bagual
 
 		while (SDL_PollEvent(&ev))
 		{
-			if (SDL_KEYDOWN || SDL_KEYUP)
+			if (ev.key.type == SDL_KEYDOWN)
 			{
 				switch (ev.key.keysym.sym)
 				{
 				case 'q':
 					toQuit = true;
+					break;
+				case 'p':
+					pause = !pause;
 				default: break;
 				}
 			}
@@ -61,7 +65,13 @@ namespace Bagual
 		while (!toQuit)
 		{
 			ProcessInput();
-			BRenderer::Render();
+
+			if (!pause)
+			{
+				BRenderer::Render();
+				//pause = true;
+			}
+			
 			SDL_Delay(10);
 		}
 	}
