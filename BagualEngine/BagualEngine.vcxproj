@@ -123,24 +123,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BagualCamera.cpp" />
-    <ClCompile Include="BagualCameraManager.cpp" />
-    <ClCompile Include="BagualDraw.cpp" />
-    <ClCompile Include="BagualEngine.cpp" />
-    <ClCompile Include="BagualRenderer.cpp" />
-    <ClCompile Include="BagualSettins.cpp" />
+    <ClCompile Include="BCamera.cpp" />
+    <ClCompile Include="BCameraManager.cpp" />
+    <ClCompile Include="BDraw.cpp" />
+    <ClCompile Include="BEngine.cpp" />
+    <ClCompile Include="BRenderer.cpp" />
+    <ClCompile Include="BSettings.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BagualCamera.h" />
-    <ClInclude Include="BagualCameraManager.h" />
-    <ClInclude Include="BagualCameraSettings.h" />
-    <ClInclude Include="BagualDraw.h" />
-    <ClInclude Include="BagualEngine.h" />
-    <ClInclude Include="BagualSettings.h" />
-    <ClInclude Include="BagualTypes.h" />
-    <ClInclude Include="BagualMath.h" />
-    <ClInclude Include="BagualRenderer.h" />
+    <ClInclude Include="BCamera.h" />
+    <ClInclude Include="BCameraManager.h" />
+    <ClInclude Include="BCameraSettings.h" />
+    <ClInclude Include="BDraw.h" />
+    <ClInclude Include="BEngine.h" />
+    <ClInclude Include="BSettings.h" />
+    <ClInclude Include="BTypes.h" />
+    <ClInclude Include="BMath.h" />
+    <ClInclude Include="BRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

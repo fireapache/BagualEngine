@@ -18,51 +18,51 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualCamera.cpp">
+    <ClCompile Include="BCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualRenderer.cpp">
+    <ClCompile Include="BCameraManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualEngine.cpp">
+    <ClCompile Include="BDraw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualCameraManager.cpp">
+    <ClCompile Include="BEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualDraw.cpp">
+    <ClCompile Include="BRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BagualSettins.cpp">
+    <ClCompile Include="BSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BagualCamera.h">
+    <ClInclude Include="BCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualTypes.h">
+    <ClInclude Include="BCameraManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualMath.h">
+    <ClInclude Include="BCameraSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualRenderer.h">
+    <ClInclude Include="BDraw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualEngine.h">
+    <ClInclude Include="BEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualCameraManager.h">
+    <ClInclude Include="BMath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualSettings.h">
+    <ClInclude Include="BRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualDraw.h">
+    <ClInclude Include="BSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BagualCameraSettings.h">
+    <ClInclude Include="BTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
