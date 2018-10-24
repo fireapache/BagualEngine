@@ -66,23 +66,99 @@ namespace Bagual
 			return isValid;
 		}
 
-		void DrawLine(BCameraSettings &camera, const BLine<BPixel> &line)
+		void DrawLineLow(BCameraSettings &camera, const BLine<BPixel> &line)
 		{
-			int x, y;
 			int *screen = camera.GetScreen();
 			const int width = camera.GetWidth();
+			int dx = line.p2.x - line.p1.x;
+			int dy = line.p2.y - line.p1.y;
+			int yi = 1;
+
+			if (dy < 0)
+			{
+				yi = -1;
+				dy = -dy;
+			}
+
+			int D = 2 * dy - dx;
+			int y = line.p1.y;
+
+			for (int x = line.p1.x; x <= line.p2.x; x++)
+			{
+				screen[x + width * y] = 0xFF0000;
+
+				if (D > 0)
+				{
+					y = y + yi;
+					D = D - 2 * dx;
+				}
+
+				D = D + 2 * dy;
+			}
+		}
+
+		void DrawLineHigh(BCameraSettings &camera, const BLine<BPixel> &line)
+		{
+			int *screen = camera.GetScreen();
+			const int width = camera.GetWidth();
+			int dx = line.p2.x - line.p1.x;
+			int dy = line.p2.y - line.p1.y;
+			int xi = 1;
+
+			if (dy < 0)
+			{
+				xi = -1;
+				dx = -dx;
+			}
+
+			int D = 2 * dx - dy;
+			int x = line.p1.x;
+
+			for (int y = line.p1.y; y <= line.p2.y; y++)
+			{
+				screen[x + width * y] = 0xFF0000;
+
+				if (D > 0)
+				{
+					x = x + xi;
+					D = D - 2 * dy;
+				}
+
+				D = D + 2 * dx;
+			}
+		}
+
+		void DrawLine(BCameraSettings &camera, const BLine<BPixel> &line)
+		{
+			// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
+
+			// Getting a copy so we can change its values
 			BLine<BPixel> l(line);
 
+			// Checks if line is on screen and clamps it
 			if (IsLineOnScreen(camera, l) == false) return;
 
-			const float dist = l.p1 | l.p2;
-			const float step = 1.0f / dist;
-
-			for (float a = 0.0f; a <= 1.0f; a += step)
+			if (std::abs(line.p2.y - line.p1.y) < std::abs(line.p2.x - line.p1.x))
 			{
-				x = Lerp(l.p1.x, l.p2.x, a);
-				y = Lerp(l.p1.y, l.p2.y, a);
-				screen[x + width * y] = 0xFF0000;
+				if (line.p1.x > line.p2.x)
+				{
+					DrawLineLow(camera, -l);
+				}
+				else
+				{
+					DrawLineLow(camera, l);
+				}
+			}
+			else
+			{
+				if (line.p1.y > line.p2.y)
+				{
+					DrawLineHigh(camera, -l);
+				}
+				else
+				{
+					DrawLineHigh(camera, l);
+				}
 			}
 
 		}
