@@ -13,57 +13,81 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Camera">
+      <UniqueIdentifier>{2373afc5-9330-4f15-9c5a-9d6d5ded05f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Draw">
+      <UniqueIdentifier>{4f8c0ee2-1759-4eef-8c48-8fbd45583e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{488d90d2-3562-40aa-9109-5b707db632d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Types">
+      <UniqueIdentifier>{4c07ffdd-d85a-4591-989d-ba35b39de2c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Camera">
+      <UniqueIdentifier>{4a8af9bf-6725-4efb-8e3d-d8d283058789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Draw">
+      <UniqueIdentifier>{6ade75af-a221-43d2-adb5-35b60db82e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{08913ee3-dbbb-4e65-96e3-9bdb14ffae44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\BEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BCamera.cpp">
+    <ClCompile Include="src\BSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BCameraManager.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BDraw.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\BCamera.cpp">
+      <Filter>Source Files\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="BEngine.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\BCameraManager.cpp">
+      <Filter>Source Files\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="BRenderer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\BDraw.cpp">
+      <Filter>Source Files\Draw</Filter>
     </ClCompile>
-    <ClCompile Include="BSettings.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\BRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BCamera.h">
+    <ClInclude Include="include\BEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BCameraManager.h">
+    <ClInclude Include="include\BSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BCameraSettings.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BCamera.h">
+      <Filter>Header Files\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="BDraw.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BCameraManager.h">
+      <Filter>Header Files\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="BEngine.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BCameraSettings.h">
+      <Filter>Header Files\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="BMath.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BDraw.h">
+      <Filter>Header Files\Draw</Filter>
     </ClInclude>
-    <ClInclude Include="BRenderer.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BMath.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="BSettings.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="BTypes.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\BTypes.h">
+      <Filter>Header Files\Types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

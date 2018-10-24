@@ -18,6 +18,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\BCamera.cpp" />
+    <ClCompile Include="src\BCameraManager.cpp" />
+    <ClCompile Include="src\BDraw.cpp" />
+    <ClCompile Include="src\BEngine.cpp" />
+    <ClCompile Include="src\BRenderer.cpp" />
+    <ClCompile Include="src\BSettings.cpp" />
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\BCamera.h" />
+    <ClInclude Include="include\BCameraManager.h" />
+    <ClInclude Include="include\BCameraSettings.h" />
+    <ClInclude Include="include\BDraw.h" />
+    <ClInclude Include="include\BEngine.h" />
+    <ClInclude Include="include\BMath.h" />
+    <ClInclude Include="include\BRenderer.h" />
+    <ClInclude Include="include\BSettings.h" />
+    <ClInclude Include="include\BTypes.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A71C801-7233-4D2B-B295-D7C4DBC46640}</ProjectGuid>
     <RootNamespace>BagualEngine</RootNamespace>
@@ -69,7 +89,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>.\third\win32\include;$(IncludePath)</IncludePath>
+    <IncludePath>.\include;.\third\win32\include;$(IncludePath)</IncludePath>
     <LibraryPath>.\third\win32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,26 +142,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="BCamera.cpp" />
-    <ClCompile Include="BCameraManager.cpp" />
-    <ClCompile Include="BDraw.cpp" />
-    <ClCompile Include="BEngine.cpp" />
-    <ClCompile Include="BRenderer.cpp" />
-    <ClCompile Include="BSettings.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="BCamera.h" />
-    <ClInclude Include="BCameraManager.h" />
-    <ClInclude Include="BCameraSettings.h" />
-    <ClInclude Include="BDraw.h" />
-    <ClInclude Include="BEngine.h" />
-    <ClInclude Include="BSettings.h" />
-    <ClInclude Include="BTypes.h" />
-    <ClInclude Include="BMath.h" />
-    <ClInclude Include="BRenderer.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
