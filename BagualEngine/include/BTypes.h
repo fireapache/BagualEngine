@@ -90,6 +90,11 @@ namespace Bagual
 			BLine(const BLine<T> &l) : p1(l.p1), p2(l.p2) {}
 			~BLine() {}
 
+			const BLine operator-() const
+			{
+				return BLine(p2, p1);
+			}
+
 		};
 
 		typedef BVector2<int> BPixel;
