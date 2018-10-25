@@ -72,7 +72,7 @@ namespace Bagual
 				//pause = true;
 			}
 			
-			SDL_Delay(10);
+			SDL_Delay(1);
 		}
 	}
 
