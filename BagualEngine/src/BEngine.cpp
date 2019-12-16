@@ -5,8 +5,7 @@ using namespace Bagual::Renderer;
 
 namespace Bagual
 {
-
-	BagualEngine* BagualEngine::instance = nullptr;
+	std::unique_ptr<BagualEngine> BagualEngine::instance(nullptr);
 
 	void BagualEngine::Init()
 	{
@@ -74,6 +73,18 @@ namespace Bagual
 			
 			SDL_Delay(1);
 		}
+	}
+
+	BagualEngine::BagualEngine() : toQuit(false), pause(false)
+	{
+		BagualSettings::width = 320;
+		BagualSettings::height = 240;
+	}
+
+	Bagual::BagualEngine& BagualEngine::Instance()
+	{
+		if (!instance) instance = std::make_unique<BagualEngine>();
+		return *instance.get();
 	}
 
 	void BagualEngine::Peleia()

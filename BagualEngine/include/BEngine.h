@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "BRenderer.h"
 #include "BSettings.h"
 
@@ -8,6 +9,8 @@ namespace Bagual
 
 	class BagualEngine
 	{
+		friend std::unique_ptr<BagualEngine> std::make_unique<BagualEngine>();
+
 		bool toQuit;
 		bool pause;
 
@@ -17,24 +20,16 @@ namespace Bagual
 		void ProcessInput();
 		void Loop();
 
-		static BagualEngine *instance;
+		static std::unique_ptr<BagualEngine> instance;
 
-		BagualEngine() : toQuit(false)
-		{
-			BagualSettings::width = 320;
-			BagualSettings::height = 240;
-		}
+		BagualEngine();
 
 	public:
 
-		BagualEngine(const BagualEngine&) {}
-		void operator=(BagualEngine&) {}
+		BagualEngine(const BagualEngine&) = delete;
+		BagualEngine& operator=(const BagualEngine&) = delete;
 
-		static BagualEngine* Instance()
-		{
-			if (!instance) instance = new BagualEngine();
-			return instance;
-		}
+		static BagualEngine& Instance();
 
 		void Peleia();
 
