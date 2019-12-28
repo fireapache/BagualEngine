@@ -1,7 +1,8 @@
-#include "BEngine.h"
 
-using namespace Bagual::Camera;
-using namespace Bagual::Renderer;
+#include "BEngine.h"
+#include "BCamera.h"
+#include "BCameraManager.h"
+
 
 namespace Bagual
 {
@@ -9,33 +10,19 @@ namespace Bagual
 
 	void BagualEngine::Init()
 	{
-		SDL_Window *window;
+		graphicsPlatform = std::make_unique<Bagual::GraphicsPlatform::BGraphicsPlatform>();
 		toQuit = false;
 		pause = false;
-
-		SDL_Init(SDL_INIT_VIDEO);
-
-		window = SDL_CreateWindow("Bagual Engine",
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			BagualSettings::width,
-			BagualSettings::height,
-			SDL_WINDOW_SHOWN);
-
-		BagualSettings::window = window;
-
-		SDL_ShowCursor(SDL_DISABLE);
-		SDL_SetRelativeMouseMode(SDL_FALSE);
 	}
 
 	void BagualEngine::LoadData()
 	{
-		BCameraManager::AddCamera(new BCamera());
+		Bagual::Camera::BCameraManager::AddCamera(new Bagual::Camera::BCamera());
 	}
 
 	void BagualEngine::Term()
 	{
-		SDL_Quit();
+		
 	}
 
 	void BagualEngine::ProcessInput()
@@ -67,11 +54,15 @@ namespace Bagual
 
 			if (!pause)
 			{
-				BRenderer::Render();
+				if (graphicsPlatform)
+				{
+					graphicsPlatform->Render();
+				}
+				
 				//pause = true;
 			}
 			
-			SDL_Delay(1);
+			graphicsPlatform->Delay(1);
 		}
 	}
 

@@ -22,20 +22,29 @@
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{488d90d2-3562-40aa-9109-5b707db632d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Renderer">
-      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Types">
-      <UniqueIdentifier>{4c07ffdd-d85a-4591-989d-ba35b39de2c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Camera">
       <UniqueIdentifier>{4a8af9bf-6725-4efb-8e3d-d8d283058789}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Draw">
       <UniqueIdentifier>{6ade75af-a221-43d2-adb5-35b60db82e03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Renderer">
+    <Filter Include="Header Files\GraphicsPlatform">
+      <UniqueIdentifier>{0de21088-9fcc-4ec2-86f9-d561ebf48e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GraphicsPlatform\GraphicsDriver">
+      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GraphicsPlatform">
       <UniqueIdentifier>{08913ee3-dbbb-4e65-96e3-9bdb14ffae44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GraphicsPlatform\GraphicsDriver">
+      <UniqueIdentifier>{a9a0aa72-c1d6-4a00-9c2a-ec1417e77dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{4c07ffdd-d85a-4591-989d-ba35b39de2c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{7eba4dac-07d9-44e2-bcc9-6c9cd3f877b7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,8 +66,17 @@
     <ClCompile Include="src\BDraw.cpp">
       <Filter>Source Files\Draw</Filter>
     </ClCompile>
-    <ClCompile Include="src\BRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
+    <ClCompile Include="src\BGraphicsPlatform.cpp">
+      <Filter>Source Files\GraphicsPlatform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BWindowsGraphicsDriver.cpp">
+      <Filter>Source Files\GraphicsPlatform\GraphicsDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BLogger.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BGraphicsDriverBase.cpp">
+      <Filter>Source Files\GraphicsPlatform\GraphicsDriver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,11 +101,23 @@
     <ClInclude Include="include\BMath.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="include\BRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
+    <ClInclude Include="include\BWindowsGraphicsDriver.h">
+      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BIGraphicsDriver.h">
+      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGraphicsPlatform.h">
+      <Filter>Header Files\GraphicsPlatform</Filter>
     </ClInclude>
     <ClInclude Include="include\BTypes.h">
-      <Filter>Header Files\Types</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BLogger.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGraphicsDriverBase.h">
+      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

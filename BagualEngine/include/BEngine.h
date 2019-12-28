@@ -1,15 +1,19 @@
 #pragma once
 
 #include <memory>
-#include "BRenderer.h"
+#include "BGraphicsPlatform.h"
 #include "BSettings.h"
 
 namespace Bagual
 {
-
 	class BagualEngine
 	{
 		friend std::unique_ptr<BagualEngine> std::make_unique<BagualEngine>();
+		friend std::unique_ptr<Bagual::GraphicsPlatform::BGraphicsPlatform> std::make_unique<Bagual::GraphicsPlatform::BGraphicsPlatform>();
+		
+		static std::unique_ptr<BagualEngine> instance;
+
+		std::unique_ptr<Bagual::GraphicsPlatform::BGraphicsPlatform> graphicsPlatform;
 
 		bool toQuit;
 		bool pause;
@@ -19,8 +23,6 @@ namespace Bagual
 		void Term();
 		void ProcessInput();
 		void Loop();
-
-		static std::unique_ptr<BagualEngine> instance;
 
 		BagualEngine();
 

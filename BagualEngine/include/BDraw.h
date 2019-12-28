@@ -3,17 +3,11 @@
 #include "BCameraSettings.h"
 #include "BMath.h"
 
-using namespace Bagual::Camera;
-using namespace Bagual::Types;
-
-namespace Bagual
+namespace Bagual::Draw
 {
-	namespace Draw
-	{
-		bool IsLineOnScreen(BCameraSettings &camera, BLine<BPixel> &line);
+	bool IsLineOnScreen(Bagual::Camera::BCameraSettings &camera, BLine<BPixel> &line);
 
-		void DrawLine(BCameraSettings &camera, const BLine<BPixel> &line);
+	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BLine<BPixel> &line);
 
-		void DrawLine(BCameraSettings &camera, const BPixel &p1, const BPixel &p2);
-	}
+	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BPixel &p1, const BPixel &p2);
 }

@@ -23,8 +23,11 @@
     <ClCompile Include="src\BCameraManager.cpp" />
     <ClCompile Include="src\BDraw.cpp" />
     <ClCompile Include="src\BEngine.cpp" />
-    <ClCompile Include="src\BRenderer.cpp" />
+    <ClCompile Include="src\BGraphicsDriverBase.cpp" />
+    <ClCompile Include="src\BGraphicsPlatform.cpp" />
+    <ClCompile Include="src\BLogger.cpp" />
     <ClCompile Include="src\BSettings.cpp" />
+    <ClCompile Include="src\BWindowsGraphicsDriver.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,8 +36,12 @@
     <ClInclude Include="include\BCameraSettings.h" />
     <ClInclude Include="include\BDraw.h" />
     <ClInclude Include="include\BEngine.h" />
+    <ClInclude Include="include\BGraphicsDriverBase.h" />
+    <ClInclude Include="include\BGraphicsPlatform.h" />
+    <ClInclude Include="include\BIGraphicsDriver.h" />
+    <ClInclude Include="include\BLogger.h" />
     <ClInclude Include="include\BMath.h" />
-    <ClInclude Include="include\BRenderer.h" />
+    <ClInclude Include="include\BWindowsGraphicsDriver.h" />
     <ClInclude Include="include\BSettings.h" />
     <ClInclude Include="include\BTypes.h" />
   </ItemGroup>
