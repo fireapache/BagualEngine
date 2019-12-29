@@ -2,6 +2,9 @@
 #include "BEngine.h"
 #include "BCamera.h"
 #include "BCameraManager.h"
+#include "BEngineTests.h"
+#include "BModule.h"
+#include "BTypes.h"
 
 
 namespace Bagual
@@ -10,14 +13,29 @@ namespace Bagual
 
 	void BagualEngine::Init()
 	{
-		graphicsPlatform = std::make_unique<Bagual::GraphicsPlatform::BGraphicsPlatform>();
+		graphicsPlatform = std::make_unique<Bagual::Graphics::BGraphicsPlatform>();
 		toQuit = false;
 		pause = false;
+		modules = std::make_unique<Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>>();
 	}
 
 	void BagualEngine::LoadData()
 	{
-		Bagual::Camera::BCameraManager::AddCamera(new Bagual::Camera::BCamera());
+		
+	}
+
+	void BagualEngine::RegisterModules()
+	{
+		
+		if (modules)
+		{
+			//Testing
+			modules->Add(std::make_shared<Bagual::Tests::BEngineTest_DrawRandomLines>());
+
+			Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>* moduleArray = modules.get();
+			std::shared_ptr<Bagual::Modules::BIModule> mod = (*moduleArray)[0];
+			mod->Init();
+		}
 	}
 
 	void BagualEngine::Term()
@@ -46,11 +64,12 @@ namespace Bagual
 		}
 	}
 
-	void BagualEngine::Loop()
+	void BagualEngine::MainLoop()
 	{
 		while (!toQuit)
 		{
 			ProcessInput();
+			ModulesLoop();
 
 			if (!pause)
 			{
@@ -63,6 +82,14 @@ namespace Bagual
 			}
 			
 			graphicsPlatform->Delay(1);
+		}
+	}
+
+	void BagualEngine::ModulesLoop()
+	{
+		for (size_t i = 0; i < modules->Size(); i++)
+		{
+			(*modules)[i]->Tick();
 		}
 	}
 
@@ -82,8 +109,14 @@ namespace Bagual
 	{
 		Init();
 		LoadData();
-		Loop();
+		RegisterModules();
+		MainLoop();
 		Term();
+	}
+
+	Bagual::Graphics::BGraphicsPlatform* BagualEngine::GraphicsPlatform()
+	{
+		return Instance().graphicsPlatform.get();
 	}
 
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-
 #include "BCamera.h"
+#include "BTypes.h"
+#include <memory>
 
 namespace Bagual
 {
@@ -11,15 +11,15 @@ namespace Bagual
 		class BCameraManager
 		{
 
-			static std::vector<BCamera*> cameras;
+			static BArray < std::shared_ptr<BCamera> > cameras;
 
 		public:
 
-			static void AddCamera(BCamera *camera);
+			static std::shared_ptr<BCamera> Create();
 
-			static void RemoveCamera(BCamera *camera);
+			static void RemoveCamera(std::shared_ptr<BCamera> camera);
 
-			static std::vector<BCamera*>& GetCameras() { return cameras; }
+			static BArray<std::shared_ptr<BCamera>>& GetCameras();
 
 		};
 	}

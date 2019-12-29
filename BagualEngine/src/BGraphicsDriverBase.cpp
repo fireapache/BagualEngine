@@ -4,15 +4,15 @@
 #include "BCamera.h"
 #include "BCameraManager.h"
 
-namespace Bagual::GraphicsDriver
+namespace Bagual::Graphics
 {
 
 	void BGraphicsDriverBase::Render()
 	{
-		for (Bagual::Camera::BCamera* camera : Bagual::Camera::BCameraManager::GetCameras())
+		/*for (Bagual::Camera::BCamera* camera : Bagual::Camera::BCameraManager::GetCameras())
 		{
 			camera->DrawScreen();
-		}
+		}*/
 	}
 
 }

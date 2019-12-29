@@ -1,17 +1,18 @@
 #pragma once
 
-namespace Bagual
+#include <memory>
+#include "BCanvas.h"
+
+namespace Bagual::Graphics
 {
-	namespace GraphicsDriver
+	class BIGraphicsDriver
 	{
-		class BIGraphicsDriver
-		{
 
-		public:
+	public:
 
-			virtual void Render() = 0;
-			virtual void Delay(unsigned int ms) = 0;
+		virtual void Render() = 0;
+		virtual void Delay(unsigned int ms) = 0;
+		virtual std::weak_ptr<BCanvas> CreateCanvas(unsigned short width, unsigned short height) = 0;
 
-		};
-	}
+	};
 }

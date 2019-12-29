@@ -3,7 +3,7 @@
 #include "BCamera.h"
 #include "BCameraManager.h"
 
-namespace Bagual::GraphicsDriver
+namespace Bagual::Graphics
 {
 	
 	BWindowsGraphicsDriver::BWindowsGraphicsDriver()
@@ -40,6 +40,12 @@ namespace Bagual::GraphicsDriver
 	{
 		SDL_Delay(ms);
 	}
+
+	std::weak_ptr<BCanvas> BWindowsGraphicsDriver::CreateCanvas(unsigned short width, unsigned short height)
+	{
+		return std::weak_ptr<BCanvas>();
+	}
+
 
 }
 

@@ -7,11 +7,11 @@ using namespace Bagual::Math;
 namespace Bagual::Draw
 {
 	
-	bool IsLineOnScreen(Bagual::Camera::BCameraSettings& camera, BLine<BPixel>& line)
+	bool IsLineOnScreen(Bagual::Camera::BCameraSettings& cameraSettings, BLine<BPixelPos>& line)
 	{
-		BBox<BPixel> viewport(
-			BPixel(0, 0),
-			BPixel(camera.GetWidth() - 1, camera.GetHeight() - 1));
+		BBox<BPixelPos> viewport(
+			BPixelPos(0, 0),
+			BPixelPos(cameraSettings.GetWidth() - 1, cameraSettings.GetHeight() - 1));
 
 		bool p1In = viewport.IsIn(line.p1);
 		bool p2In = viewport.IsIn(line.p2);
@@ -20,16 +20,16 @@ namespace Bagual::Draw
 
 		bool isValid = true;
 		bool isIn;
-		BPixel inters[4];
+		BPixelPos inters[4];
 		int p1Dist = INT_MAX;
 		int p2Dist = INT_MAX;
 		int dist;
-		BPixel *newP1 = nullptr;
-		BPixel *newP2 = nullptr;
+		BPixelPos* newP1 = nullptr;
+		BPixelPos* newP2 = nullptr;
 
 		for (int i = 0; i < 4; i++)
 		{
-			if (LinesIntersection(line, camera.GetScreenEdge(i), inters[i]))
+			if (LinesIntersection(line, cameraSettings.GetScreenEdge(i), inters[i]))
 			{
 				isIn = viewport.IsIn(inters[i]);
 
@@ -66,9 +66,9 @@ namespace Bagual::Draw
 		return isValid;
 	}
 
-	void DrawLineLow(Bagual::Camera::BCameraSettings &camera, const BLine<BPixel> &line)
+	void DrawLineLow(Bagual::Camera::BCameraSettings& camera, const BLine<BPixelPos>& line)
 	{
-		int *screen = camera.GetScreen();
+		int* screen = camera.GetScreen();
 		const int width = camera.GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
@@ -97,9 +97,9 @@ namespace Bagual::Draw
 		}
 	}
 
-	void DrawLineHigh(Bagual::Camera::BCameraSettings &camera, const BLine<BPixel> &line)
+	void DrawLineHigh(Bagual::Camera::BCameraSettings& camera, const BLine<BPixelPos>& line)
 	{
-		int *screen = camera.GetScreen();
+		int* screen = camera.GetScreen();
 		const int width = camera.GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
@@ -128,17 +128,17 @@ namespace Bagual::Draw
 		}
 	}
 
-	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BLine<BPixel> &line)
+	void DrawLine(Bagual::Camera::BCameraSettings& cameraSettings, const BLine<BPixelPos>& line)
 	{
 		// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
 
 		// Getting a copy so we can change its values
-		BLine<BPixel> l(line);
+		BLine<BPixelPos> l(line);
 
 		//std::cout << "P1: (" << line.p1.x << "," << line.p1.y << ") P2: (" << line.p2.x << "," << line.p2.y << ")" << std::endl;
 
 		// Checks if line is on screen and clamps it
-		if (IsLineOnScreen(camera, l) == false) return;
+		if (IsLineOnScreen(cameraSettings, l) == false) return;
 
 		//std::cout << "P1: (" << l.p1.x << "," << l.p1.y << ") P2: (" << l.p2.x << "," << l.p2.y << ")" << std::endl;
 
@@ -146,30 +146,30 @@ namespace Bagual::Draw
 		{
 			if (line.p1.x > line.p2.x)
 			{
-				DrawLineLow(camera, -l);
+				DrawLineLow(cameraSettings, -l);
 			}
 			else
 			{
-				DrawLineLow(camera, l);
+				DrawLineLow(cameraSettings, l);
 			}
 		}
 		else
 		{
 			if (line.p1.y > line.p2.y)
 			{
-				DrawLineHigh(camera, -l);
+				DrawLineHigh(cameraSettings, -l);
 			}
 			else
 			{
-				DrawLineHigh(camera, l);
+				DrawLineHigh(cameraSettings, l);
 			}
 		}
 
 	}
 
-	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BPixel &p1, const BPixel &p2)
+	void DrawLine(Bagual::Camera::BCameraSettings& cameraSettings, const BPixelPos& p1, const BPixelPos& p2)
 	{
-		DrawLine(camera, BLine<BPixel>(p1, p2));
+		DrawLine(cameraSettings, BLine<BPixelPos>(p1, p2));
 	}
 
 }

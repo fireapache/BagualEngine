@@ -28,23 +28,35 @@
     <Filter Include="Source Files\Draw">
       <UniqueIdentifier>{6ade75af-a221-43d2-adb5-35b60db82e03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GraphicsPlatform">
-      <UniqueIdentifier>{0de21088-9fcc-4ec2-86f9-d561ebf48e85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\GraphicsPlatform\GraphicsDriver">
-      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\GraphicsPlatform">
-      <UniqueIdentifier>{08913ee3-dbbb-4e65-96e3-9bdb14ffae44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\GraphicsPlatform\GraphicsDriver">
-      <UniqueIdentifier>{a9a0aa72-c1d6-4a00-9c2a-ec1417e77dbc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Utils">
       <UniqueIdentifier>{4c07ffdd-d85a-4591-989d-ba35b39de2c4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{7eba4dac-07d9-44e2-bcc9-6c9cd3f877b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tests">
+      <UniqueIdentifier>{da72190f-9319-4346-a5b3-6a3217eb39fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{0e33da59-0126-4f44-9fb6-bf9bf14d569b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{0de21088-9fcc-4ec2-86f9-d561ebf48e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Drivers">
+      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{08913ee3-dbbb-4e65-96e3-9bdb14ffae44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Drivers">
+      <UniqueIdentifier>{a9a0aa72-c1d6-4a00-9c2a-ec1417e77dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules">
+      <UniqueIdentifier>{9dc668f5-0b21-4b2b-b039-5397552f1757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules">
+      <UniqueIdentifier>{cd288a6c-96a6-4a20-84fa-481da194af8b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,16 +79,25 @@
       <Filter>Source Files\Draw</Filter>
     </ClCompile>
     <ClCompile Include="src\BGraphicsPlatform.cpp">
-      <Filter>Source Files\GraphicsPlatform</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\BWindowsGraphicsDriver.cpp">
-      <Filter>Source Files\GraphicsPlatform\GraphicsDriver</Filter>
+      <Filter>Source Files\Graphics\Drivers</Filter>
     </ClCompile>
     <ClCompile Include="src\BLogger.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\BGraphicsDriverBase.cpp">
-      <Filter>Source Files\GraphicsPlatform\GraphicsDriver</Filter>
+      <Filter>Source Files\Graphics\Drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BEngineTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BCanvas.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,13 +123,13 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="include\BWindowsGraphicsDriver.h">
-      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
+      <Filter>Header Files\Graphics\Drivers</Filter>
     </ClInclude>
     <ClInclude Include="include\BIGraphicsDriver.h">
-      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
+      <Filter>Header Files\Graphics\Drivers</Filter>
     </ClInclude>
     <ClInclude Include="include\BGraphicsPlatform.h">
-      <Filter>Header Files\GraphicsPlatform</Filter>
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\BTypes.h">
       <Filter>Header Files</Filter>
@@ -117,7 +138,19 @@
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="include\BGraphicsDriverBase.h">
-      <Filter>Header Files\GraphicsPlatform\GraphicsDriver</Filter>
+      <Filter>Header Files\Graphics\Drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BEngineTests.h">
+      <Filter>Header Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BCanvas.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BBuffer.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,23 +10,21 @@
 #include "BCameraManager.h"
 #include "BMath.h"
 
-namespace Bagual
+namespace Bagual::Graphics
 {
-	namespace GraphicsDriver
+	class BWindowsGraphicsDriver : public BGraphicsDriverBase
 	{
-		class BWindowsGraphicsDriver : public BGraphicsDriverBase
-		{
 
-		public:
+	public:
 
-			BWindowsGraphicsDriver();
-			~BWindowsGraphicsDriver();
+		BWindowsGraphicsDriver();
+		~BWindowsGraphicsDriver();
 
-			void Render();
-			virtual void Delay(unsigned int ms);
+		void Render() override;
+		void Delay(unsigned int ms) override;
+		virtual std::weak_ptr<BCanvas> CreateCanvas(unsigned short width, unsigned short height) override;
 
-		};
-	}
+	};
 }
 
 

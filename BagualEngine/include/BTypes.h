@@ -2,11 +2,72 @@
 
 #include <cmath>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 //using namespace std;
 
 namespace Bagual::Types
 {
+	template <typename T>
+	class BArray
+	{
+		std::vector<T> stdContainer;
+
+	public:
+
+		void ZeroAll()
+		{
+			std::fill(stdContainer.begin(), stdContainer.end(), T(0));
+		}
+
+		void Reserve(size_t size)
+		{
+			stdContainer.reserve(size);
+		}
+
+		void Resize(size_t size)
+		{
+			stdContainer.resize(size);
+		}
+		
+		T& operator[](size_t index)
+		{
+			return stdContainer[index];
+		}
+
+		size_t Size()
+		{
+			return stdContainer.size();
+		}
+
+		void Add(const T& item)
+		{
+			stdContainer.push_back(item);
+		}
+
+		void Add(const BArray<T>& list)
+		{
+			stdContainer.insert(stdContainer.end(), list.begin(), list.end());
+		}
+
+		void Remove(const T& item)
+		{
+			auto result = std::remove(stdContainer.begin(), stdContainer.end(), item);
+		}
+
+		void MoveAdd(const BArray<T>& list)
+		{
+			stdContainer.splice(stdContainer.end(), list);
+		}
+
+		void Clear()
+		{
+			stdContainer.clear();
+		}
+
+	};
+
 	class BString : std::string
 	{
 
@@ -101,7 +162,7 @@ namespace Bagual::Types
 
 	};
 
-	typedef BVector2<int> BPixel;
+	typedef BVector2<int> BPixelPos;
 
 	template <typename T>
 	class BBox : public BLine<T>

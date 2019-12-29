@@ -13,7 +13,7 @@ namespace Bagual
 			int width;
 			int height;
 
-			BLine<BPixel> screenEdges[4];
+			BLine<BPixelPos> screenEdges[4];
 
 			SDL_Surface *surface = nullptr;
 
@@ -27,13 +27,13 @@ namespace Bagual
 			int GetHeight() const { return height; }
 			int* GetScreen() const { return screen; }
 
-			const BLine<BPixel>& GetScreenEdge(int i) const { return screenEdges[i]; }
+			const BLine<BPixelPos>& GetScreenEdge(int i) const { return screenEdges[i]; }
 
 			SDL_Surface* GetSurface() const { return surface; }
 
 			void SetWidth(int width) { this->width = width; }
 			void SetHeight(int height) { this->height = height; }
-			void SetScreenEdges(BLine<BPixel> *edges)
+			void SetScreenEdges(BLine<BPixelPos> *edges)
 			{
 				screenEdges[0] = edges[0];
 				screenEdges[1] = edges[1];

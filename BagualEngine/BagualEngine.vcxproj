@@ -21,26 +21,33 @@
   <ItemGroup>
     <ClCompile Include="src\BCamera.cpp" />
     <ClCompile Include="src\BCameraManager.cpp" />
+    <ClCompile Include="src\BCanvas.cpp" />
     <ClCompile Include="src\BDraw.cpp" />
     <ClCompile Include="src\BEngine.cpp" />
+    <ClCompile Include="src\BEngineTests.cpp" />
     <ClCompile Include="src\BGraphicsDriverBase.cpp" />
     <ClCompile Include="src\BGraphicsPlatform.cpp" />
     <ClCompile Include="src\BLogger.cpp" />
+    <ClCompile Include="src\BModule.cpp" />
     <ClCompile Include="src\BSettings.cpp" />
     <ClCompile Include="src\BWindowsGraphicsDriver.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BBuffer.h" />
     <ClInclude Include="include\BCamera.h" />
     <ClInclude Include="include\BCameraManager.h" />
     <ClInclude Include="include\BCameraSettings.h" />
+    <ClInclude Include="include\BCanvas.h" />
     <ClInclude Include="include\BDraw.h" />
     <ClInclude Include="include\BEngine.h" />
+    <ClInclude Include="include\BEngineTests.h" />
     <ClInclude Include="include\BGraphicsDriverBase.h" />
     <ClInclude Include="include\BGraphicsPlatform.h" />
     <ClInclude Include="include\BIGraphicsDriver.h" />
     <ClInclude Include="include\BLogger.h" />
     <ClInclude Include="include\BMath.h" />
+    <ClInclude Include="include\BModule.h" />
     <ClInclude Include="include\BWindowsGraphicsDriver.h" />
     <ClInclude Include="include\BSettings.h" />
     <ClInclude Include="include\BTypes.h" />
@@ -130,6 +137,10 @@
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -144,7 +155,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,6 +170,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

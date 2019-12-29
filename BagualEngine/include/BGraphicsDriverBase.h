@@ -2,7 +2,7 @@
 
 #include "BIGraphicsDriver.h"
 
-namespace Bagual::GraphicsDriver
+namespace Bagual::Graphics
 {
 	class BGraphicsDriverBase : public BIGraphicsDriver
 	{

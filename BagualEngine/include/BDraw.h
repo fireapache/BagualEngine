@@ -5,9 +5,9 @@
 
 namespace Bagual::Draw
 {
-	bool IsLineOnScreen(Bagual::Camera::BCameraSettings &camera, BLine<BPixel> &line);
+	bool IsLineOnScreen(Bagual::Camera::BCameraSettings &cameraSettings, BLine<BPixelPos> &line);
 
-	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BLine<BPixel> &line);
+	void DrawLine(Bagual::Camera::BCameraSettings &cameraSettings, const BLine<BPixelPos> &line);
 
-	void DrawLine(Bagual::Camera::BCameraSettings &camera, const BPixel &p1, const BPixel &p2);
+	void DrawLine(Bagual::Camera::BCameraSettings &cameraSettings, const BPixelPos &p1, const BPixelPos &p2);
 }

@@ -1,27 +1,25 @@
 #include "BCameraManager.h"
 
-namespace Bagual
+namespace Bagual::Camera
 {
-	namespace Camera
+	std::shared_ptr<BCamera> BCameraManager::Create()
 	{
-		void BCameraManager::AddCamera(BCamera *camera)
-		{
-			if (find(cameras.begin(), cameras.end(), camera) == cameras.end())
-			{
-				cameras.push_back(camera);
-				camera->SetupScreen();
-			}
-		}
-
-		void BCameraManager::RemoveCamera(BCamera *camera)
-		{
-			std::vector<BCamera*>::iterator it;
-			it = std::find(cameras.begin(), cameras.end(), camera);
-			if (it != cameras.end()) cameras.erase(it);
-		}
-
-		std::vector<BCamera*> BCameraManager::cameras = {};
-
+		auto camera = std::make_shared<BCamera>();
+		cameras.Add(camera);
+		return camera;
 	}
+
+	void BCameraManager::RemoveCamera(std::shared_ptr<BCamera> camera)
+	{
+		cameras.Remove(camera);
+	}
+
+	BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = {};
+
+	Bagual::Types::BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
+	{
+		return cameras;
+	}
+
 }
 

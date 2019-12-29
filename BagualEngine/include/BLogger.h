@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Bagual::Log
+namespace Bagual::Utils
 {
 	class BLogger
 	{

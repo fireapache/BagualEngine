@@ -6,22 +6,23 @@
 #include "BSettings.h"
 #include "BCameraSettings.h"
 #include "BDraw.h"
+#include "BGraphicsPlatform.h"
 
-namespace Bagual
+namespace Bagual::Camera
 {
-	namespace Camera
+	class BCamera
 	{
-		class BCamera
-		{
-			BCameraSettings settings;
+		BCameraSettings settings;
 
-		public:
+		std::weak_ptr<Bagual::Graphics::BCanvas> canvas;
 
-			void DrawScreen();
+	public:
 
-			void SetupScreen();
+		BCamera();
 
-		};
+		void DrawScreen();
 
-	}
+		void SetupScreen();
+
+	};
 }
