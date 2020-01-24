@@ -10,6 +10,17 @@ namespace Bagual
 	class BagualEngine
 	{
 
+#pragma region Private Types
+		enum class EBEngineState
+		{
+			None,
+			Initializing,
+			Ticking,
+			Paused,
+			Quitting
+		};
+#pragma endregion
+
 #pragma region std::unique_ptr "permissions"
 		friend std::unique_ptr<BagualEngine> std::make_unique<BagualEngine>();
 		friend std::unique_ptr<Bagual::Graphics::BGraphicsPlatform> std::make_unique<Bagual::Graphics::BGraphicsPlatform>();
@@ -20,8 +31,7 @@ namespace Bagual
 		std::unique_ptr<Bagual::Graphics::BGraphicsPlatform> graphicsPlatform;
 		std::unique_ptr<Bagual::Types::BArray< std::shared_ptr<Bagual::Modules::BIModule>>> modules;
 
-		bool toQuit;
-		bool pause;
+		EBEngineState engineState;
 
 		void Init();
 		void LoadData();

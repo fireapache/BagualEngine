@@ -14,8 +14,7 @@ namespace Bagual
 	void BagualEngine::Init()
 	{
 		graphicsPlatform = std::make_unique<Bagual::Graphics::BGraphicsPlatform>();
-		toQuit = false;
-		pause = false;
+		engineState = EBEngineState::Initializing;
 		modules = std::make_unique<Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>>();
 	}
 
@@ -54,10 +53,10 @@ namespace Bagual
 				switch (ev.key.keysym.sym)
 				{
 				case 'q':
-					toQuit = true;
+					engineState = EBEngineState::Quitting;
 					break;
 				case 'p':
-					pause = !pause;
+					engineState = engineState == EBEngineState::Paused ? EBEngineState::Ticking : EBEngineState::Paused;
 				default: break;
 				}
 			}
@@ -66,19 +65,18 @@ namespace Bagual
 
 	void BagualEngine::MainLoop()
 	{
-		while (!toQuit)
+		while (engineState != EBEngineState::Quitting)
 		{
 			ProcessInput();
 			ModulesLoop();
 
-			if (!pause)
+			if (engineState != EBEngineState::Paused)
 			{
 				if (graphicsPlatform)
 				{
 					graphicsPlatform->Render();
 				}
 				
-				//pause = true;
 			}
 			
 			graphicsPlatform->Delay(1);
@@ -93,7 +91,7 @@ namespace Bagual
 		}
 	}
 
-	BagualEngine::BagualEngine() : toQuit(false), pause(false)
+	BagualEngine::BagualEngine() : engineState(EBEngineState::None)
 	{
 		BagualSettings::width = 320;
 		BagualSettings::height = 240;
