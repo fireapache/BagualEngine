@@ -1,18 +1,18 @@
 #pragma once
 
-#include "BIGraphicsDriver.h"
+#include "BGraphicsDriverInterface.h"
 #include "BCanvas.h"
 #include "BTypes.h"
 #include <memory>
 
 namespace Bagual::Graphics
 {
-	class BGraphicsPlatform : Bagual::Graphics::BIGraphicsDriver
+	class BGraphicsPlatform : public BGraphicsDriverInterface
 	{
-		friend std::unique_ptr<BIGraphicsDriver> std::make_unique<BIGraphicsDriver>();
+		friend std::unique_ptr<BGraphicsDriverInterface> std::make_unique<BGraphicsDriverInterface>();
 		friend std::unique_ptr<Bagual::Types::BArray<std::shared_ptr<BCanvas>>> std::make_unique<Bagual::Types::BArray<std::shared_ptr<BCanvas>>>();
 
-		std::unique_ptr<BIGraphicsDriver> driverInstance;
+		std::unique_ptr<BGraphicsDriverInterface> driverInstance;
 
 		std::unique_ptr<Bagual::Types::BArray<std::shared_ptr<BCanvas>>> canvases;
 

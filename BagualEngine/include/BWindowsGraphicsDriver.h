@@ -1,10 +1,9 @@
 #pragma once
 
-#include "BIGraphicsDriver.h"
+#include "BGraphicsDriverInterface.h"
 #include "BGraphicsDriverBase.h"
 
 #include <vector>
-#include <SDL.h>
 
 #include "BTypes.h"
 #include "BCameraManager.h"

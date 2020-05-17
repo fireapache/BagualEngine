@@ -1,6 +1,5 @@
 
 #include "BDraw.h"
-//#include "iostream"
 
 using namespace Bagual::Math;
 

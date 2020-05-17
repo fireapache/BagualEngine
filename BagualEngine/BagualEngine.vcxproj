@@ -25,15 +25,19 @@
     <ClCompile Include="src\BDraw.cpp" />
     <ClCompile Include="src\BEngine.cpp" />
     <ClCompile Include="src\BEngineTests.cpp" />
+    <ClCompile Include="src\BGenericPlatform.cpp" />
+    <ClCompile Include="src\BGenericPlatformWindow.cpp" />
     <ClCompile Include="src\BGraphicsDriverBase.cpp" />
     <ClCompile Include="src\BGraphicsPlatform.cpp" />
     <ClCompile Include="src\BLogger.cpp" />
     <ClCompile Include="src\BModule.cpp" />
+    <ClCompile Include="src\BPlatformWindowBase.cpp" />
     <ClCompile Include="src\BSettings.cpp" />
     <ClCompile Include="src\BWindowsGraphicsDriver.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BAssertions.h" />
     <ClInclude Include="include\BBuffer.h" />
     <ClInclude Include="include\BCamera.h" />
     <ClInclude Include="include\BCameraManager.h" />
@@ -42,15 +46,25 @@
     <ClInclude Include="include\BDraw.h" />
     <ClInclude Include="include\BEngine.h" />
     <ClInclude Include="include\BEngineTests.h" />
+    <ClInclude Include="include\BGenericPlatform.h" />
+    <ClInclude Include="include\BGenericPlatformWindow.h" />
     <ClInclude Include="include\BGraphicsDriverBase.h" />
     <ClInclude Include="include\BGraphicsPlatform.h" />
-    <ClInclude Include="include\BIGraphicsDriver.h" />
+    <ClInclude Include="include\BPlatformBase.h" />
+    <ClInclude Include="include\BPlatformInterface.h" />
+    <ClInclude Include="include\BGraphicsDriverInterface.h" />
     <ClInclude Include="include\BLogger.h" />
     <ClInclude Include="include\BMath.h" />
     <ClInclude Include="include\BModule.h" />
+    <ClInclude Include="include\BPlatformDataTypes.h" />
+    <ClInclude Include="include\BPlatformWindowBase.h" />
+    <ClInclude Include="include\BPlatformWindowInterface.h" />
+    <ClInclude Include="include\BSingleton.h" />
     <ClInclude Include="include\BWindowsGraphicsDriver.h" />
     <ClInclude Include="include\BSettings.h" />
     <ClInclude Include="include\BTypes.h" />
+    <ClInclude Include="include\BWindowsPlatform.h" />
+    <ClInclude Include="include\BWindowsPlatformWindow.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8A71C801-7233-4D2B-B295-D7C4DBC46640}</ProjectGuid>

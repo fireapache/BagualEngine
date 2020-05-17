@@ -3,6 +3,8 @@
 #include "BCamera.h"
 #include "BCameraManager.h"
 
+#include <SDL.h>
+
 namespace Bagual::Graphics
 {
 	

@@ -3,6 +3,8 @@
 #include "BCamera.h"
 #include "BLogger.h"
 
+#include <SDL.h>
+
 namespace Bagual::Camera
 {
 

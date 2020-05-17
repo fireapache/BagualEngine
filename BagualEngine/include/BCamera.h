@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL.h>
-
 #include "BTypes.h"
 #include "BSettings.h"
 #include "BCameraSettings.h"

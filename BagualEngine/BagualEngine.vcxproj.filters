@@ -58,6 +58,24 @@
     <Filter Include="Source Files\Modules">
       <UniqueIdentifier>{cd288a6c-96a6-4a20-84fa-481da194af8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Platform">
+      <UniqueIdentifier>{7169f619-e54b-49f3-995b-4ab9631856d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platform\Generic">
+      <UniqueIdentifier>{d8d99fe2-84a8-4cd1-a914-e1661a54bd1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platform\Windows">
+      <UniqueIdentifier>{f9bf3876-5d1c-49bf-bfa8-729a0a1d535b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platform\Interfaces">
+      <UniqueIdentifier>{483e143c-3b9c-400c-acdd-4bb627ae7580}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platform">
+      <UniqueIdentifier>{c2822026-04f3-42fb-a26b-18268b5cee97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platform\Generic">
+      <UniqueIdentifier>{aec983de-1efb-43f1-8f95-1c2c41e95488}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BEngine.cpp">
@@ -99,6 +117,15 @@
     <ClCompile Include="src\BCanvas.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\BGenericPlatform.cpp">
+      <Filter>Source Files\Platform\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BGenericPlatformWindow.cpp">
+      <Filter>Source Files\Platform\Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BPlatformWindowBase.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BEngine.h">
@@ -125,9 +152,6 @@
     <ClInclude Include="include\BWindowsGraphicsDriver.h">
       <Filter>Header Files\Graphics\Drivers</Filter>
     </ClInclude>
-    <ClInclude Include="include\BIGraphicsDriver.h">
-      <Filter>Header Files\Graphics\Drivers</Filter>
-    </ClInclude>
     <ClInclude Include="include\BGraphicsPlatform.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
@@ -150,6 +174,42 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\BBuffer.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BSingleton.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BPlatformDataTypes.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGenericPlatform.h">
+      <Filter>Header Files\Platform\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGenericPlatformWindow.h">
+      <Filter>Header Files\Platform\Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BWindowsPlatform.h">
+      <Filter>Header Files\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BPlatformWindowBase.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BWindowsPlatformWindow.h">
+      <Filter>Header Files\Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BPlatformWindowInterface.h">
+      <Filter>Header Files\Platform\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BPlatformInterface.h">
+      <Filter>Header Files\Platform\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BPlatformBase.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGraphicsDriverInterface.h">
+      <Filter>Header Files\Graphics\Drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BAssertions.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>

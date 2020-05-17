@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BIGraphicsDriver.h"
+#include "BGraphicsDriverInterface.h"
 
 namespace Bagual::Graphics
 {
-	class BGraphicsDriverBase : public BIGraphicsDriver
+	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
 
 	public:

@@ -5,7 +5,7 @@
 
 namespace Bagual::Graphics
 {
-	class BIGraphicsDriver
+	class BGraphicsDriverInterface
 	{
 
 	public:
