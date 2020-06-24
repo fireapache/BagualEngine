@@ -7,12 +7,20 @@
 namespace Bagual::Graphics
 {
 
-	void BGraphicsDriverBase::Render()
+	void BGraphicsDriverBase::RenderFrame()
 	{
-		/*for (Bagual::Camera::BCamera* camera : Bagual::Camera::BCameraManager::GetCameras())
+		auto cameras = Bagual::Camera::BCameraManager::GetCameras();
+
+		for (auto& camera : cameras)
 		{
-			camera->DrawScreen();
-		}*/
+			RenderCamera(camera);
+		}
 	}
+
+	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<Bagual::Camera::BCamera> camera)
+	{
+
+	}
+	
 
 }

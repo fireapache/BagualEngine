@@ -6,6 +6,7 @@
 #include "BModule.h"
 #include "BTypes.h"
 
+#include <SDL.h>
 
 namespace Bagual
 {
@@ -74,7 +75,7 @@ namespace Bagual
 			{
 				if (graphicsPlatform)
 				{
-					graphicsPlatform->Render();
+					graphicsPlatform->RenderFrame();
 				}
 				
 			}
@@ -93,8 +94,8 @@ namespace Bagual
 
 	BagualEngine::BagualEngine() : engineState(EBEngineState::None)
 	{
-		BagualSettings::width = 320;
-		BagualSettings::height = 240;
+		Settings::width = 320;
+		Settings::height = 240;
 	}
 
 	Bagual::BagualEngine& BagualEngine::Instance()

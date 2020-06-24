@@ -6,8 +6,8 @@ namespace Bagual::Platform
 {
 	struct FWindowSettings
 	{
-		unsigned int width;
-		unsigned int height;
-		std::string name;
+		unsigned int width = 320;
+		unsigned int height = 240;
+		std::string name = "Bagual Engine Window";
 	};
 }

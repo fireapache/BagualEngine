@@ -1,18 +1,26 @@
 #pragma once
 
-#include <SDL.h>
+#include "BTypes.h"
 
 namespace Bagual
 {
 
-	class BagualSettings
+	class Settings
 	{
 
 	public:
 
+		// Size of viewport
 		static int width;
 		static int height;
-		static SDL_Window *window;
+
+		// Pointer to the main engine window object
+		static void *window;
+
+		// Screen edges information 
+		static Bagual::Types::BLine<Bagual::Types::BPixelPos> screenEdges[4];
+		static void* surface;
+		static void* pixels;
 
 	};
 

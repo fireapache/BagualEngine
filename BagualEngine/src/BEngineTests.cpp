@@ -12,7 +12,7 @@ namespace Bagual::Tests
 
 		if (camera)
 		{
-			camera->SetupScreen();
+			
 		}
 	}
 
@@ -20,7 +20,15 @@ namespace Bagual::Tests
 	{
 		if (camera)
 		{
-			camera->DrawScreen();
+			int x1 = rand() % (Settings::width + 500) - 250;
+			int y1 = rand() % (Settings::height + 500) - 250;
+			int x2 = rand() % (Settings::width + 500) - 250;
+			int y2 = rand() % (Settings::height + 500) - 250;
+
+			Bagual::Types::BPixelPos p1(x1, y1);
+			Bagual::Types::BPixelPos p2(x2, y2);
+
+			camera->AddLine2DBuffer(Bagual::Types::BLine<Bagual::Types::BPixelPos>(p1, p2));
 		}
 	}
 

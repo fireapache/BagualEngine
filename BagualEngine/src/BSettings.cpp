@@ -2,7 +2,10 @@
 
 namespace Bagual
 {
-	int BagualSettings::width = 320;
-	int BagualSettings::height = 240;
-	SDL_Window* BagualSettings::window = nullptr;
+	int Settings::width = 320;
+	int Settings::height = 240;
+	void* Settings::window = nullptr;
+	void* Settings::surface = nullptr;
+	void* Settings::pixels = nullptr;
+	Bagual::Types::BLine<Bagual::Types::BPixelPos> Settings::screenEdges[4];
 }

@@ -2,6 +2,8 @@
 
 #include "BGraphicsDriverInterface.h"
 
+class BCamera;
+
 namespace Bagual::Graphics
 {
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
@@ -9,7 +11,8 @@ namespace Bagual::Graphics
 
 	public:
 
-		virtual void Render();
+		virtual void RenderFrame();
+		virtual void RenderCamera(std::shared_ptr<Bagual::Camera::BCamera> camera);
 
 	};
 }

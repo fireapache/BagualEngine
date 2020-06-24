@@ -11,7 +11,7 @@ namespace Bagual
 		class BCameraManager
 		{
 
-			static BArray < std::shared_ptr<BCamera> > cameras;
+			static Bagual::Types::BArray < std::shared_ptr<BCamera> > cameras;
 
 		public:
 
@@ -19,7 +19,7 @@ namespace Bagual
 
 			static void RemoveCamera(std::shared_ptr<BCamera> camera);
 
-			static BArray<std::shared_ptr<BCamera>>& GetCameras();
+			static Bagual::Types::BArray<std::shared_ptr<BCamera>>& GetCameras();
 
 		};
 	}

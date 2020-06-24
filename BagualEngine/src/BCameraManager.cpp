@@ -14,7 +14,7 @@ namespace Bagual::Camera
 		cameras.Remove(camera);
 	}
 
-	BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = {};
+	Bagual::Types::BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = {};
 
 	Bagual::Types::BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
 	{

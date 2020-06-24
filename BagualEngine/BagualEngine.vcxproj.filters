@@ -99,9 +99,6 @@
     <ClCompile Include="src\BGraphicsPlatform.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\BWindowsGraphicsDriver.cpp">
-      <Filter>Source Files\Graphics\Drivers</Filter>
-    </ClCompile>
     <ClCompile Include="src\BLogger.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
@@ -126,6 +123,12 @@
     <ClCompile Include="src\BPlatformWindowBase.cpp">
       <Filter>Source Files\Platform</Filter>
     </ClCompile>
+    <ClCompile Include="src\BGenericGraphicsDriver.cpp">
+      <Filter>Source Files\Graphics\Drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BViewport.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BEngine.h">
@@ -140,17 +143,11 @@
     <ClInclude Include="include\BCameraManager.h">
       <Filter>Header Files\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="include\BCameraSettings.h">
-      <Filter>Header Files\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="include\BDraw.h">
       <Filter>Header Files\Draw</Filter>
     </ClInclude>
     <ClInclude Include="include\BMath.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BWindowsGraphicsDriver.h">
-      <Filter>Header Files\Graphics\Drivers</Filter>
     </ClInclude>
     <ClInclude Include="include\BGraphicsPlatform.h">
       <Filter>Header Files\Graphics</Filter>
@@ -172,9 +169,6 @@
     </ClInclude>
     <ClInclude Include="include\BCanvas.h">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BBuffer.h">
-      <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="include\BSingleton.h">
       <Filter>Header Files\Utils</Filter>
@@ -211,6 +205,12 @@
     </ClInclude>
     <ClInclude Include="include\BAssertions.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BGenericGraphicsDriver.h">
+      <Filter>Header Files\Graphics\Drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BViewport.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

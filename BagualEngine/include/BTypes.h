@@ -66,6 +66,41 @@ namespace Bagual::Types
 			stdContainer.clear();
 		}
 
+#pragma region Standard C++ for each loop support
+
+		typedef T* iterator;
+		typedef const T* const_iterator;
+
+		iterator begin()
+		{
+			return &stdContainer[0];
+		}
+
+		const_iterator begin() const
+		{
+			return &stdContainer[0];
+		}
+
+		iterator end()
+		{
+			return &stdContainer[stdContainer.size() - 1];
+		}
+
+		const_iterator end() const
+		{
+			return &stdContainer[stdContainer.size() - 1];
+		}
+
+#pragma endregion
+
+	};
+
+	enum class BEBoxEdges
+	{
+		Top = 0,
+		Bottom,
+		Left,
+		Right
 	};
 
 	class BString : std::string
@@ -190,6 +225,19 @@ namespace Bagual::Types
 			else if (v.y < p1.y || v.y > p2.y) result = false;
 
 			return result;
+		}
+
+	};
+
+	template<typename T>
+	class BBuffer : public Bagual::Types::BArray<T>
+	{
+
+	public:
+
+		BBuffer(size_t length = 0)
+		{
+			Reserve(length);
 		}
 
 	};

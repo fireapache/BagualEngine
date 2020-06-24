@@ -2,25 +2,26 @@
 
 #include "BTypes.h"
 #include "BSettings.h"
-#include "BCameraSettings.h"
-#include "BDraw.h"
 #include "BGraphicsPlatform.h"
+#include "BTypes.h"
 
 namespace Bagual::Camera
 {
 	class BCamera
 	{
-		BCameraSettings settings;
+		std::shared_ptr<Bagual::Graphics::BCanvas> canvas;
 
-		std::weak_ptr<Bagual::Graphics::BCanvas> canvas;
+		Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>> Line2DBuffer;
 
 	public:
 
 		BCamera();
 
-		void DrawScreen();
+		// Line to be render on top of everything during camera render loop in the Renderer
+		void AddLine2DBuffer(const Bagual::Types::BLine<Bagual::Types::BPixelPos>& line);
 
-		void SetupScreen();
+		Bagual::Graphics::BCanvas& GetCanvas();
+
 
 	};
 }

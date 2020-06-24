@@ -33,15 +33,14 @@
     <ClCompile Include="src\BModule.cpp" />
     <ClCompile Include="src\BPlatformWindowBase.cpp" />
     <ClCompile Include="src\BSettings.cpp" />
-    <ClCompile Include="src\BWindowsGraphicsDriver.cpp" />
+    <ClCompile Include="src\BGenericGraphicsDriver.cpp" />
+    <ClCompile Include="src\BViewport.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BAssertions.h" />
-    <ClInclude Include="include\BBuffer.h" />
     <ClInclude Include="include\BCamera.h" />
     <ClInclude Include="include\BCameraManager.h" />
-    <ClInclude Include="include\BCameraSettings.h" />
     <ClInclude Include="include\BCanvas.h" />
     <ClInclude Include="include\BDraw.h" />
     <ClInclude Include="include\BEngine.h" />
@@ -60,9 +59,10 @@
     <ClInclude Include="include\BPlatformWindowBase.h" />
     <ClInclude Include="include\BPlatformWindowInterface.h" />
     <ClInclude Include="include\BSingleton.h" />
-    <ClInclude Include="include\BWindowsGraphicsDriver.h" />
+    <ClInclude Include="include\BGenericGraphicsDriver.h" />
     <ClInclude Include="include\BSettings.h" />
     <ClInclude Include="include\BTypes.h" />
+    <ClInclude Include="include\BViewport.h" />
     <ClInclude Include="include\BWindowsPlatform.h" />
     <ClInclude Include="include\BWindowsPlatformWindow.h" />
   </ItemGroup>
