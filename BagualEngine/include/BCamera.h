@@ -22,6 +22,8 @@ namespace Bagual::Camera
 
 		Bagual::Graphics::BCanvas& GetCanvas();
 
+		Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>>& GetLine2DBuffer();
 
+		void ClearLine2DBuffer();
 	};
 }

@@ -24,9 +24,9 @@ namespace Bagual::Graphics
 		Bagual::Types::BLine<Bagual::Types::BPixelPos>* GetEdges();
 		Bagual::Types::BLine<Bagual::Types::BPixelPos>& GetEdge(Bagual::Types::BEBoxEdges edge);
 
-		Bagual::Types::BBuffer<unsigned int>* GetBuffer()
+		Bagual::Types::BBuffer<unsigned int>& GetBuffer()
 		{
-			return buffer.get();
+			return *buffer.get();
 		}
 
 	};

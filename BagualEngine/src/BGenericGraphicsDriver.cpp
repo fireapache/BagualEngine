@@ -3,6 +3,7 @@
 #include "BCamera.h"
 #include "BCameraManager.h"
 #include "BSettings.h"
+#include "BDraw.h"
 
 #include <SDL.h>
 
@@ -62,9 +63,19 @@ namespace Bagual::Graphics
 		
 		auto cameras = Bagual::Camera::BCameraManager::GetCameras();
 
+		// Rendering queued 2D lines
 		for (auto camera : cameras)
 		{
+			if (!camera) continue;
 
+			auto lines = camera->GetLine2DBuffer();
+
+			for (auto& line : lines)
+			{
+				Bagual::Draw::DrawLine(*camera.get(), line);
+			}
+
+			camera->ClearLine2DBuffer();
 		}
 
 		SDL_UnlockSurface(surface);

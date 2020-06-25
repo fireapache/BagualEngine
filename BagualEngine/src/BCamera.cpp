@@ -32,4 +32,14 @@ namespace Bagual::Camera
 		return *canvas;
 	}
 
+	Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>>& BCamera::GetLine2DBuffer()
+	{
+		return Line2DBuffer;
+	}
+
+	void BCamera::ClearLine2DBuffer()
+	{
+		Line2DBuffer.Clear();
+	}
+
 }

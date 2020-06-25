@@ -24,17 +24,17 @@ namespace Bagual::Platform
 
 	void BPlatformWindowBase::ApplyWindowSettings()
 	{
-		NEED_IMPLEMENTATION
+		BGL_NEED_IMPLEMENTATION
 	}
 
 	void BPlatformWindowBase::InitializeWindow()
 	{
-		NEED_IMPLEMENTATION
+		BGL_NEED_IMPLEMENTATION
 	}
 
 	void BPlatformWindowBase::FinalizeWindow()
 	{
-		NEED_IMPLEMENTATION
+		BGL_NEED_IMPLEMENTATION
 	}
 
 }

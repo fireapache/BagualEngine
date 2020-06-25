@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cassert>
+#include "BLogger.h"
+#include "BAssertions.h"
 
 //using namespace std;
 
@@ -33,6 +36,13 @@ namespace Bagual::Types
 		
 		T& operator[](size_t index)
 		{
+			assert(index < Size());
+			return stdContainer[index];
+		}
+
+		const T& operator[](size_t index) const
+		{
+			assert(index < Size());
 			return stdContainer[index];
 		}
 
@@ -68,27 +78,64 @@ namespace Bagual::Types
 
 #pragma region Standard C++ for each loop support
 
-		typedef T* iterator;
-		typedef const T* const_iterator;
+		class iterator
+		{
+		public:
+			typedef iterator self_type;
+			typedef T value_type;
+			typedef T& reference;
+			typedef T* pointer;
+			typedef std::forward_iterator_tag iterator_category;
+			typedef int difference_type;
+			iterator(pointer ptr) : ptr_(ptr) { }
+			self_type operator++() { self_type i = *this; ptr_++; return i; }
+			self_type operator++(int junk) { ptr_++; return *this; }
+			reference operator*() { return *ptr_; }
+			pointer operator->() { return ptr_; }
+			bool operator==(const self_type& rhs) { return ptr_ == rhs.ptr_; }
+			bool operator!=(const self_type& rhs) { return ptr_ != rhs.ptr_; }
+		private:
+			pointer ptr_;
+		};
+
+		class const_iterator
+		{
+		public:
+			typedef const_iterator self_type;
+			typedef T value_type;
+			typedef T& reference;
+			typedef T* pointer;
+			typedef int difference_type;
+			typedef std::forward_iterator_tag iterator_category;
+			const_iterator(pointer ptr) : ptr_(ptr) { }
+			self_type operator++() { self_type i = *this; ptr_++; return i; }
+			self_type operator++(int junk) { ptr_++; return *this; }
+			const reference operator*() { return *ptr_; }
+			const pointer operator->() { return ptr_; }
+			bool operator==(const self_type& rhs) { return ptr_ == rhs.ptr_; }
+			bool operator!=(const self_type& rhs) { return ptr_ != rhs.ptr_; }
+		private:
+			pointer ptr_;
+		};
 
 		iterator begin()
 		{
-			return &stdContainer[0];
+			return iterator(&stdContainer[0]);
 		}
 
 		const_iterator begin() const
 		{
-			return &stdContainer[0];
+			return const_iterator(&stdContainer[0]);
 		}
 
 		iterator end()
 		{
-			return &stdContainer[stdContainer.size() - 1];
+			return iterator(&stdContainer[0] + Size());
 		}
 
 		const_iterator end() const
 		{
-			return &stdContainer[stdContainer.size() - 1];
+			return const_iterator(&stdContainer[0] + Size());
 		}
 
 #pragma endregion
@@ -230,14 +277,45 @@ namespace Bagual::Types
 	};
 
 	template<typename T>
-	class BBuffer : public Bagual::Types::BArray<T>
+	class BBuffer
 	{
+
+		T* _data;
+
+		size_t _length;
 
 	public:
 
 		BBuffer(size_t length = 0)
 		{
-			Reserve(length);
+			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+
+			_data = new T[length];
+		}
+
+		BBuffer(T* data, size_t length)
+		{
+			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+
+			_data = data;
+			_length = length;
+		}
+
+		T& operator[](size_t index)
+		{
+			BGL_ASSERT(index < Length() && "Out of range!");
+			return _data[index];
+		}
+
+		const T& operator[](size_t index) const
+		{
+			BGL_ASSERT(index < Length() && "Out of range!");
+			return _data[index];
+		}
+
+		size_t Length()
+		{
+			return _length;
 		}
 
 	};

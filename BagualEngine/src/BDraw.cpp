@@ -69,7 +69,7 @@ namespace Bagual::Draw
 	void DrawLineLow(Bagual::Camera::BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
-		const int width = camera.GetCanvas().GetWidth();
+		const unsigned short width = camera.GetCanvas().GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
 		int yi = 1;
