@@ -1,15 +1,13 @@
 
 #include "GraphicsDriverBase.h"
 
-#include "Camera.h"
 #include "CameraManager.h"
 
 namespace bgl
 {
-
 	void BGraphicsDriverBase::RenderFrame()
 	{
-		auto cameras = bgl::BCameraManager::GetCameras();
+		auto cameras = BCameraManager::GetCameras();
 
 		for (auto& camera : cameras)
 		{
@@ -17,10 +15,8 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<bgl::BCamera> camera)
+	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<BCamera> camera)
 	{
 
 	}
-	
-
 }

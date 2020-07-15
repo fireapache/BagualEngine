@@ -5,6 +5,8 @@
 #include "EngineTests.h"
 #include "Module.h"
 #include "Types.h"
+#include "Settings.h"
+#include "GraphicsPlatform.h"
 
 #include <SDL.h>
 
@@ -14,9 +16,9 @@ namespace bgl
 
 	void Engine::Init()
 	{
-		graphicsPlatform = std::make_unique<bgl::BGraphicsPlatform>();
+		graphicsPlatform = std::make_unique<BGraphicsPlatform>();
 		engineState = EBEngineState::Initializing;
-		modules = std::make_unique<bgl::BArray<std::shared_ptr<bgl::BIModule>>>();
+		modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
 	}
 
 	void Engine::LoadData()
@@ -30,10 +32,10 @@ namespace bgl
 		if (modules)
 		{
 			//Testing
-			modules->Add(std::make_shared<bgl::BEngineTest_DrawRandomLines>());
+			modules->Add(std::make_shared<BEngineTest_DrawRandomLines>());
 
-			bgl::BArray<std::shared_ptr<bgl::BIModule>>* moduleArray = modules.get();
-			std::shared_ptr<bgl::BIModule> mod = (*moduleArray)[0];
+			BArray<std::shared_ptr<BIModule>>* moduleArray = modules.get();
+			std::shared_ptr<BIModule> mod = (*moduleArray)[0];
 			mod->Init();
 		}
 	}
@@ -98,7 +100,7 @@ namespace bgl
 		Settings::height = 240;
 	}
 
-	bgl::Engine& Engine::Instance()
+	Engine& Engine::Instance()
 	{
 		if (!instance) instance = std::make_unique<Engine>();
 		return *instance.get();
@@ -113,7 +115,7 @@ namespace bgl
 		Term();
 	}
 
-	bgl::BGraphicsPlatform* Engine::GraphicsPlatform()
+	BGraphicsPlatform* Engine::GraphicsPlatform()
 	{
 		return Instance().graphicsPlatform.get();
 	}

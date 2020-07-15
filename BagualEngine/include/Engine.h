@@ -1,9 +1,14 @@
 #pragma once
 
 #include <memory>
-#include "GraphicsPlatform.h"
-#include "Module.h"
+
 #include "Types.h"
+
+namespace bgl
+{
+	class BGraphicsPlatform;
+	class BIModule;
+}
 
 namespace bgl
 {
@@ -23,13 +28,13 @@ namespace bgl
 
 #pragma region std::unique_ptr "permissions"
 		friend std::unique_ptr<Engine> std::make_unique<Engine>();
-		friend std::unique_ptr<bgl::BGraphicsPlatform> std::make_unique<bgl::BGraphicsPlatform>();
-		friend std::unique_ptr<bgl::BArray<std::shared_ptr<bgl::BIModule>>> std::make_unique<bgl::BArray<std::shared_ptr<bgl::BIModule>>>();
+		friend std::unique_ptr<BGraphicsPlatform> std::make_unique<BGraphicsPlatform>();
+		friend std::unique_ptr<BArray<std::shared_ptr<BIModule>>> std::make_unique<BArray<std::shared_ptr<BIModule>>>();
 #pragma endregion
 
 		static std::unique_ptr<Engine> instance;
-		std::unique_ptr<bgl::BGraphicsPlatform> graphicsPlatform;
-		std::unique_ptr<bgl::BArray< std::shared_ptr<bgl::BIModule>>> modules;
+		std::unique_ptr<BGraphicsPlatform> graphicsPlatform;
+		std::unique_ptr<BArray< std::shared_ptr<BIModule>>> modules;
 
 		EBEngineState engineState;
 
@@ -52,7 +57,7 @@ namespace bgl
 
 		void Peleia();
 
-		static bgl::BGraphicsPlatform* GraphicsPlatform();
+		static BGraphicsPlatform* GraphicsPlatform();
 
 	};
 

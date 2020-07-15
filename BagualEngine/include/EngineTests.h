@@ -6,7 +6,7 @@
 
 namespace bgl
 {
-	class BEngineTestBase : public bgl::BModuleBase
+	class BEngineTestBase : public BModuleBase
 	{
 		
 	public:
@@ -16,7 +16,7 @@ namespace bgl
 	class BEngineTest_DrawRandomLines : public BEngineTestBase
 	{
 
-		std::shared_ptr<bgl::BCamera> camera;
+		std::shared_ptr<BCamera> camera;
 
 	public:
 

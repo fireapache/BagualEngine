@@ -7,5 +7,5 @@ namespace bgl
 	void* Settings::window = nullptr;
 	void* Settings::surface = nullptr;
 	void* Settings::pixels = nullptr;
-	bgl::BLine<bgl::BPixelPos> Settings::screenEdges[4];
+	BLine<BPixelPos> Settings::screenEdges[4];
 }

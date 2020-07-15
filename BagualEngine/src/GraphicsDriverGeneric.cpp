@@ -1,5 +1,5 @@
 
-#include "GenericGraphicsDriver.h"
+#include "GraphicsDriverGeneric.h"
 #include "Camera.h"
 #include "CameraManager.h"
 #include "Settings.h"
@@ -10,7 +10,7 @@
 namespace bgl
 {
 	
-	BGenericGraphicsDriver::BGenericGraphicsDriver()
+	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
 		SDL_Window* window;
 			
@@ -48,12 +48,12 @@ namespace bgl
 		Settings::height = height;
 	}
 
-	BGenericGraphicsDriver::~BGenericGraphicsDriver()
+	BGraphicsDriverGeneric::~BGraphicsDriverGeneric()
 	{
 		SDL_Quit();
 	}
 
-	void BGenericGraphicsDriver::RenderFrame()
+	void BGraphicsDriverGeneric::RenderFrame()
 	{
 		BGraphicsDriverBase::RenderFrame();
 
@@ -61,7 +61,7 @@ namespace bgl
 
 		SDL_LockSurface(surface);
 		
-		auto cameras = bgl::BCameraManager::GetCameras();
+		auto cameras = BCameraManager::GetCameras();
 
 		// Rendering queued 2D lines
 		for (auto camera : cameras)
@@ -85,17 +85,17 @@ namespace bgl
 		SDL_UpdateWindowSurface(window);
 	}
 
-	void BGenericGraphicsDriver::Delay(unsigned int ms)
+	void BGraphicsDriverGeneric::Delay(unsigned int ms)
 	{
 		SDL_Delay(ms);
 	}
 
-	std::shared_ptr<BCanvas> BGenericGraphicsDriver::CreateCanvas(unsigned short width, unsigned short height)
+	std::shared_ptr<BCanvas> BGraphicsDriverGeneric::CreateCanvas(unsigned short width, unsigned short height)
 	{
 		return std::shared_ptr<BCanvas>();
 	}
 
-	std::weak_ptr<bgl::BViewport> BGenericGraphicsDriver::CreateViewport(BCanvas& canvas, FViewportSettings viewportSettings)
+	std::weak_ptr<BViewport> BGraphicsDriverGeneric::CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings)
 	{
 		return std::weak_ptr<BViewport>();
 	}

@@ -1,4 +1,7 @@
+
 #include "CameraManager.h"
+
+#include "Camera.h"
 
 namespace bgl
 {
@@ -16,9 +19,9 @@ namespace bgl
 		cameras.Remove(camera);
 	}
 
-	bgl::BArray < std::shared_ptr<BCamera> > BCameraManagers = {};
+	BArray < std::shared_ptr<BCamera> > BCameraManagers = {};
 
-	bgl::BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
+	BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
 	{
 		return cameras;
 	}

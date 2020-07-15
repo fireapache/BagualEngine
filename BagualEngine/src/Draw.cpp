@@ -1,11 +1,12 @@
 
 #include "Draw.h"
 #include "Camera.h"
+#include "Canvas.h"
 
 namespace bgl
 {
 	
-	bool IsLineOnScreen(bgl::BCamera& camera, BLine<BPixelPos>& line)
+	bool IsLineOnScreen(BCamera& camera, BLine<BPixelPos>& line)
 	{
 		BBox<BPixelPos> viewport(
 			BPixelPos(0, 0),
@@ -64,7 +65,7 @@ namespace bgl
 		return isValid;
 	}
 
-	void DrawLineLow(bgl::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLineLow(BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
 		const unsigned short width = camera.GetCanvas().GetWidth();
@@ -95,7 +96,7 @@ namespace bgl
 		}
 	}
 
-	void DrawLineHigh(bgl::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLineHigh(BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
 		const int width = camera.GetCanvas().GetWidth();
@@ -126,7 +127,7 @@ namespace bgl
 		}
 	}
 
-	void DrawLine(bgl::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLine(BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
 
@@ -165,7 +166,7 @@ namespace bgl
 
 	}
 
-	void DrawLine(bgl::BCamera& camera, const BPixelPos& p1, const BPixelPos& p2)
+	void DrawLine(BCamera& camera, const BPixelPos& p1, const BPixelPos& p2)
 	{
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}

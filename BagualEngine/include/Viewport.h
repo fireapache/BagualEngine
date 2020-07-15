@@ -1,7 +1,11 @@
 #pragma once
 
 #include <memory>
-#include "Canvas.h"
+
+namespace bgl
+{
+	class BCanvas;
+}
 
 namespace bgl
 {
@@ -13,40 +17,13 @@ namespace bgl
 		unsigned int height;
 		std::weak_ptr<BCanvas> canvas;
 
-		FViewportSettings()
-		{
-			x = 0;
-			y = 0;
-			width = 320;
-			height = 240;
-		}
+		FViewportSettings();
 
-		FViewportSettings(std::weak_ptr<BCanvas> canvas)
-		{
-			x = 0;
-			y = 0;
-			width = 320;
-			height = 240;
-			this->canvas = canvas;
-		}
+		FViewportSettings(std::weak_ptr<BCanvas> canvas);
 
-		FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int width, unsigned int height)
-		{
-			x = 0;
-			y = 0;
-			this->width = width;
-			this->height = height;
-			this->canvas = canvas;
-		}
+		FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int width, unsigned int height);
 
-		FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
-		{
-			this->x = x;
-			this->y = y;
-			this->width = width;
-			this->height = height;
-			this->canvas = canvas;
-		}
+		FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 	};
 
 	class BViewport
@@ -55,20 +32,11 @@ namespace bgl
 
 	public:
 
-		BViewport(FViewportSettings settings)
-		{
-			this->settings = settings;
-		}
+		BViewport(const FViewportSettings& settings);
 
-		FViewportSettings& Set()
-		{
-			return settings;
-		}
+		FViewportSettings& Set();
 
-		void ApplyViewportSettings()
-		{
-
-		}
+		void ApplyViewportSettings();
 	};
 
 }

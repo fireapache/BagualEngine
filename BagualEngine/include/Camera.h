@@ -1,28 +1,32 @@
 #pragma once
 
+#include <memory>
+
 #include "Types.h"
-#include "Settings.h"
-#include "GraphicsPlatform.h"
-#include "Types.h"
+
+namespace bgl
+{
+	class BCanvas;
+}
 
 namespace bgl
 {
 	class BCamera
 	{
-		std::shared_ptr<bgl::BCanvas> canvas;
+		std::shared_ptr<BCanvas> canvas;
 
-		bgl::BArray<bgl::BLine<bgl::BPixelPos>> Line2DBuffer;
+		BArray<BLine<BPixelPos>> Line2DBuffer;
 
 	public:
 
 		BCamera();
 
 		// Line to be render on top of everything during camera render loop in the Renderer
-		void AddLine2DBuffer(const bgl::BLine<bgl::BPixelPos>& line);
+		void AddLine2DBuffer(const BLine<BPixelPos>& line);
 
-		bgl::BCanvas& GetCanvas();
+		BCanvas& GetCanvas();
 
-		bgl::BArray<bgl::BLine<bgl::BPixelPos>>& GetLine2DBuffer();
+		BArray<BLine<BPixelPos>>& GetLine2DBuffer();
 
 		void ClearLine2DBuffer();
 	};

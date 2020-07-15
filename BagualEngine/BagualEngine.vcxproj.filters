@@ -13,41 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Camera">
-      <UniqueIdentifier>{2373afc5-9330-4f15-9c5a-9d6d5ded05f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Camera">
-      <UniqueIdentifier>{4a8af9bf-6725-4efb-8e3d-d8d283058789}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Graphics">
       <UniqueIdentifier>{0de21088-9fcc-4ec2-86f9-d561ebf48e85}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Graphics\Drivers">
-      <UniqueIdentifier>{ed56a7e5-8f96-4cf9-bb64-db2493f960b0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{08913ee3-dbbb-4e65-96e3-9bdb14ffae44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Drivers">
-      <UniqueIdentifier>{a9a0aa72-c1d6-4a00-9c2a-ec1417e77dbc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Platform">
       <UniqueIdentifier>{7169f619-e54b-49f3-995b-4ab9631856d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Platform\Generic">
-      <UniqueIdentifier>{d8d99fe2-84a8-4cd1-a914-e1661a54bd1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Platform\Windows">
-      <UniqueIdentifier>{f9bf3876-5d1c-49bf-bfa8-729a0a1d535b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Platform\Interfaces">
-      <UniqueIdentifier>{483e143c-3b9c-400c-acdd-4bb627ae7580}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Platform">
       <UniqueIdentifier>{c2822026-04f3-42fb-a26b-18268b5cee97}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Platform\Generic">
-      <UniqueIdentifier>{aec983de-1efb-43f1-8f95-1c2c41e95488}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Misc">
       <UniqueIdentifier>{4c07ffdd-d85a-4591-989d-ba35b39de2c4}</UniqueIdentifier>
@@ -57,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,32 +42,11 @@
     <ClCompile Include="src\Logger.cpp">
       <Filter>Source Files\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="src\PlatformWindowBase.cpp">
-      <Filter>Source Files\Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GenericPlatformWindow.cpp">
-      <Filter>Source Files\Platform\Generic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GenericPlatform.cpp">
-      <Filter>Source Files\Platform\Generic</Filter>
-    </ClCompile>
     <ClCompile Include="src\GraphicsPlatform.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\Canvas.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GraphicsDriverBase.cpp">
-      <Filter>Source Files\Graphics\Drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GenericGraphicsDriver.cpp">
-      <Filter>Source Files\Graphics\Drivers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CameraManager.cpp">
-      <Filter>Source Files\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
-      <Filter>Source Files\Camera</Filter>
     </ClCompile>
     <ClCompile Include="src\EngineTests.cpp">
       <Filter>Source Files\Misc</Filter>
@@ -106,6 +58,27 @@
       <Filter>Source Files\Misc</Filter>
     </ClCompile>
     <ClCompile Include="src\Viewport.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlatformBase.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlatformGeneric.cpp">
+      <Filter>Source Files\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CameraManager.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphicsDriverBase.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphicsDriverGeneric.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,53 +98,14 @@
     <ClInclude Include="include\Assertions.h">
       <Filter>Header Files\Misc</Filter>
     </ClInclude>
-    <ClInclude Include="include\PlatformWindowBase.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PlatformDataTypes.h">
-      <Filter>Header Files\Platform</Filter>
-    </ClInclude>
     <ClInclude Include="include\PlatformBase.h">
       <Filter>Header Files\Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="include\WindowsPlatformWindow.h">
-      <Filter>Header Files\Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="include\WindowsPlatform.h">
-      <Filter>Header Files\Platform\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PlatformWindowInterface.h">
-      <Filter>Header Files\Platform\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PlatformInterface.h">
-      <Filter>Header Files\Platform\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GenericPlatformWindow.h">
-      <Filter>Header Files\Platform\Generic</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GenericPlatform.h">
-      <Filter>Header Files\Platform\Generic</Filter>
     </ClInclude>
     <ClInclude Include="include\GraphicsPlatform.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\Canvas.h">
       <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GraphicsDriverInterface.h">
-      <Filter>Header Files\Graphics\Drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GraphicsDriverBase.h">
-      <Filter>Header Files\Graphics\Drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GenericGraphicsDriver.h">
-      <Filter>Header Files\Graphics\Drivers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CameraManager.h">
-      <Filter>Header Files\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Camera.h">
-      <Filter>Header Files\Camera</Filter>
     </ClInclude>
     <ClInclude Include="include\Arithmetics.h">
       <Filter>Header Files\Misc</Filter>
@@ -189,6 +123,21 @@
       <Filter>Header Files\Misc</Filter>
     </ClInclude>
     <ClInclude Include="include\Viewport.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PlatformGeneric.h">
+      <Filter>Header Files\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CameraManager.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphicsDriverBase.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphicsDriverGeneric.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

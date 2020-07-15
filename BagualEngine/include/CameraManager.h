@@ -1,15 +1,20 @@
 #pragma once
 
-#include "Camera.h"
-#include "Types.h"
 #include <memory>
+
+#include "Types.h"
+
+namespace bgl
+{
+	class BCamera;
+}
 
 namespace bgl
 {
 	class BCameraManager
 	{
 
-		static bgl::BArray < std::shared_ptr<BCamera> > cameras;
+		static BArray < std::shared_ptr<BCamera> > cameras;
 
 	public:
 
@@ -17,7 +22,7 @@ namespace bgl
 
 		static void RemoveCamera(std::shared_ptr<BCamera> camera);
 
-		static bgl::BArray<std::shared_ptr<BCamera>>& GetCameras();
+		static BArray<std::shared_ptr<BCamera>>& GetCameras();
 
 	};
 }

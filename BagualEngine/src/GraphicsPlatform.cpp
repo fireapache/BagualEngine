@@ -1,23 +1,26 @@
 #include "GraphicsPlatform.h"
 
 #ifdef _WIN32
-#include "GenericGraphicsDriver.h"
+#include "GraphicsDriverGeneric.h"
 #endif // _WIN32
+
+#include "Canvas.h"
+#include "Viewport.h"
 
 namespace bgl
 {
-
+	
 	BGraphicsPlatform::BGraphicsPlatform()
 	{
 		driverInstance = std::make_unique<
 
 #ifdef _WIN32
-			bgl::BGenericGraphicsDriver
+			BGraphicsDriverGeneric
 #endif // _WIN32
 
 			>();
 
-		canvases = std::make_unique<bgl::BArray<std::shared_ptr<BCanvas>>>();
+		canvases = std::make_unique<BArray<std::shared_ptr<BCanvas>>>();
 	}
 
 	void BGraphicsPlatform::RenderFrame()
@@ -28,14 +31,14 @@ namespace bgl
 		}
 	}
 
-	std::shared_ptr<bgl::BCanvas> BGraphicsPlatform::CreateCanvas(unsigned short width, unsigned short height)
+	std::shared_ptr<BCanvas> BGraphicsPlatform::CreateCanvas(unsigned short width, unsigned short height)
 	{
 		auto canvas = std::make_shared<BCanvas>(width, height);
 		canvases->Add(canvas);
 		return canvas;
 	}
 
-	std::weak_ptr<BViewport> BGraphicsPlatform::CreateViewport(BCanvas& canvas, FViewportSettings viewportSettings)
+	std::weak_ptr<BViewport> BGraphicsPlatform::CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings)
 	{
 		std::shared_ptr<BViewport> viewport = std::make_shared<BViewport>(viewportSettings);
 
@@ -52,7 +55,7 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsPlatform::RenderCamera(std::shared_ptr<bgl::BCamera> camera)
+	void BGraphicsPlatform::RenderCamera(std::shared_ptr<BCamera> camera)
 	{
 		if (driverInstance)
 		{

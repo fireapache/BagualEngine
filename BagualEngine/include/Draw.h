@@ -6,9 +6,9 @@
 
 namespace bgl
 {
-	bool IsLineOnScreen(bgl::BCamera& camera, bgl::BLine<bgl::BPixelPos>& line);
+	bool IsLineOnScreen(BCamera& camera, BLine<BPixelPos>& line);
 
-	void DrawLine(bgl::BCamera& camera, const bgl::BLine<bgl::BPixelPos> &line);
+	void DrawLine(BCamera& camera, const BLine<BPixelPos> &line);
 
-	void DrawLine(bgl::BCamera &camera, const bgl::BPixelPos &p1, const bgl::BPixelPos &p2);
+	void DrawLine(BCamera &camera, const BPixelPos &p1, const BPixelPos &p2);
 }

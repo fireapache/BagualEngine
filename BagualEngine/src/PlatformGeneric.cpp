@@ -1,9 +1,13 @@
 
-#include "GenericPlatformWindow.h"
-
+#include "PlatformGeneric.h"
 
 namespace bgl
 {
+	std::shared_ptr<BPlatformWindowInterface> BGenericPlatform::CreateWindow(const FWindowSettings& settings)
+	{
+		return nullptr;//std::make_shared<BPlatformWindowInterface>(new BGenericPlatformWindow(settings));
+	}
+
 	BGenericPlatformWindow::BGenericPlatformWindow(const FWindowSettings& windowSettings)
 	{
 		settings = windowSettings;
@@ -47,6 +51,4 @@ namespace bgl
 	{
 		FinalizeWindow();
 	}
-
-
 }

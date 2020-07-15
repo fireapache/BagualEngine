@@ -1,10 +1,8 @@
 #include "Engine.h"
- 
-using namespace bgl;
 
 int main(int argc, char** argv)
 {
-	Engine::Instance().Peleia();
+	bgl::Engine::Instance().Peleia();
 
 	return 0;
 }

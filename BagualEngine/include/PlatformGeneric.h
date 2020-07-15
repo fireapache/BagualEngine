@@ -2,12 +2,17 @@
 
 #include <memory>
 
-#include "PlatformWindowBase.h"
+#include "PlatformBase.h"
 
 #include <SDL.h>
 
 namespace bgl
 {
+	class BGenericPlatform : public BPlatformBase
+	{
+		virtual std::shared_ptr<BPlatformWindowInterface> CreateWindow(const FWindowSettings& settings) override;
+	};
+
 	class BGenericPlatformWindow : public BPlatformWindowBase
 	{
 		SDL_Window* sdlWindow = nullptr;

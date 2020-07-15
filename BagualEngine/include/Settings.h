@@ -18,7 +18,7 @@ namespace bgl
 		static void *window;
 
 		// Screen edges information 
-		static bgl::BLine<bgl::BPixelPos> screenEdges[4];
+		static BLine<BPixelPos> screenEdges[4];
 		static void* surface;
 		static void* pixels;
 

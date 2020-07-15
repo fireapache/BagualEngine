@@ -194,27 +194,51 @@ namespace bgl
 
 		T z;
 
-		BVector3() : x(0), y(0), z(0) {}
-		BVector3(T x, T y) : x(x), y(y), z(0) {}
-		BVector3(T x, T y, T z) : x(x), y(y), z(z) {}
-		BVector3(BVector3<T> &p) : x(p.x), y(p.y), z(p.z) {}
+		BVector3()
+		{
+			this->x = 0;
+			this->y = 0;
+			this->z = 0;
+		}
+
+		BVector3(T x, T y)
+		{
+			this->x = x;
+			this->y = y;
+			this->z = 0;
+		}
+
+		BVector3(T x, T y, T z)
+		{
+			this->x = x;
+			this->y = y;
+			this->z = z;
+		}
+
+		BVector3(BVector3<T> &p)
+		{
+			this->x = p.x;
+			this->y = p.y;
+			this->z = p.z;
+		}
+
 		~BVector3() {}
 
 		inline const BVector3<T>& operator-(const BVector3<T> &p) const
 		{
-			return BVector3<T>(x - p.x, y - p.y, z - p.z);
+			return BVector3<T>(this->x - p.x, this->y - p.y, this->z - p.z);
 		}
 
 		inline const BVector3<T>& operator+(const BVector3<T> &p) const
 		{
-			return BVector3<T>(x + p.x, y + p.y, z + p.z);
+			return BVector3<T>(this->x + p.x, this->y + p.y, this->z + p.z);
 		}
 
 		inline float operator|(const BVector3<T> &p) const
 		{
-			float a = static_cast<float>(x - p.x);
-			float b = static_cast<float>(y - p.y);
-			float c = static_cast<float>(z - p.z);
+			float a = static_cast<float>(this->x - p.x);
+			float b = static_cast<float>(this->y - p.y);
+			float c = static_cast<float>(this->z - p.z);
 
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f) + pow(c, 2.0f));
 		}
@@ -250,7 +274,11 @@ namespace bgl
 
 	public:
 
-		BBox() : p1(T()), p2(T()) {}
+		BBox()
+		{
+			this->p1 = T();
+			this->p2 = T();
+		}
 
 		BBox(const T &p1, const T &p2)
 		{
@@ -258,7 +286,12 @@ namespace bgl
 			this->p2 = p2;
 		}
 
-		BBox(const BBox<T> &b) : p1(b.p1), p2(b.p2) {}
+		BBox(const BBox<T> &b)
+		{
+			this->p1 = b.p1;
+			this->p2 = b.p2;
+		}
+
 		~BBox() {}
 
 		template <typename Y>
@@ -266,8 +299,8 @@ namespace bgl
 		{
 			bool result = true;
 
-			if (v.x < p1.x || v.x > p2.x) result = false;
-			else if (v.y < p1.y || v.y > p2.y) result = false;
+			if (v.x < this->p1.x || v.x > this->p2.x) result = false;
+			else if (v.y < this->p1.y || v.y > this->p2.y) result = false;
 
 			return result;
 		}
