@@ -5,9 +5,9 @@
 #include "BModule.h"
 #include "BTypes.h"
 
-namespace Bagual
+namespace bgl
 {
-	class BagualEngine
+	class Engine
 	{
 
 #pragma region Private Types
@@ -22,14 +22,14 @@ namespace Bagual
 #pragma endregion
 
 #pragma region std::unique_ptr "permissions"
-		friend std::unique_ptr<BagualEngine> std::make_unique<BagualEngine>();
-		friend std::unique_ptr<Bagual::Graphics::BGraphicsPlatform> std::make_unique<Bagual::Graphics::BGraphicsPlatform>();
-		friend std::unique_ptr<Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>> std::make_unique<Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>>();
+		friend std::unique_ptr<Engine> std::make_unique<Engine>();
+		friend std::unique_ptr<bgl::BGraphicsPlatform> std::make_unique<bgl::BGraphicsPlatform>();
+		friend std::unique_ptr<bgl::BArray<std::shared_ptr<bgl::BIModule>>> std::make_unique<bgl::BArray<std::shared_ptr<bgl::BIModule>>>();
 #pragma endregion
 
-		static std::unique_ptr<BagualEngine> instance;
-		std::unique_ptr<Bagual::Graphics::BGraphicsPlatform> graphicsPlatform;
-		std::unique_ptr<Bagual::Types::BArray< std::shared_ptr<Bagual::Modules::BIModule>>> modules;
+		static std::unique_ptr<Engine> instance;
+		std::unique_ptr<bgl::BGraphicsPlatform> graphicsPlatform;
+		std::unique_ptr<bgl::BArray< std::shared_ptr<bgl::BIModule>>> modules;
 
 		EBEngineState engineState;
 
@@ -41,18 +41,18 @@ namespace Bagual
 		void MainLoop();
 		void ModulesLoop();
 
-		BagualEngine();
+		Engine();
 
 	public:
 
-		BagualEngine(const BagualEngine&) = delete;
-		BagualEngine& operator=(const BagualEngine&) = delete;
+		Engine(const Engine&) = delete;
+		Engine& operator=(const Engine&) = delete;
 
-		static BagualEngine& Instance();
+		static Engine& Instance();
 
 		void Peleia();
 
-		static Bagual::Graphics::BGraphicsPlatform* GraphicsPlatform();
+		static bgl::BGraphicsPlatform* GraphicsPlatform();
 
 	};
 

@@ -9,7 +9,7 @@
 #include "BCameraManager.h"
 #include "BMath.h"
 
-namespace Bagual::Graphics
+namespace bgl
 {
 	class BGenericGraphicsDriver : public BGraphicsDriverBase
 	{

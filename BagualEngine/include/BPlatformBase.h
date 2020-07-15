@@ -3,9 +3,9 @@
 #include "BPlatformInterface.h"
 #include "BSingleton.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
-	class BPlatformBase : public Bagual::Utils::BSingleton<BPlatformBase>, public BPlatformInterface
+	class BPlatformBase : public bgl::BSingleton<BPlatformBase>, public BPlatformInterface
 	{
 
 	};

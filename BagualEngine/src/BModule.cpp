@@ -1,7 +1,7 @@
 
 #include "BModule.h"
 
-namespace Bagual::Modules
+namespace bgl::Modules
 {
 
 }

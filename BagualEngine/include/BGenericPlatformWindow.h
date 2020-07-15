@@ -6,7 +6,7 @@
 
 #include <SDL.h>
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BGenericPlatformWindow : public BPlatformWindowBase
 	{

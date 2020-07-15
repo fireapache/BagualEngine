@@ -8,42 +8,42 @@
 
 #include <SDL.h>
 
-namespace Bagual
+namespace bgl
 {
-	std::unique_ptr<BagualEngine> BagualEngine::instance(nullptr);
+	std::unique_ptr<Engine> Engine::instance(nullptr);
 
-	void BagualEngine::Init()
+	void Engine::Init()
 	{
-		graphicsPlatform = std::make_unique<Bagual::Graphics::BGraphicsPlatform>();
+		graphicsPlatform = std::make_unique<bgl::BGraphicsPlatform>();
 		engineState = EBEngineState::Initializing;
-		modules = std::make_unique<Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>>();
+		modules = std::make_unique<bgl::BArray<std::shared_ptr<bgl::BIModule>>>();
 	}
 
-	void BagualEngine::LoadData()
+	void Engine::LoadData()
 	{
 		
 	}
 
-	void BagualEngine::RegisterModules()
+	void Engine::RegisterModules()
 	{
 		
 		if (modules)
 		{
 			//Testing
-			modules->Add(std::make_shared<Bagual::Tests::BEngineTest_DrawRandomLines>());
+			modules->Add(std::make_shared<bgl::BEngineTest_DrawRandomLines>());
 
-			Bagual::Types::BArray<std::shared_ptr<Bagual::Modules::BIModule>>* moduleArray = modules.get();
-			std::shared_ptr<Bagual::Modules::BIModule> mod = (*moduleArray)[0];
+			bgl::BArray<std::shared_ptr<bgl::BIModule>>* moduleArray = modules.get();
+			std::shared_ptr<bgl::BIModule> mod = (*moduleArray)[0];
 			mod->Init();
 		}
 	}
 
-	void BagualEngine::Term()
+	void Engine::Term()
 	{
 		
 	}
 
-	void BagualEngine::ProcessInput()
+	void Engine::ProcessInput()
 	{
 		SDL_Event ev;
 
@@ -64,7 +64,7 @@ namespace Bagual
 		}
 	}
 
-	void BagualEngine::MainLoop()
+	void Engine::MainLoop()
 	{
 		while (engineState != EBEngineState::Quitting)
 		{
@@ -84,7 +84,7 @@ namespace Bagual
 		}
 	}
 
-	void BagualEngine::ModulesLoop()
+	void Engine::ModulesLoop()
 	{
 		for (size_t i = 0; i < modules->Size(); i++)
 		{
@@ -92,19 +92,19 @@ namespace Bagual
 		}
 	}
 
-	BagualEngine::BagualEngine() : engineState(EBEngineState::None)
+	Engine::Engine() : engineState(EBEngineState::None)
 	{
 		Settings::width = 320;
 		Settings::height = 240;
 	}
 
-	Bagual::BagualEngine& BagualEngine::Instance()
+	bgl::Engine& Engine::Instance()
 	{
-		if (!instance) instance = std::make_unique<BagualEngine>();
+		if (!instance) instance = std::make_unique<Engine>();
 		return *instance.get();
 	}
 
-	void BagualEngine::Peleia()
+	void Engine::Peleia()
 	{
 		Init();
 		LoadData();
@@ -113,7 +113,7 @@ namespace Bagual
 		Term();
 	}
 
-	Bagual::Graphics::BGraphicsPlatform* BagualEngine::GraphicsPlatform()
+	bgl::BGraphicsPlatform* Engine::GraphicsPlatform()
 	{
 		return Instance().graphicsPlatform.get();
 	}

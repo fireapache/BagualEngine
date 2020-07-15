@@ -1,10 +1,10 @@
 #include "BEngine.h"
  
-using namespace Bagual;
+using namespace bgl;
 
 int main(int argc, char** argv)
 {
-	BagualEngine::Instance().Peleia();
+	Engine::Instance().Peleia();
 
 	return 0;
 }

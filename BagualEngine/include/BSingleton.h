@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Bagual::Utils
+namespace bgl
 {
 	// Based on https://codereview.stackexchange.com/a/173942/222205
 	template<typename T>

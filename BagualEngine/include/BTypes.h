@@ -10,7 +10,7 @@
 
 //using namespace std;
 
-namespace Bagual::Types
+namespace bgl
 {
 	template <typename T>
 	class BArray

@@ -3,7 +3,7 @@
 #include <memory>
 #include "BCanvas.h"
 
-namespace Bagual::Graphics
+namespace bgl
 {
 	struct FViewportSettings
 	{

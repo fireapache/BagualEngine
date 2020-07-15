@@ -3,12 +3,12 @@
 
 #include "BCameraManager.h"
 
-namespace Bagual::Tests
+namespace bgl
 {
 
 	void BEngineTest_DrawRandomLines::Init()
 	{
-		camera = Bagual::Camera::BCameraManager::Create();
+		camera = bgl::BCameraManager::Create();
 
 		if (camera)
 		{
@@ -25,16 +25,16 @@ namespace Bagual::Tests
 			int x2 = rand() % (Settings::width + 500) - 250;
 			int y2 = rand() % (Settings::height + 500) - 250;
 
-			Bagual::Types::BPixelPos p1(x1, y1);
-			Bagual::Types::BPixelPos p2(x2, y2);
+			bgl::BPixelPos p1(x1, y1);
+			bgl::BPixelPos p2(x2, y2);
 
-			camera->AddLine2DBuffer(Bagual::Types::BLine<Bagual::Types::BPixelPos>(p1, p2));
+			camera->AddLine2DBuffer(bgl::BLine<bgl::BPixelPos>(p1, p2));
 		}
 	}
 
 	void BEngineTest_DrawRandomLines::Term()
 	{
-		Bagual::Camera::BCameraManager::RemoveCamera(camera);
+		bgl::BCameraManager::RemoveCamera(camera);
 		camera = nullptr;
 	}
 

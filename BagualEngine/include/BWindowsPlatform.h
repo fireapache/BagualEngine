@@ -2,7 +2,7 @@
 
 #include "BGenericPlatform.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BWindowsPlatform : public BGenericPlatform
 	{

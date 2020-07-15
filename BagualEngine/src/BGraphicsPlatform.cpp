@@ -4,7 +4,7 @@
 #include "BGenericGraphicsDriver.h"
 #endif // _WIN32
 
-namespace Bagual::Graphics
+namespace bgl
 {
 
 	BGraphicsPlatform::BGraphicsPlatform()
@@ -12,12 +12,12 @@ namespace Bagual::Graphics
 		driverInstance = std::make_unique<
 
 #ifdef _WIN32
-			Bagual::Graphics::BGenericGraphicsDriver
+			bgl::BGenericGraphicsDriver
 #endif // _WIN32
 
 			>();
 
-		canvases = std::make_unique<Bagual::Types::BArray<std::shared_ptr<BCanvas>>>();
+		canvases = std::make_unique<bgl::BArray<std::shared_ptr<BCanvas>>>();
 	}
 
 	void BGraphicsPlatform::RenderFrame()
@@ -28,7 +28,7 @@ namespace Bagual::Graphics
 		}
 	}
 
-	std::shared_ptr<Bagual::Graphics::BCanvas> BGraphicsPlatform::CreateCanvas(unsigned short width, unsigned short height)
+	std::shared_ptr<bgl::BCanvas> BGraphicsPlatform::CreateCanvas(unsigned short width, unsigned short height)
 	{
 		auto canvas = std::make_shared<BCanvas>(width, height);
 		canvases->Add(canvas);
@@ -52,7 +52,7 @@ namespace Bagual::Graphics
 		}
 	}
 
-	void BGraphicsPlatform::RenderCamera(std::shared_ptr<Bagual::Camera::BCamera> camera)
+	void BGraphicsPlatform::RenderCamera(std::shared_ptr<bgl::BCamera> camera)
 	{
 		if (driverInstance)
 		{

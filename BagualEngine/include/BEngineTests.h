@@ -4,9 +4,9 @@
 #include "BCamera.h"
 #include <memory>
 
-namespace Bagual::Tests
+namespace bgl
 {
-	class BEngineTestBase : public Bagual::Modules::BModuleBase
+	class BEngineTestBase : public bgl::BModuleBase
 	{
 		
 	public:
@@ -16,7 +16,7 @@ namespace Bagual::Tests
 	class BEngineTest_DrawRandomLines : public BEngineTestBase
 	{
 
-		std::shared_ptr<Bagual::Camera::BCamera> camera;
+		std::shared_ptr<bgl::BCamera> camera;
 
 	public:
 

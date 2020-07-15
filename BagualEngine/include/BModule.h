@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace Bagual::Modules
+namespace bgl
 {
 	class BIModule
 	{

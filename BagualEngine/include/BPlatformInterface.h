@@ -4,7 +4,7 @@
 
 #include "BPlatformWindowInterface.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BPlatformInterface
 	{

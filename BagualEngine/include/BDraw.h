@@ -4,11 +4,11 @@
 #include "BMath.h"
 #include "BTypes.h"
 
-namespace Bagual::Draw
+namespace bgl
 {
-	bool IsLineOnScreen(Bagual::Camera::BCamera& camera, Bagual::Types::BLine<Bagual::Types::BPixelPos>& line);
+	bool IsLineOnScreen(bgl::BCamera& camera, bgl::BLine<bgl::BPixelPos>& line);
 
-	void DrawLine(Bagual::Camera::BCamera& camera, const Bagual::Types::BLine<Bagual::Types::BPixelPos> &line);
+	void DrawLine(bgl::BCamera& camera, const bgl::BLine<bgl::BPixelPos> &line);
 
-	void DrawLine(Bagual::Camera::BCamera &camera, const Bagual::Types::BPixelPos &p1, const Bagual::Types::BPixelPos &p2);
+	void DrawLine(bgl::BCamera &camera, const bgl::BPixelPos &p1, const bgl::BPixelPos &p2);
 }

@@ -7,7 +7,7 @@
 
 #include <SDL.h>
 
-namespace Bagual::Graphics
+namespace bgl
 {
 	
 	BGenericGraphicsDriver::BGenericGraphicsDriver()
@@ -61,7 +61,7 @@ namespace Bagual::Graphics
 
 		SDL_LockSurface(surface);
 		
-		auto cameras = Bagual::Camera::BCameraManager::GetCameras();
+		auto cameras = bgl::BCameraManager::GetCameras();
 
 		// Rendering queued 2D lines
 		for (auto camera : cameras)
@@ -72,7 +72,7 @@ namespace Bagual::Graphics
 
 			for (auto& line : lines)
 			{
-				Bagual::Draw::DrawLine(*camera.get(), line);
+				DrawLine(*camera.get(), line);
 			}
 
 			camera->ClearLine2DBuffer();
@@ -95,7 +95,7 @@ namespace Bagual::Graphics
 		return std::shared_ptr<BCanvas>();
 	}
 
-	std::weak_ptr<Bagual::Graphics::BViewport> BGenericGraphicsDriver::CreateViewport(BCanvas& canvas, FViewportSettings viewportSettings)
+	std::weak_ptr<bgl::BViewport> BGenericGraphicsDriver::CreateViewport(BCanvas& canvas, FViewportSettings viewportSettings)
 	{
 		return std::weak_ptr<BViewport>();
 	}

@@ -2,7 +2,7 @@
 #include "BGenericPlatformWindow.h"
 
 
-namespace Bagual::Platform
+namespace bgl
 {
 	BGenericPlatformWindow::BGenericPlatformWindow(const FWindowSettings& windowSettings)
 	{

@@ -4,7 +4,7 @@
 
 class BCamera;
 
-namespace Bagual::Graphics
+namespace bgl
 {
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
@@ -12,7 +12,7 @@ namespace Bagual::Graphics
 	public:
 
 		virtual void RenderFrame();
-		virtual void RenderCamera(std::shared_ptr<Bagual::Camera::BCamera> camera);
+		virtual void RenderCamera(std::shared_ptr<bgl::BCamera> camera);
 
 	};
 }

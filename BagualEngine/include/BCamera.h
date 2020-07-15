@@ -5,24 +5,24 @@
 #include "BGraphicsPlatform.h"
 #include "BTypes.h"
 
-namespace Bagual::Camera
+namespace bgl
 {
 	class BCamera
 	{
-		std::shared_ptr<Bagual::Graphics::BCanvas> canvas;
+		std::shared_ptr<bgl::BCanvas> canvas;
 
-		Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>> Line2DBuffer;
+		bgl::BArray<bgl::BLine<bgl::BPixelPos>> Line2DBuffer;
 
 	public:
 
 		BCamera();
 
 		// Line to be render on top of everything during camera render loop in the Renderer
-		void AddLine2DBuffer(const Bagual::Types::BLine<Bagual::Types::BPixelPos>& line);
+		void AddLine2DBuffer(const bgl::BLine<bgl::BPixelPos>& line);
 
-		Bagual::Graphics::BCanvas& GetCanvas();
+		bgl::BCanvas& GetCanvas();
 
-		Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>>& GetLine2DBuffer();
+		bgl::BArray<bgl::BLine<bgl::BPixelPos>>& GetLine2DBuffer();
 
 		void ClearLine2DBuffer();
 	};

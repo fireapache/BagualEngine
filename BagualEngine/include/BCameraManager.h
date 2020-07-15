@@ -4,23 +4,20 @@
 #include "BTypes.h"
 #include <memory>
 
-namespace Bagual
+namespace bgl
 {
-	namespace Camera
+	class BCameraManager
 	{
-		class BCameraManager
-		{
 
-			static Bagual::Types::BArray < std::shared_ptr<BCamera> > cameras;
+		static bgl::BArray < std::shared_ptr<BCamera> > cameras;
 
-		public:
+	public:
 
-			static std::shared_ptr<BCamera> Create();
+		static std::shared_ptr<BCamera> Create();
 
-			static void RemoveCamera(std::shared_ptr<BCamera> camera);
+		static void RemoveCamera(std::shared_ptr<BCamera> camera);
 
-			static Bagual::Types::BArray<std::shared_ptr<BCamera>>& GetCameras();
+		static bgl::BArray<std::shared_ptr<BCamera>>& GetCameras();
 
-		};
-	}
+	};
 }

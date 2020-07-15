@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Bagual::Utils
+namespace bgl
 {
 	class BLogger
 	{
@@ -12,5 +12,5 @@ namespace Bagual::Utils
 }
 
 #ifndef BGL_LOG
-#define BGL_LOG(msg) Bagual::Utils::BLogger::Log(msg)
+#define BGL_LOG(msg) Bagual::BLogger::Log(msg)
 #endif // !BGL_LOG

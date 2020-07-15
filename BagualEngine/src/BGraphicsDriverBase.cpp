@@ -4,12 +4,12 @@
 #include "BCamera.h"
 #include "BCameraManager.h"
 
-namespace Bagual::Graphics
+namespace bgl
 {
 
 	void BGraphicsDriverBase::RenderFrame()
 	{
-		auto cameras = Bagual::Camera::BCameraManager::GetCameras();
+		auto cameras = bgl::BCameraManager::GetCameras();
 
 		for (auto& camera : cameras)
 		{
@@ -17,7 +17,7 @@ namespace Bagual::Graphics
 		}
 	}
 
-	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<Bagual::Camera::BCamera> camera)
+	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<bgl::BCamera> camera)
 	{
 
 	}

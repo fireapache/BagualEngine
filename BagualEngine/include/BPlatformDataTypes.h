@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace Bagual::Platform
+namespace bgl
 {
 	struct FWindowSettings
 	{

@@ -5,12 +5,12 @@
 
 #include <SDL.h>
 
-namespace Bagual::Camera
+namespace bgl
 {
 
 	BCamera::BCamera()
 	{
-		auto graphics = Bagual::BagualEngine::GraphicsPlatform();
+		auto graphics = bgl::Engine::GraphicsPlatform();
 
 		if (graphics)
 		{
@@ -18,21 +18,21 @@ namespace Bagual::Camera
 		}
 		else
 		{
-			Bagual::Utils::BLogger::Log("Could not create canvas for camera object!");
+			bgl::BLogger::Log("Could not create canvas for camera object!");
 		}
 	}
 	
-	void Bagual::Camera::BCamera::AddLine2DBuffer(const Bagual::Types::BLine<Bagual::Types::BPixelPos>& line)
+	void bgl::BCamera::AddLine2DBuffer(const bgl::BLine<bgl::BPixelPos>& line)
 	{
 		Line2DBuffer.Add(line);
 	}
 
-	Bagual::Graphics::BCanvas& BCamera::GetCanvas()
+	bgl::BCanvas& BCamera::GetCanvas()
 	{
 		return *canvas;
 	}
 
-	Bagual::Types::BArray<Bagual::Types::BLine<Bagual::Types::BPixelPos>>& BCamera::GetLine2DBuffer()
+	bgl::BArray<bgl::BLine<bgl::BPixelPos>>& BCamera::GetLine2DBuffer()
 	{
 		return Line2DBuffer;
 	}

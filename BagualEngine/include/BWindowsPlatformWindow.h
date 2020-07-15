@@ -2,7 +2,7 @@
 
 #include "BPlatformWindowBase.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BWindowsPlatformWindow : public BPlatformWindowBase
 	{

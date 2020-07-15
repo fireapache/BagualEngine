@@ -2,7 +2,7 @@
 #include "BGenericPlatform.h"
 #include "BGenericPlatformWindow.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	std::shared_ptr<BPlatformWindowInterface> BGenericPlatform::CreateWindow(const FWindowSettings& settings)
 	{

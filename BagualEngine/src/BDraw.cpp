@@ -2,12 +2,10 @@
 #include "BDraw.h"
 #include "BCamera.h"
 
-using namespace Bagual::Math;
-
-namespace Bagual::Draw
+namespace bgl
 {
 	
-	bool IsLineOnScreen(Bagual::Camera::BCamera& camera, BLine<BPixelPos>& line)
+	bool IsLineOnScreen(bgl::BCamera& camera, BLine<BPixelPos>& line)
 	{
 		BBox<BPixelPos> viewport(
 			BPixelPos(0, 0),
@@ -66,7 +64,7 @@ namespace Bagual::Draw
 		return isValid;
 	}
 
-	void DrawLineLow(Bagual::Camera::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLineLow(bgl::BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
 		const unsigned short width = camera.GetCanvas().GetWidth();
@@ -97,7 +95,7 @@ namespace Bagual::Draw
 		}
 	}
 
-	void DrawLineHigh(Bagual::Camera::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLineHigh(bgl::BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
 		const int width = camera.GetCanvas().GetWidth();
@@ -128,7 +126,7 @@ namespace Bagual::Draw
 		}
 	}
 
-	void DrawLine(Bagual::Camera::BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLine(bgl::BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
 
@@ -167,7 +165,7 @@ namespace Bagual::Draw
 
 	}
 
-	void DrawLine(Bagual::Camera::BCamera& camera, const BPixelPos& p1, const BPixelPos& p2)
+	void DrawLine(bgl::BCamera& camera, const BPixelPos& p1, const BPixelPos& p2)
 	{
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}

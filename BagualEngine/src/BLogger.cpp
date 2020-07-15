@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace Bagual::Utils
+namespace bgl
 {
 
 	void BLogger::Log(const char* RawMessage)

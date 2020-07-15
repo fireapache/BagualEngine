@@ -3,16 +3,16 @@
 #include <memory>
 #include "BTypes.h"
 
-namespace Bagual::Graphics
+namespace bgl
 {
 	class BCanvas
 	{
 		unsigned short width;
 		unsigned short height;
 
-		Bagual::Types::BLine<Bagual::Types::BPixelPos> edges[4];
+		bgl::BLine<bgl::BPixelPos> edges[4];
 
-		std::shared_ptr<Bagual::Types::BBuffer<unsigned int>> buffer;
+		std::shared_ptr<bgl::BBuffer<unsigned int>> buffer;
 
 	public:
 
@@ -21,10 +21,10 @@ namespace Bagual::Graphics
 		unsigned short GetWidth();
 		unsigned short GetHeight();
 
-		Bagual::Types::BLine<Bagual::Types::BPixelPos>* GetEdges();
-		Bagual::Types::BLine<Bagual::Types::BPixelPos>& GetEdge(Bagual::Types::BEBoxEdges edge);
+		bgl::BLine<bgl::BPixelPos>* GetEdges();
+		bgl::BLine<bgl::BPixelPos>& GetEdge(bgl::BEBoxEdges edge);
 
-		Bagual::Types::BBuffer<unsigned int>& GetBuffer()
+		bgl::BBuffer<unsigned int>& GetBuffer()
 		{
 			return *buffer.get();
 		}

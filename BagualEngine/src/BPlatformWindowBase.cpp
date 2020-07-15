@@ -2,7 +2,7 @@
 #include "BPlatformWindowBase.h"
 #include "BAssertions.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 
 	BPlatformWindowBase::BPlatformWindowBase(const FWindowSettings& windowSettings)

@@ -2,7 +2,7 @@
 
 #include "BTypes.h"
 
-namespace Bagual
+namespace bgl
 {
 
 	class Settings
@@ -18,7 +18,7 @@ namespace Bagual
 		static void *window;
 
 		// Screen edges information 
-		static Bagual::Types::BLine<Bagual::Types::BPixelPos> screenEdges[4];
+		static bgl::BLine<bgl::BPixelPos> screenEdges[4];
 		static void* surface;
 		static void* pixels;
 

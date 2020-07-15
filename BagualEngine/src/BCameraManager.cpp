@@ -1,7 +1,9 @@
 #include "BCameraManager.h"
 
-namespace Bagual::Camera
+namespace bgl
 {
+	BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = BArray < std::shared_ptr<BCamera> >();
+
 	std::shared_ptr<BCamera> BCameraManager::Create()
 	{
 		auto camera = std::make_shared<BCamera>();
@@ -14,9 +16,9 @@ namespace Bagual::Camera
 		cameras.Remove(camera);
 	}
 
-	Bagual::Types::BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = {};
+	bgl::BArray < std::shared_ptr<BCamera> > BCameraManagers = {};
 
-	Bagual::Types::BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
+	bgl::BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
 	{
 		return cameras;
 	}

@@ -2,7 +2,7 @@
 
 #include "BPlatformDataTypes.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BPlatformWindowInterface
 	{

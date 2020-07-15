@@ -4,7 +4,7 @@
 
 #include "BPlatformBase.h"
 
-namespace Bagual::Platform
+namespace bgl
 {
 	class BGenericPlatform : public BPlatformBase
 	{
