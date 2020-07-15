@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <memory>
+#include "Common.h"
 
 #include "Singleton.h"
 

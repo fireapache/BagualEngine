@@ -1,9 +1,8 @@
 #pragma once
 
-#include <memory>
+#include "Common.h"
 
 #include "GraphicsDriverBase.h"
-#include "Types.h"
 
 namespace bgl
 {

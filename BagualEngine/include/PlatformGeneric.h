@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include "Common.h"
 
 #include "PlatformBase.h"
 

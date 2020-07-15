@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-
-#include "Types.h"
+#include "Common.h"
 
 namespace bgl
 {

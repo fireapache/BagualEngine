@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Common.h"
+
 #include "Module.h"
 #include "Camera.h"
-#include <memory>
 
 namespace bgl
 {
