@@ -5,8 +5,6 @@
 #include "Settings.h"
 #include "GraphicsPlatform.h"
 
-#include <SDL.h>
-
 namespace bgl
 {
 
