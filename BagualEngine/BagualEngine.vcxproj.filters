@@ -81,6 +81,9 @@
     <ClCompile Include="src\GraphicsDriverGeneric.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bagual.Unity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Settings.h">
