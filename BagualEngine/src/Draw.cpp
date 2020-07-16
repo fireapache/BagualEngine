@@ -68,7 +68,7 @@ namespace bgl
 	void DrawLineLow(BCamera& camera, const BLine<BPixelPos>& line)
 	{
 		auto screen = camera.GetCanvas().GetBuffer();
-		const unsigned short width = camera.GetCanvas().GetWidth();
+		const ushort width = camera.GetCanvas().GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
 		int yi = 1;

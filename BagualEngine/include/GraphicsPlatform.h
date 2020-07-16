@@ -22,9 +22,10 @@ namespace bgl
 		BGraphicsPlatform();
 
 		virtual void RenderFrame();
-		virtual void RenderCamera(std::shared_ptr<BCamera> camera);
-		virtual void Delay(unsigned int ms);;
-		virtual std::shared_ptr<BCanvas> CreateCanvas(unsigned short width, unsigned short height);
+		virtual void RenderCamera(const BCamera& camera);
+		virtual void Delay(const uint&& ms);
+		virtual void Delay(const uint& ms);
+		virtual std::shared_ptr<BCanvas> CreateCanvas(const ushort& width, const ushort& height);
 		virtual std::weak_ptr<BViewport> CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings);
 
 	};

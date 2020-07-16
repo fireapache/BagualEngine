@@ -11,11 +11,11 @@ namespace bgl
 
 		for (auto& camera : cameras)
 		{
-			RenderCamera(camera);
+			RenderCamera(*camera.get());
 		}
 	}
 
-	void BGraphicsDriverBase::RenderCamera(std::shared_ptr<BCamera> camera)
+	void BGraphicsDriverBase::RenderCamera(const BCamera& camera)
 	{
 
 	}

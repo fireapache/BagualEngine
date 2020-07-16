@@ -8,8 +8,8 @@ namespace bgl
 {
 	struct FWindowSettings
 	{
-		unsigned int width = 320;
-		unsigned int height = 240;
+		uint width = 320;
+		uint height = 240;
 		std::string name = "Bagual Engine Window";
 	};
 

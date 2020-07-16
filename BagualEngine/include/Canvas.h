@@ -6,24 +6,24 @@ namespace bgl
 {
 	class BCanvas
 	{
-		unsigned short width;
-		unsigned short height;
+		ushort width;
+		ushort height;
 
 		BLine<BPixelPos> edges[4];
 
-		std::shared_ptr<BBuffer<unsigned int>> buffer;
+		std::shared_ptr<BBuffer<uint>> buffer;
 
 	public:
 
-		BCanvas(unsigned short width = 320, unsigned short height = 240);
+		BCanvas(ushort width = 320, ushort height = 240);
 
-		unsigned short GetWidth();
-		unsigned short GetHeight();
+		ushort GetWidth();
+		ushort GetHeight();
 
 		BLine<BPixelPos>* GetEdges();
 		BLine<BPixelPos>& GetEdge(BEBoxEdges edge);
 
-		BBuffer<unsigned int>& GetBuffer()
+		BBuffer<uint>& GetBuffer()
 		{
 			return *buffer.get();
 		}

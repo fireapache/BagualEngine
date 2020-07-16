@@ -5,12 +5,12 @@
 namespace bgl
 {
 
-	BCanvas::BCanvas(unsigned short width /*= 320*/, unsigned short height /*= 240*/) : width(width), height(height)
+	BCanvas::BCanvas(ushort width /*= 320*/, ushort height /*= 240*/)
 	{
 		this->width = Settings::width;
 		this->height = Settings::height;
 
-		this->buffer = std::make_shared<BBuffer<unsigned int>>(static_cast<unsigned int*>(Settings::pixels), Settings::width * Settings::height);
+		this->buffer = std::make_shared<BBuffer<uint>>(static_cast<uint*>(Settings::pixels), Settings::width * Settings::height);
 
 		auto edge0_0 = BPixelPos(0, 0);
 		auto edge0_1 = BPixelPos(width - 1, 0);
@@ -33,12 +33,12 @@ namespace bgl
 		this->edges[3] = BLine<BPixelPos>(edge3_0, edge3_1);
 	}
 
-	unsigned short BCanvas::GetWidth()
+	ushort BCanvas::GetWidth()
 	{
 		return width;
 	}
 
-	unsigned short BCanvas::GetHeight()
+	ushort BCanvas::GetHeight()
 	{
 		return height;
 	}

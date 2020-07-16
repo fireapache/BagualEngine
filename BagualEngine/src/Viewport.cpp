@@ -13,7 +13,7 @@ namespace bgl
 		height = 240;
 	}
 
-	FViewportSettings::FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int width, unsigned int height)
+	FViewportSettings::FViewportSettings(std::weak_ptr<BCanvas> canvas, uint width, uint height)
 	{
 		x = 0;
 		y = 0;
@@ -31,7 +31,7 @@ namespace bgl
 		this->canvas = canvas;
 	}
 
-	FViewportSettings::FViewportSettings(std::weak_ptr<BCanvas> canvas, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+	FViewportSettings::FViewportSettings(std::weak_ptr<BCanvas> canvas, uint x, uint y, uint width, uint height)
 	{
 		this->x = x;
 		this->y = y;

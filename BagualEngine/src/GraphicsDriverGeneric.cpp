@@ -63,11 +63,12 @@ namespace bgl
 		
 		auto cameras = BCameraManager::GetCameras();
 
-		// Rendering queued 2D lines
+		// Rendering each camera
 		for (auto camera : cameras)
 		{
 			if (!camera) continue;
 
+			// Rendering queued 2D lines
 			auto lines = camera->GetLine2DBuffer();
 
 			for (auto& line : lines)
@@ -85,12 +86,17 @@ namespace bgl
 		SDL_UpdateWindowSurface(window);
 	}
 
-	void BGraphicsDriverGeneric::Delay(unsigned int ms)
+	void BGraphicsDriverGeneric::Delay(const uint&& ms)
 	{
 		SDL_Delay(ms);
 	}
 
-	std::shared_ptr<BCanvas> BGraphicsDriverGeneric::CreateCanvas(unsigned short width, unsigned short height)
+	void BGraphicsDriverGeneric::Delay(const uint& ms)
+	{
+		SDL_Delay(ms);
+	}
+
+	std::shared_ptr<BCanvas> BGraphicsDriverGeneric::CreateCanvas(const ushort& width, const ushort& height)
 	{
 		return std::shared_ptr<BCanvas>();
 	}

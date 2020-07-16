@@ -31,7 +31,7 @@ namespace bgl
 		}
 	}
 
-	std::shared_ptr<BCanvas> BGraphicsPlatform::CreateCanvas(unsigned short width, unsigned short height)
+	std::shared_ptr<BCanvas> BGraphicsPlatform::CreateCanvas(const ushort& width, const ushort& height)
 	{
 		auto canvas = std::make_shared<BCanvas>(width, height);
 		canvases->Add(canvas);
@@ -47,7 +47,7 @@ namespace bgl
 		return viewport;
 	}
 
-	void BGraphicsPlatform::Delay(unsigned int ms)
+	void BGraphicsPlatform::Delay(const uint&& ms)
 	{
 		if (driverInstance)
 		{
@@ -55,7 +55,15 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsPlatform::RenderCamera(std::shared_ptr<BCamera> camera)
+	void BGraphicsPlatform::Delay(const uint& ms)
+	{
+		if (driverInstance)
+		{
+			driverInstance->Delay(ms);
+		}
+	}
+
+	void BGraphicsPlatform::RenderCamera(const BCamera& camera)
 	{
 		if (driverInstance)
 		{

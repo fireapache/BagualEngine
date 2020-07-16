@@ -129,6 +129,7 @@
     <ClInclude Include="include\CameraManager.h" />
     <ClInclude Include="include\Canvas.h" />
     <ClInclude Include="include\Common.h" />
+    <ClInclude Include="include\Definitions.h" />
     <ClInclude Include="include\Draw.h" />
     <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\EngineTests.h" />
