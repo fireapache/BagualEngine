@@ -81,7 +81,10 @@
     <ClCompile Include="src\GraphicsDriverGeneric.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Bagual.Unity.cpp">
+    <ClCompile Include="src\Bagual.pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bagual.unity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -144,6 +147,9 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="include\Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Bagual.pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

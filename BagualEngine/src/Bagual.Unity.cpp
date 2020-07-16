@@ -1,4 +1,6 @@
 
+#include "Bagual.pch.h"
+
 #if BGL_UNITY_BUILD == 1
 
 #include "Camera.cpp"
