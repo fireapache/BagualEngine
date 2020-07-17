@@ -1,4 +1,6 @@
 
+#include "Bagual.pch.h"
+
 #include "Engine.h"
 #include "Camera.h"
 #include "CameraManager.h"
@@ -7,6 +9,7 @@
 #include "Types.h"
 #include "Settings.h"
 #include "GraphicsPlatform.h"
+#include "PlatformGeneric.h"
 
 #include <SDL.h>
 
@@ -17,6 +20,7 @@ namespace bgl
 	void Engine::Init()
 	{
 		graphicsPlatform = std::make_unique<BGraphicsPlatform>();
+		platform = std::make_unique<BPlatformGeneric>();
 		engineState = EBEngineState::Initializing;
 		modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
 	}
@@ -115,9 +119,14 @@ namespace bgl
 		Term();
 	}
 
-	BGraphicsPlatform* Engine::GraphicsPlatform()
+	std::unique_ptr<BGraphicsPlatform>& Engine::GraphicsPlatform()
 	{
-		return Instance().graphicsPlatform.get();
+		return Instance().graphicsPlatform;
+	}
+
+	std::unique_ptr<BPlatformBase>& Engine::Platform()
+	{
+		return Instance().platform;
 	}
 
 }

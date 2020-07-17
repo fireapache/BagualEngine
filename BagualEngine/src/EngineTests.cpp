@@ -1,15 +1,39 @@
 
+#include "Bagual.pch.h"
+
 #include "EngineTests.h"
 
 #include "CameraManager.h"
 #include "Settings.h"
+#include "Engine.h"
+#include "PlatformBase.h"
+#include "Viewport.h"
+#include "GraphicsPlatform.h"
 
 namespace bgl
 {
 
 	void BEngineTest_DrawRandomLines::Init()
 	{
-		camera = BCameraManager::Create();
+		auto& platform = Engine::Platform();
+
+		BGL_ASSERT(platform != nullptr && "Not a valid platform object!");
+
+		auto& graphicsDriver = Engine::GraphicsPlatform();
+
+		BGL_ASSERT(graphicsDriver != nullptr && "Not a valid graphics driver object!");
+
+		auto window = platform->CreateWindow();
+		
+		BGL_ASSERT(window != nullptr && "Could not create window!");
+
+		auto& canvas = window->GetCanvas();
+
+		const FViewportSettings viewSettings(*canvas);
+
+		auto viewport = graphicsDriver->CreateViewport(canvas, viewSettings);
+
+		camera = BCameraManager::Create(viewport);
 
 		if (camera)
 		{

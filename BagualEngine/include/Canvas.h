@@ -4,6 +4,11 @@
 
 namespace bgl
 {
+	class BPlatformWindow;
+}
+
+namespace bgl
+{
 	class BCanvas
 	{
 		ushort width;
@@ -13,20 +18,26 @@ namespace bgl
 
 		std::shared_ptr<BBuffer<uint>> buffer;
 
+		inline void UpdateEdges();
+
+		// TODO: Use smart pointer instead
+		BPlatformWindow* window;
+
 	public:
 
-		BCanvas(ushort width = 320, ushort height = 240);
+		BCanvas(ushort width, ushort height);
+		BCanvas(BPlatformWindow* window, void* pixels, ushort width, ushort height);
+		//BCanvas(const BCanvas& canvas);
 
-		ushort GetWidth();
-		ushort GetHeight();
+		ushort GetWidth() const;
+		ushort GetHeight() const;
 
-		BLine<BPixelPos>* GetEdges();
-		BLine<BPixelPos>& GetEdge(BEBoxEdges edge);
+		const BLine<BPixelPos>* GetEdges()  const;
+		const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
 
-		BBuffer<uint>& GetBuffer()
-		{
-			return *buffer.get();
-		}
+		BBuffer<uint>& GetBuffer();
+
+		BPlatformWindow* GetWindow();
 
 	};
 }

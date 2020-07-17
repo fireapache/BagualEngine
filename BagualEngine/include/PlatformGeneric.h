@@ -8,22 +8,27 @@
 
 namespace bgl
 {
-	class BGenericPlatform : public BPlatformBase
+	class BPlatformGeneric : public BPlatformBase
 	{
-		virtual std::shared_ptr<BPlatformWindowInterface> CreateWindow(const FWindowSettings& settings) override;
+
+	public:
+
+		virtual std::shared_ptr<BPlatformWindow> CreateWindow() override;
+		virtual std::shared_ptr<BPlatformWindow> CreateWindow(const FWindowSettings& settings) override;
 	};
 
-	class BGenericPlatformWindow : public BPlatformWindowBase
+	class BGenericPlatformWindow : public BPlatformWindow
 	{
 		SDL_Window* sdlWindow = nullptr;
+		SDL_Surface* sdlSurface = nullptr;
 
 	protected:
 
-		virtual void ApplyWindowSettings() override;
+		virtual void ApplySettings() override;
 
-		virtual void InitializeWindow() override;
+		virtual void Create() override;
 
-		virtual void FinalizeWindow() override;
+		virtual void Destroy() override;
 
 	public:
 
@@ -31,5 +36,7 @@ namespace bgl
 		BGenericPlatformWindow(const FWindowSettings& windowSettings);
 		~BGenericPlatformWindow();
 
+		SDL_Window* GetSDL_Window();
+		SDL_Surface* GetSDL_Surface();
 	};
 }

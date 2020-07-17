@@ -1,20 +1,31 @@
 
+#include "Bagual.pch.h"
+
 #include "PlatformGeneric.h"
 
 namespace bgl
 {
-	std::shared_ptr<BPlatformWindowInterface> BGenericPlatform::CreateWindow(const FWindowSettings& settings)
+	std::shared_ptr<BPlatformWindow> BPlatformGeneric::CreateWindow(const FWindowSettings& settings)
 	{
-		return nullptr;//std::make_shared<BPlatformWindowInterface>(new BGenericPlatformWindow(settings));
+		auto window = std::make_shared<BPlatformWindow>(settings);
+		windows.Add(window);
+		return window;
+	}
+
+	std::shared_ptr<bgl::BPlatformWindow> BPlatformGeneric::CreateWindow()
+	{
+		auto window = std::make_shared<BGenericPlatformWindow>(FWindowSettings());
+		windows.Add(window);
+		return window;
 	}
 
 	BGenericPlatformWindow::BGenericPlatformWindow(const FWindowSettings& windowSettings)
 	{
 		settings = windowSettings;
-		InitializeWindow();
+		Create();
 	}
 
-	void BGenericPlatformWindow::ApplyWindowSettings()
+	void BGenericPlatformWindow::ApplySettings()
 	{
 		if (sdlWindow)
 		{
@@ -23,10 +34,10 @@ namespace bgl
 		}
 	}
 
-	void BGenericPlatformWindow::InitializeWindow()
+	void BGenericPlatformWindow::Create()
 	{
-		SDL_Init(SDL_INIT_VIDEO);
-
+		BGL_ASSERT(sdlWindow == nullptr && "This window was already created!");
+		
 		sdlWindow = SDL_CreateWindow(
 			"Bagual Engine",
 			SDL_WINDOWPOS_CENTERED,
@@ -37,9 +48,14 @@ namespace bgl
 
 		SDL_ShowCursor(SDL_DISABLE);
 		SDL_SetRelativeMouseMode(SDL_FALSE);
+
+		sdlSurface = SDL_GetWindowSurface(sdlWindow);
+
+		canvas = std::make_shared<BCanvas>(this, sdlSurface->pixels, settings.width, settings.height);
+
 	}
 
-	void BGenericPlatformWindow::FinalizeWindow()
+	void BGenericPlatformWindow::Destroy()
 	{
 		if (sdlWindow)
 		{
@@ -49,6 +65,17 @@ namespace bgl
 
 	BGenericPlatformWindow::~BGenericPlatformWindow()
 	{
-		FinalizeWindow();
+		Destroy();
 	}
+
+	SDL_Window* BGenericPlatformWindow::GetSDL_Window()
+	{
+		return sdlWindow;
+	}
+
+	SDL_Surface* BGenericPlatformWindow::GetSDL_Surface()
+	{
+		return sdlSurface;
+	}
+
 }

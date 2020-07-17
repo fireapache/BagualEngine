@@ -21,8 +21,6 @@ namespace bgl
 		virtual void RenderCamera(const BCamera& camera) = 0;
 		virtual void Delay(const uint&& ms) = 0;
 		virtual void Delay(const uint& ms) = 0;
-		virtual std::shared_ptr<BCanvas> CreateCanvas(const ushort& width, const ushort& height) = 0;
-		virtual std::weak_ptr<BViewport> CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings) = 0;
 
 	};
 

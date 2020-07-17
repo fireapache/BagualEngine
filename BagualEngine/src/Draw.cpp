@@ -1,19 +1,25 @@
 
+#include "Bagual.pch.h"
+
 #include "Draw.h"
 #include "Camera.h"
 #include "Canvas.h"
+#include "Viewport.h"
 
 namespace bgl
 {
 	
 	bool IsLineOnScreen(BCamera& camera, BLine<BPixelPos>& line)
 	{
-		BBox<BPixelPos> viewport(
-			BPixelPos(0, 0),
-			BPixelPos(camera.GetCanvas().GetWidth() - 1, camera.GetCanvas().GetHeight() - 1));
+		auto& viewport = camera.GetViewport();
+		auto& viewSettings = viewport.GetSettings();
 
-		bool p1In = viewport.IsIn(line.p1);
-		bool p2In = viewport.IsIn(line.p2);
+		BBox<BPixelPos> viewportBox(
+			BPixelPos(viewSettings.x, viewSettings.y),
+			BPixelPos(viewSettings.width - 1, viewSettings.height - 1));
+
+		bool p1In = viewportBox.IsIn(line.p1);
+		bool p2In = viewportBox.IsIn(line.p2);
 
 		if (p1In && p2In) return true;
 
@@ -26,11 +32,13 @@ namespace bgl
 		BPixelPos* newP1 = nullptr;
 		BPixelPos* newP2 = nullptr;
 
+		auto& viewEdges = viewport.GetLimits();
+
 		for (int i = 0; i < 4; i++)
 		{
-			if (LinesIntersection(line, camera.GetCanvas().GetEdge(static_cast<BEBoxEdges>(i)), inters[i]))
+			if (LinesIntersection(line, viewEdges.GetEdges()[i], inters[i]))
 			{
-				isIn = viewport.IsIn(inters[i]);
+				isIn = viewportBox.IsIn(inters[i]);
 
 				if (!p1In && isIn)
 				{
@@ -67,8 +75,12 @@ namespace bgl
 
 	void DrawLineLow(BCamera& camera, const BLine<BPixelPos>& line)
 	{
-		auto screen = camera.GetCanvas().GetBuffer();
-		const ushort width = camera.GetCanvas().GetWidth();
+		auto& canvas = camera.GetViewport().GetCanvas().lock();
+
+		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineLow!");
+
+		auto& screen = canvas->GetBuffer();
+		const ushort width = canvas->GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
 		int yi = 1;
@@ -98,8 +110,12 @@ namespace bgl
 
 	void DrawLineHigh(BCamera& camera, const BLine<BPixelPos>& line)
 	{
-		auto screen = camera.GetCanvas().GetBuffer();
-		const int width = camera.GetCanvas().GetWidth();
+		auto& canvas = camera.GetViewport().GetCanvas().lock();
+
+		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineHigh!");
+
+		auto& screen = canvas->GetBuffer();
+		const ushort width = canvas->GetWidth();
 		int dx = line.p2.x - line.p1.x;
 		int dy = line.p2.y - line.p1.y;
 		int xi = 1;

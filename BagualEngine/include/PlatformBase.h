@@ -2,63 +2,65 @@
 
 #include "Common.h"
 
-#include "Singleton.h"
+#include "Canvas.h"
 
 namespace bgl
 {
+	static constexpr const uint& BGL_WINDOW_CENTRALIZED = -1;
+
 	struct FWindowSettings
 	{
+		uint x = BGL_WINDOW_CENTRALIZED;
+		uint y = BGL_WINDOW_CENTRALIZED;
 		uint width = 320;
 		uint height = 240;
 		std::string name = "Bagual Engine Window";
 	};
 
-	class BPlatformWindowInterface
-	{
-
-	public:
-
-		virtual FWindowSettings GetWindowSettings() = 0;
-
-		virtual void SetWindowSettings(const FWindowSettings& newSettings) = 0;
-
-	};
-
-	class BPlatformInterface
-	{
-
-	public:
-
-		virtual std::shared_ptr<BPlatformWindowInterface> CreateWindow(const FWindowSettings& settings) = 0;
-	};
-
-	class BPlatformBase : public BSingleton<BPlatformBase>, public BPlatformInterface
-	{
-
-	};
-
-	class BPlatformWindowBase : BPlatformWindowInterface
+	class BPlatformWindow
 	{
 
 
 	protected:
 
+		std::shared_ptr<BCanvas> canvas;
+
 		FWindowSettings settings;
 
-		virtual void ApplyWindowSettings();
+		virtual void ApplySettings();
 
-		virtual void InitializeWindow();
+		virtual void Create();
 
-		virtual void FinalizeWindow();
+		virtual void Destroy();
 
 	public:
 
-		BPlatformWindowBase() { }
-		BPlatformWindowBase(const FWindowSettings& windowSettings);
+		BPlatformWindow() {  };
+		BPlatformWindow(const FWindowSettings& windowSettings);
 
-		virtual FWindowSettings GetWindowSettings() override;
+		virtual FWindowSettings GetSettings() const;
 
-		virtual void SetWindowSettings(const FWindowSettings& newSettings) override;
+		virtual void SetWindow(const FWindowSettings& newSettings);
+
+		virtual const std::shared_ptr<BCanvas>& GetCanvas();
+
+	};
+
+	class BPlatformBase
+	{
+
+
+	protected:
+
+		BArray<std::shared_ptr<BPlatformWindow>> windows;
+
+	public:
+
+		virtual std::shared_ptr<BPlatformWindow> CreateWindow() = 0;
+		virtual std::shared_ptr<BPlatformWindow> CreateWindow(const FWindowSettings& settings) = 0;
+
+		BArray<std::shared_ptr<BPlatformWindow>> GetWindows();
+
 	};
 
 }

@@ -1,3 +1,6 @@
+
+#include "Bagual.pch.h"
+
 #include "GraphicsPlatform.h"
 
 #ifdef _WIN32
@@ -20,7 +23,7 @@ namespace bgl
 
 			>();
 
-		canvases = std::make_unique<BArray<std::shared_ptr<BCanvas>>>();
+		viewports = std::make_unique<BArray<std::shared_ptr<BViewport>>>();
 	}
 
 	void BGraphicsPlatform::RenderFrame()
@@ -31,16 +34,12 @@ namespace bgl
 		}
 	}
 
-	std::shared_ptr<BCanvas> BGraphicsPlatform::CreateCanvas(const ushort& width, const ushort& height)
+	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const FViewportSettings& viewportSettings)
 	{
-		auto canvas = std::make_shared<BCanvas>(width, height);
-		canvases->Add(canvas);
-		return canvas;
-	}
+		std::weak_ptr<BCanvas> weakCanvas = canvas;
+		auto viewport = std::make_shared<BViewport>(weakCanvas, viewportSettings);
 
-	std::weak_ptr<BViewport> BGraphicsPlatform::CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings)
-	{
-		std::shared_ptr<BViewport> viewport = std::make_shared<BViewport>(viewportSettings);
+		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
 
 		viewports->Add(viewport);
 

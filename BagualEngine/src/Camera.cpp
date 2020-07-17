@@ -1,35 +1,34 @@
 
+#include "Bagual.pch.h"
+
 #include "Camera.h"
+#include "Viewport.h"
 #include "Engine.h"
 #include "Logger.h"
-#include "Settings.h"
-#include "GraphicsPlatform.h"
+#include "PlatformBase.h"
+#include "Canvas.h"
 
 namespace bgl
 {
 
 	BCamera::BCamera()
 	{
-		auto graphics = Engine::GraphicsPlatform();
-
-		if (graphics)
-		{
-			canvas = graphics->CreateCanvas(Settings::width, Settings::height);
-		}
-		else
-		{
-			BLogger::Log("Could not create canvas for camera object due to null Graphics Platform!");
-		}
+		BGL_ASSERT(false && "Trying to build an empty camera!");
 	}
 	
+	BCamera::BCamera(const std::shared_ptr<BViewport>& viewport)
+	{
+		this->viewport = viewport;
+	}
+
 	void BCamera::AddLine2DBuffer(const BLine<BPixelPos>& line)
 	{
 		Line2DBuffer.Add(line);
 	}
 
-	BCanvas& BCamera::GetCanvas()
+	BViewport& BCamera::GetViewport()
 	{
-		return *canvas;
+		return *viewport;
 	}
 
 	BArray<BLine<BPixelPos>>& BCamera::GetLine2DBuffer()

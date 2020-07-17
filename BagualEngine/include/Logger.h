@@ -9,8 +9,6 @@ namespace bgl
 
 		static void Log(const char* RawMessage);
 	};
-}
 
-#ifndef BGL_LOG
-#define BGL_LOG(msg) Bagual::BLogger::Log(msg)
-#endif // !BGL_LOG
+	inline void BGL_LOG(const char* msg);
+}

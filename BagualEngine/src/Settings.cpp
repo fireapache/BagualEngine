@@ -1,3 +1,6 @@
+
+#include "Bagual.pch.h"
+
 #include "Settings.h"
 
 namespace bgl

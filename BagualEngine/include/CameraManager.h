@@ -4,6 +4,11 @@
 
 namespace bgl
 {
+	class BViewport;
+}
+
+namespace bgl
+{
 	class BCamera;
 }
 
@@ -16,7 +21,7 @@ namespace bgl
 
 	public:
 
-		static std::shared_ptr<BCamera> Create();
+		static std::shared_ptr<BCamera> Create(const std::shared_ptr<BViewport>& viewport);
 
 		static void RemoveCamera(std::shared_ptr<BCamera> camera);
 

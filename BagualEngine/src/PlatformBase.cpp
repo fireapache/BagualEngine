@@ -1,40 +1,52 @@
 
+#include "Bagual.pch.h"
+
 #include "PlatformBase.h"
 #include "Assertions.h"
 
 namespace bgl
 {
 
-	BPlatformWindowBase::BPlatformWindowBase(const FWindowSettings& windowSettings)
+	BPlatformWindow::BPlatformWindow(const FWindowSettings& windowSettings)
 	{
 		settings = windowSettings;
-		InitializeWindow();
+		Create();
 	}
 
-	FWindowSettings BPlatformWindowBase::GetWindowSettings()
+	FWindowSettings BPlatformWindow::GetSettings() const
 	{
 		return settings;
 	}
 
-	void BPlatformWindowBase::SetWindowSettings(const FWindowSettings& newSettings)
+	void BPlatformWindow::SetWindow(const FWindowSettings& newSettings)
 	{
 		settings = newSettings;
-		ApplyWindowSettings();
+		ApplySettings();
 	}
 
-	void BPlatformWindowBase::ApplyWindowSettings()
+	const std::shared_ptr<BCanvas>& BPlatformWindow::GetCanvas()
+	{
+		return canvas;
+	}
+
+	void BPlatformWindow::ApplySettings()
 	{
 		BGL_NEED_IMPLEMENTATION
 	}
 
-	void BPlatformWindowBase::InitializeWindow()
+	void BPlatformWindow::Create()
 	{
 		BGL_NEED_IMPLEMENTATION
 	}
 
-	void BPlatformWindowBase::FinalizeWindow()
+	void BPlatformWindow::Destroy()
 	{
 		BGL_NEED_IMPLEMENTATION
+	}
+
+	BArray<std::shared_ptr<bgl::BPlatformWindow>> BPlatformBase::GetWindows()
+	{
+		return windows;
 	}
 
 }

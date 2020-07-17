@@ -140,7 +140,7 @@ namespace bgl
 
 	};
 
-	enum class BEBoxEdges
+	enum class BEBoxEdge : uint
 	{
 		Top = 0,
 		Bottom,
@@ -267,6 +267,50 @@ namespace bgl
 	};
 
 	typedef BVector2<int> BPixelPos;
+	
+	class BBoxEdges
+	{
+		typedef BLine<BPixelPos> EdgeType;
+
+		EdgeType edges[4];
+
+	public:
+
+		BBoxEdges()
+		{
+			//BGL_LOG("Creating an empty BBoxEdges object!");
+		}
+
+		BBoxEdges(const EdgeType& topEdge, const EdgeType& bottomEdge, const EdgeType& LeftEdge, const EdgeType& rightEdge)
+		{
+			edges[(uint)BEBoxEdge::Top] = topEdge;
+			edges[(uint)BEBoxEdge::Bottom] = bottomEdge;
+			edges[(uint)BEBoxEdge::Left] = LeftEdge;
+			edges[(uint)BEBoxEdge::Right] = rightEdge;
+		}
+
+		BBoxEdges(const BBoxEdges& otherBox)
+		{
+			memcpy(edges, otherBox.GetEdges(), sizeof(EdgeType) * 4);
+		}
+
+		const EdgeType* GetEdges() const
+		{
+			return edges;
+		}
+
+		EdgeType& operator[](const BEBoxEdge&& index)
+		{
+			return edges[(uint)index];
+		}
+
+		EdgeType& operator[](uint index)
+		{
+			return edges[index];
+		}
+
+
+	};
 
 	template <typename T>
 	class BBox : public BLine<T>

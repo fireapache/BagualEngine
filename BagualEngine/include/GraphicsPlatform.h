@@ -13,8 +13,6 @@ namespace bgl
 		friend std::unique_ptr<BArray<std::shared_ptr<BViewport>>> std::make_unique<BArray<std::shared_ptr<BViewport>>>();
 
 		std::unique_ptr<BGraphicsDriverInterface> driverInstance;
-
-		std::unique_ptr<BArray<std::shared_ptr<BCanvas>>> canvases;
 		std::unique_ptr<BArray<std::shared_ptr<BViewport>>> viewports;
 
 	public:
@@ -25,8 +23,7 @@ namespace bgl
 		virtual void RenderCamera(const BCamera& camera);
 		virtual void Delay(const uint&& ms);
 		virtual void Delay(const uint& ms);
-		virtual std::shared_ptr<BCanvas> CreateCanvas(const ushort& width, const ushort& height);
-		virtual std::weak_ptr<BViewport> CreateViewport(BCanvas& canvas, const FViewportSettings& viewportSettings);
+		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const FViewportSettings& viewportSettings);
 
 	};
 }

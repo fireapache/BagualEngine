@@ -1,4 +1,6 @@
 
+#include "Bagual.pch.h"
+
 #include "GraphicsDriverBase.h"
 
 #include "CameraManager.h"
