@@ -154,6 +154,36 @@ namespace bgl
 	};
 
 	template <typename T>
+	class BSize
+	{
+
+	public:
+
+		T width, height;
+
+		BSize() : width(0), height(0) {}
+		BSize(const T& width, const T& height) : width(width), height(height) {}
+		BSize(const BSize<T>& p) : width(p.width), height(p.height) {}
+		~BSize() {}
+
+	};
+
+	template <typename T>
+	class BSize3D : public BSize<T>
+	{
+
+	public:
+
+		T depth;
+
+		BSize3D() : width(0), height(0), depth(0) {}
+		BSize3D(const T& width, const T& height, const T& depth) : width(width), height(height), depth(depth) {}
+		BSize3D(const BSize3D<T>& p) : width(p.width), height(p.height), depth(p.depth) {}
+		~BSize3D() {}
+
+	};
+
+	template <typename T>
 	class BVector2
 	{
 
@@ -162,7 +192,7 @@ namespace bgl
 		T x, y;
 
 		BVector2() : x(0), y(0) {}
-		BVector2(T x, T y) : x(x), y(y) {}
+		BVector2(const T& x, const T& y) : x(x), y(y) {}
 		BVector2(const BVector2<T> &p) : x(p.x), y(p.y) {}
 		~BVector2() {}
 

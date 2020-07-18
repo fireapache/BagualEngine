@@ -16,13 +16,18 @@ namespace bgl
 
 	class BEngineTest_DrawRandomLines : public BEngineTestBase
 	{
+		FWindowSettings windowSettings;
 
-		std::shared_ptr<BCamera> camera;
+		std::shared_ptr<BCamera> camera1;
+		std::shared_ptr<BCamera> camera2;
 
 	public:
 
 		void Init() override;
 		void Tick() override;
+
+		void DrawCameraLine(std::shared_ptr<BCamera>& camera);
+
 		void Term() override;
 
 	};

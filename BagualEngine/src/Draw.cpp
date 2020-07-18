@@ -12,14 +12,12 @@ namespace bgl
 	bool IsLineOnScreen(BCamera& camera, BLine<BPixelPos>& line)
 	{
 		auto& viewport = camera.GetViewport();
-		auto& viewSettings = viewport.GetSettings();
+		auto& canvas = viewport.GetCanvas().lock();
 
-		BBox<BPixelPos> viewportBox(
-			BPixelPos(viewSettings.x, viewSettings.y),
-			BPixelPos(viewSettings.width - 1, viewSettings.height - 1));
+		const BBox<BPixelPos>& viewportBounds = viewport.GetBounds();
 
-		bool p1In = viewportBox.IsIn(line.p1);
-		bool p2In = viewportBox.IsIn(line.p2);
+		bool p1In = viewportBounds.IsIn(line.p1);
+		bool p2In = viewportBounds.IsIn(line.p2);
 
 		if (p1In && p2In) return true;
 
@@ -38,7 +36,7 @@ namespace bgl
 		{
 			if (LinesIntersection(line, viewEdges.GetEdges()[i], inters[i]))
 			{
-				isIn = viewportBox.IsIn(inters[i]);
+				isIn = viewportBounds.IsIn(inters[i]);
 
 				if (!p1In && isIn)
 				{

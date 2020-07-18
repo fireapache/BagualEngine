@@ -65,8 +65,27 @@ namespace bgl
 
 			SDL_UnlockSurface(surface);
 
-			SDL_UpdateWindowSurface(genericWindow->GetSDL_Window());
+			
 		}
+
+		auto& platform = Engine::Platform();
+		auto& windows = platform->GetWindows();
+
+		for (auto& window : windows)
+		{
+			auto genericWindow = static_cast<BGenericPlatformWindow*>(window.get());
+
+			if (genericWindow)
+			{
+				SDL_UpdateWindowSurface(genericWindow->GetSDL_Window());
+			}
+			else
+			{
+				BGL_LOG("Could not get generic window!");
+			}
+		}
+
+		
 
 	}
 

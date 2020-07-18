@@ -9,33 +9,14 @@ namespace bgl
 
 namespace bgl
 {
-	struct FViewportSettings
-	{
-
-	private:
-
-
-
-	public:
-
-		uint x = 0;
-		uint y = 0;
-		uint width = 320;
-		uint height = 240;
-
-		FViewportSettings();
-
-		FViewportSettings(const BCanvas& canvas);
-
-		FViewportSettings(uint width, uint height);
-
-		FViewportSettings(uint x, uint y, uint width, uint height);
-
-	};
-
+	
 	class BViewport
 	{
-		FViewportSettings settings;
+		BVector2<uint> position;
+		// TODO: Replace size for a second position vector
+		BSize<uint> size;
+
+		BBox<BVector2<float>> normalSize;
 
 		std::weak_ptr<BCanvas> canvas;
 
@@ -45,17 +26,41 @@ namespace bgl
 
 	public:
 
-		BViewport(std::weak_ptr<BCanvas>& canvas, const FViewportSettings& settings);
+		BViewport(const std::shared_ptr<BCanvas>& canvas);
+		BViewport(const std::shared_ptr<BCanvas>& canvas, const BBox<BVector2<float>>& normalizedSize);
+		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& width, const uint& height);
+		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& x, const uint& y, const uint& width, const uint& height);
 
-		const BBoxEdges& GetLimits();
+		/*	Calculates viewport's position in the canvas based on its
+		 *	normalized size if set.
+		 *
+		 *	Ex.:
+		 *
+		 *		Canvas Resolution = 320x240
+		 *		Viewport's Normalized Size = (0.5, 0.5) (1.0, 1.0)
+		 *
+		 *		then
+		 *
+		 *		Viewport Position in Canvas = (160, 120) (320 - 1, 240 - 1)
+		 */
+		void SetNormalizedSize(const BBox<BVector2<float>>& normalizedSize);
 
-		const FViewportSettings& GetSettings();
+		const BBoxEdges& GetLimits() const;
 
-		FViewportSettings& Set();
+		const BVector2<uint>& GetPosition() const;
 
-		void ApplySettings();
+		const BSize<uint>& GetSize() const;
+
+		void SetPosition(const BVector2<uint>& pos);
+
+		void SetSize(const BSize<uint>& size);
+
+		void SetBounds(const BVector2<uint>& pos, const BSize<uint>& size);
+
+		BBox<BPixelPos> GetBounds() const;
 
 		std::weak_ptr<BCanvas>& GetCanvas();
+
 
 	};
 

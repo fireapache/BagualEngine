@@ -7,7 +7,7 @@ namespace bgl
 {
 	std::shared_ptr<BPlatformWindow> BPlatformGeneric::CreateWindow(const FWindowSettings& settings)
 	{
-		auto window = std::make_shared<BPlatformWindow>(settings);
+		auto window = std::make_shared<BGenericPlatformWindow>(settings);
 		windows.Add(window);
 		return window;
 	}
