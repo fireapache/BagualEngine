@@ -12,9 +12,7 @@ namespace bgl
 	
 	class BViewport
 	{
-		BVector2<uint> position;
-		// TODO: Replace size for a second position vector
-		BSize<uint> size;
+		BBox<BPixelPos> bounds;
 
 		BBox<BVector2<float>> normalSize;
 
@@ -47,17 +45,9 @@ namespace bgl
 
 		const BBoxEdges& GetLimits() const;
 
-		const BVector2<uint>& GetPosition() const;
+		void SetBounds(const BBox<BPixelPos>& newBounds);
 
-		const BSize<uint>& GetSize() const;
-
-		void SetPosition(const BVector2<uint>& pos);
-
-		void SetSize(const BSize<uint>& size);
-
-		void SetBounds(const BVector2<uint>& pos, const BSize<uint>& size);
-
-		BBox<BPixelPos> GetBounds() const;
+		const BBox<BPixelPos>& GetBounds() const;
 
 		std::weak_ptr<BCanvas>& GetCanvas();
 

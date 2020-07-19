@@ -36,14 +36,14 @@ namespace bgl
 
 		{
 			//auto viewport = graphicsDriver->CreateViewport(canvas);
-			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 10, 630, 115);
+			auto viewport = graphicsDriver->CreateViewport(canvas, 10, 10, 630, 115);
 			
-			BBox<BVector2<float>> normalizedSize;
+			/*BBox<BVector2<float>> normalizedSize;
 			normalizedSize.p1.x = 0.005f;
 			normalizedSize.p1.y = 0.01f;
 			normalizedSize.p2.x = 0.995f;
 			normalizedSize.p2.y = 0.495f;
-			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);*/
 			
 			camera1 = BCameraManager::Create(viewport);
 		}
