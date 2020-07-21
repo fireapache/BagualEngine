@@ -7,6 +7,7 @@
 #include <cassert>
 #include "Logger.h"
 #include "Assertions.h"
+#include "Definitions.h"
 
 namespace bgl
 {
@@ -168,7 +169,7 @@ namespace bgl
 
 	};
 
-	template <typename T>
+	/*template <typename T>
 	class BSize3D : public BSize<T>
 	{
 
@@ -181,7 +182,7 @@ namespace bgl
 		BSize3D(const BSize3D<T>& p) : width(p.width), height(p.height), depth(p.depth) {}
 		~BSize3D() {}
 
-	};
+	};*/
 
 	template <typename T>
 	class BVector2

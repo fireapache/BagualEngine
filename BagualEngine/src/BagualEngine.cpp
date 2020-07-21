@@ -1,7 +1,7 @@
 
 #include "Bagual.pch.h"
 
-#include "Engine.h"
+#include "BagualEngine.h"
 #include "Camera.h"
 #include "CameraManager.h"
 #include "EngineTests.h"
@@ -130,3 +130,5 @@ namespace bgl
 	}
 
 }
+
+

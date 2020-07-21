@@ -16,7 +16,7 @@
 #include "Module.cpp"
 #include "PlatformBase.cpp"
 #include "PlatformGeneric.cpp"
-#include "Engine.cpp"
+#include "BagualEngine.cpp"
 #include "Settings.cpp"
 
 #endif

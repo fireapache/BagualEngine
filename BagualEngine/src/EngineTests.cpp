@@ -5,7 +5,7 @@
 
 #include "CameraManager.h"
 #include "Settings.h"
-#include "Engine.h"
+#include "BagualEngine.h"
 #include "PlatformBase.h"
 #include "Viewport.h"
 #include "GraphicsPlatform.h"

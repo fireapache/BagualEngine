@@ -36,9 +36,6 @@
     <ClCompile Include="src\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Logger.cpp">
       <Filter>Source Files\Misc</Filter>
     </ClCompile>
@@ -59,9 +56,6 @@
     </ClCompile>
     <ClCompile Include="src\Viewport.cpp">
       <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\PlatformBase.cpp">
       <Filter>Source Files\Platform</Filter>
@@ -87,12 +81,12 @@
     <ClCompile Include="src\Bagual.unity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\BagualEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Singleton.h">
@@ -153,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Definitions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BagualEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

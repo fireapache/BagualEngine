@@ -1,7 +1,5 @@
 
-#include "Bagual.pch.h"
-
-#include "Engine.h"
+#include <BagualEngine.h>
 
 int main(int argc, char** argv)
 {
