@@ -5,9 +5,27 @@
 namespace bgl
 {
 	template <typename T>
+	inline T deg2rad(const T& deg)
+	{
+		return deg * M_PI / 180;
+	}
+
+	template <typename T>
 	T CrossProduct(const BVector2<T> &p1, const BVector2<T> &p2)
 	{
 		return (p1.x * p2.y) - (p2.x * p1.y);
+	}
+
+	template <typename T>
+	BVector3<T> CrossProduct(const BVector3<T>& p1, const BVector3<T>& p2)
+	{
+		return BVector3<T>(p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z, p1.x * p2.y - p1.y * p2.x);
+	}
+
+	template <typename T>
+	T DotProduct(const BVector3<T>& v1, const BVector3<T>& v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
 	template <typename T>

@@ -215,6 +215,25 @@ namespace bgl
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f));
 		}
 
+		template <typename T>
+		T Norm() const
+		{
+			return x * x + y * y;
+		}
+
+		template <typename T>
+		BVector2<T>& Normalize()
+		{
+			T n = Norm<T>();
+
+			if (n > 0)
+			{
+				T factor = 1 / sqrt<T>(n);
+				x *= factor, y *= factor;
+			}
+
+			return *this;
+		}
 	};
 
 	template <typename T>
@@ -246,7 +265,7 @@ namespace bgl
 			this->z = z;
 		}
 
-		BVector3(BVector3<T> &p)
+		BVector3(const BVector3<T> &p)
 		{
 			this->x = p.x;
 			this->y = p.y;
@@ -274,6 +293,44 @@ namespace bgl
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f) + pow(c, 2.0f));
 		}
 
+		T Norm() const
+		{
+			return this->x * this->x + this->y * this->y + this->z * this->z;
+		}
+
+		BVector3<T> Normalize()
+		{
+			T n = Norm();
+
+			if (n > 0)
+			{
+				T factor = 1 / sqrt(n);
+				this->x *= factor, this->y *= factor, this->z *= factor;
+			}
+
+			return *this;
+		}
+
+	};
+
+	typedef BVector3<float> BVec3f;
+
+	template <typename T>
+	class BTriangle
+	{
+
+	public:
+
+		BVector3<T> v0, v1, v2;
+
+		BTriangle() {};
+
+		BTriangle(const BVector3<T>& v0, const BVector3<T>& v1, const BVector3<T>& v2)
+		{
+			this->v0 = v0;
+			this->v1 = v1;
+			this->v2 = v2;
+		}
 	};
 
 	template <typename T>

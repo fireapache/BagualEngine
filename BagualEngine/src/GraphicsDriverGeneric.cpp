@@ -63,6 +63,71 @@ namespace bgl
 
 			camera->ClearLine2DBuffer();
 
+			auto pix = canvas->GetBuffer();
+
+			const uint32_t tn = 2;
+
+			BTriangle<float> tris[tn];
+
+			tris[0].v0 = BVec3f(-1.f, -1.f, -5.f);
+			tris[0].v1 = BVec3f(1.f, -1.f, -5.f);
+			tris[0].v2 = BVec3f(0.f, 1.f, -5.f);
+
+			tris[1].v0 = BVec3f(-4.f, -1.f, -6.f);
+			tris[1].v1 = BVec3f(-2.f, -1.f, -5.f);
+			tris[1].v2 = BVec3f(-3.f, 1.f, -5.f);
+
+			auto& viewport = camera->GetViewport();
+
+			const auto& width = canvas->GetWidth();
+			const auto& height = canvas->GetHeight();
+
+			float scale = tan(deg2rad(camera->GetFOV() * 0.5));
+			float imageAspectRatio = width / (float)height;
+			BVector3<float> orig(0.f, 0.f, 0.f);
+
+			for (uint32_t j = 0; j < height; ++j)
+			{
+				for (uint32_t i = 0; i < width; ++i)
+				{
+					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
+					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
+					BVector3<float> dir(x, y, -1);
+					dir.Normalize();
+					float t, u, v;
+
+					for (uint32_t tri = 0; tri < tn; ++tri)
+					{
+						if (RayTriangleIntersect(orig, dir, tris[tri].v0, tris[tri].v1, tris[tri].v2, t, u, v))
+						{
+							//*pix = u * cols[0] + v * cols[1] + (1 - u - v) * cols[2];
+							// uncomment this line if you want to visualize the row barycentric coordinates
+							// char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
+							// char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
+							// char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
+							
+							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
+							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
+							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
+
+							uint rgb = r;
+							// 0x0000RR
+
+							rgb = (rgb << 8) + g;
+							// 0x00RR00
+							// 0x00RRGG
+
+							rgb = (rgb << 8) + b;
+							// 0xRRGG00
+							// 0xRRGGBB
+
+							pix[i + width * j] = rgb;
+						}
+					}
+				}
+			}
+
+
 			SDL_UnlockSurface(surface);
 
 			

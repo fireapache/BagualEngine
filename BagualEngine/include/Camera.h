@@ -18,10 +18,16 @@ namespace bgl
 
 		BArray<BLine<BPixelPos>> Line2DBuffer;
 
+		float fov = 51.52f;
+
 	public:
 
 		BCamera();
 		BCamera(const std::shared_ptr<BViewport>& viewport);
+
+		void SetFOV(const float& newFov);
+
+		const float& GetFOV() const;
 
 		// Line to be render on top of everything during camera render loop in the Renderer
 		void AddLine2DBuffer(const BLine<BPixelPos>& line);

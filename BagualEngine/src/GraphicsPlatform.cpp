@@ -17,9 +17,7 @@ namespace bgl
 	{
 		driverInstance = std::make_unique<
 
-#ifdef _WIN32
 			BGraphicsDriverGeneric
-#endif // _WIN32
 
 			>();
 

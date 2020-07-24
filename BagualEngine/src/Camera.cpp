@@ -21,6 +21,11 @@ namespace bgl
 		this->viewport = viewport;
 	}
 
+	void BCamera::SetFOV(const float& newFov)
+	{
+		fov = newFov;
+	}
+
 	void BCamera::AddLine2DBuffer(const BLine<BPixelPos>& line)
 	{
 		Line2DBuffer.Add(line);
@@ -39,6 +44,11 @@ namespace bgl
 	void BCamera::ClearLine2DBuffer()
 	{
 		Line2DBuffer.Clear();
+	}
+
+	const float& BCamera::GetFOV() const
+	{
+		return fov;
 	}
 
 }

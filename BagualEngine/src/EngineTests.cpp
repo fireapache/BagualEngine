@@ -25,8 +25,8 @@ namespace bgl
 
 		//FWindowSettings windowSettings;
 
-		windowSettings.width = 1280;
-		windowSettings.height = 720;
+		windowSettings.width = 1920;
+		windowSettings.height = 1080;
 
 		auto window = platform->CreateWindow(windowSettings);
 		
@@ -35,8 +35,8 @@ namespace bgl
 		auto& canvas = window->GetCanvas();
 
 		{
-			//auto viewport = graphicsDriver->CreateViewport(canvas);
-			auto viewport = graphicsDriver->CreateViewport(canvas, 10, 10, 630, 115);
+			auto viewport = graphicsDriver->CreateViewport(canvas);
+			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 10, 300, 115);
 			
 			/*BBox<BVector2<float>> normalizedSize;
 			normalizedSize.p1.x = 0.005f;
@@ -57,9 +57,9 @@ namespace bgl
 			normalizedSize.p1.y = 0.505f;
 			normalizedSize.p2.x = 0.995f;
 			normalizedSize.p2.y = 0.99f;
-			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+			//auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
 
-			camera2 = BCameraManager::Create(viewport);
+			//camera2 = BCameraManager::Create(viewport);
 		}
 		
 
