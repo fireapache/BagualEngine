@@ -25,8 +25,8 @@ namespace bgl
 
 		//FWindowSettings windowSettings;
 
-		windowSettings.width = 1920;
-		windowSettings.height = 1080;
+		windowSettings.width = 640;
+		windowSettings.height = 480;
 
 		auto window = platform->CreateWindow(windowSettings);
 		
@@ -35,8 +35,8 @@ namespace bgl
 		auto& canvas = window->GetCanvas();
 
 		{
-			auto viewport = graphicsDriver->CreateViewport(canvas);
-			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 10, 300, 115);
+			//auto viewport = graphicsDriver->CreateViewport(canvas);
+			auto viewport = graphicsDriver->CreateViewport(canvas, 20, 20, 250, 200);
 			
 			/*BBox<BVector2<float>> normalizedSize;
 			normalizedSize.p1.x = 0.005f;
@@ -45,21 +45,35 @@ namespace bgl
 			normalizedSize.p2.y = 0.495f;
 			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);*/
 			
-			camera1 = BCameraManager::Create(viewport);
+			BCameraManager::Create(viewport);
 		}
 
 		{
 			//auto viewport = graphicsDriver->CreateViewport(canvas);
-			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 125, 630, 230);
+			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
 
 			BBox<BVector2<float>> normalizedSize;
 			normalizedSize.p1.x = 0.005f;
 			normalizedSize.p1.y = 0.505f;
 			normalizedSize.p2.x = 0.995f;
 			normalizedSize.p2.y = 0.99f;
-			//auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
 
-			//camera2 = BCameraManager::Create(viewport);
+			BCameraManager::Create(viewport);
+		}
+
+		{
+			//auto viewport = graphicsDriver->CreateViewport(canvas);
+			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
+
+			BBox<BVector2<float>> normalizedSize;
+			normalizedSize.p1.x = 0.505f;
+			normalizedSize.p1.y = 0.005f;
+			normalizedSize.p2.x = 0.995f;
+			normalizedSize.p2.y = 0.495f;
+			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+
+			BCameraManager::Create(viewport);
 		}
 		
 
@@ -67,8 +81,12 @@ namespace bgl
 
 	void BEngineTest_DrawRandomLines::Tick()
 	{
-		DrawCameraLine(camera1);
-		DrawCameraLine(camera2);
+		auto& cameras = BCameraManager::GetCameras();
+
+		for (auto& camera : cameras)
+		{
+			DrawCameraLine(camera);
+		}
 	}
 
 	void BEngineTest_DrawRandomLines::DrawCameraLine(std::shared_ptr<BCamera>& camera)
@@ -89,8 +107,7 @@ namespace bgl
 
 	void BEngineTest_DrawRandomLines::Term()
 	{
-		BCameraManager::RemoveCamera(camera1);
-		camera1 = nullptr;
+		
 	}
 
 }

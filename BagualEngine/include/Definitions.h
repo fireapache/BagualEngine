@@ -7,4 +7,8 @@ namespace bgl
 
 	typedef unsigned int uint;
 	typedef unsigned short ushort;
+
+	typedef uint FrameDataType;
+
+
 }

@@ -63,7 +63,7 @@ namespace bgl
 
 			camera->ClearLine2DBuffer();
 
-			auto pix = canvas->GetBuffer();
+			//continue;
 
 			const uint32_t tn = 2;
 
@@ -79,8 +79,8 @@ namespace bgl
 
 			auto& viewport = camera->GetViewport();
 
-			const auto& width = canvas->GetWidth();
-			const auto& height = canvas->GetHeight();
+			const auto width = viewport.GetSize().width;
+			const auto height = viewport.GetSize().height;
 
 			float scale = tan(deg2rad(camera->GetFOV() * 0.5));
 			float imageAspectRatio = width / (float)height;
@@ -121,7 +121,8 @@ namespace bgl
 							// 0xRRGG00
 							// 0xRRGGBB
 
-							pix[i + width * j] = rgb;
+							//pix[i + width * j] = rgb;
+							viewport(i, j) = rgb;
 						}
 					}
 				}

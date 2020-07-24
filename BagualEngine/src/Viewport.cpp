@@ -100,6 +100,24 @@ namespace bgl
 		return canvas;
 	}
 
+	const bgl::BPixelPos BViewport::GetPosition() const
+	{
+		return BPixelPos(GetBounds().p1.x, GetBounds().p1.y);
+	}
+
+	const bgl::BSize<bgl::uint> BViewport::GetSize() const
+	{
+		return BSize<uint>(GetBounds().p2.x - GetBounds().p1.x, GetBounds().p2.y - GetBounds().p1.y);
+	}
+
+	bgl::FrameDataType& BViewport::operator()(size_t x, size_t y)
+	{
+		auto canvasPtr = canvas.lock();
+		auto width = canvasPtr->GetWidth();
+		auto& buffer = canvasPtr->GetBuffer();
+		return buffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
+	}
+
 	void BViewport::SetBounds(const BBox<BPixelPos>& newBounds)
 	{
 		bounds = newBounds;

@@ -18,8 +18,6 @@ namespace bgl
 	{
 		FWindowSettings windowSettings;
 
-		std::shared_ptr<BCamera> camera1;
-		std::shared_ptr<BCamera> camera2;
 
 	public:
 

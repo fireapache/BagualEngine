@@ -11,7 +11,7 @@ namespace bgl
 	BCanvas::BCanvas(ushort width /*= 320*/, ushort height /*= 240*/)
 		: width(width), height(height)
 	{
-		this->buffer = std::make_shared<BBuffer<uint>>(static_cast<size_t>(width * height));
+		this->buffer = std::make_shared<BBuffer<FrameDataType>>(static_cast<size_t>(width) * height);
 
 		UpdateEdges();
 
@@ -20,7 +20,7 @@ namespace bgl
 	BCanvas::BCanvas(BPlatformWindow* window, void* pixels, ushort width, ushort height)
 		: width(width), height(height)
 	{
-		this->buffer = std::make_shared<BBuffer<uint>>(static_cast<uint*>(pixels), static_cast<size_t>(width * height));
+		this->buffer = std::make_shared<BBuffer<FrameDataType>>(static_cast<FrameDataType*>(pixels), static_cast<size_t>(width) * height);
 
 		this->window = window;
 
@@ -70,7 +70,7 @@ namespace bgl
 		return edges[static_cast<int>(edge)];
 	}
 
-	BBuffer<uint>& BCanvas::GetBuffer()
+	BBuffer<FrameDataType>& BCanvas::GetBuffer()
 	{
 		return *buffer.get();
 	}

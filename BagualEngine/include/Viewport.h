@@ -51,6 +51,11 @@ namespace bgl
 
 		std::weak_ptr<BCanvas>& GetCanvas();
 
+		const BPixelPos GetPosition() const;
+
+		const BSize<uint> GetSize() const;
+
+		FrameDataType& operator()(size_t x, size_t y);
 
 	};
 

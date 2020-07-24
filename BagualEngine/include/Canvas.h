@@ -16,7 +16,7 @@ namespace bgl
 
 		BLine<BPixelPos> edges[4];
 
-		std::shared_ptr<BBuffer<uint>> buffer;
+		std::shared_ptr<BBuffer<FrameDataType>> buffer;
 
 		inline void UpdateEdges();
 
@@ -35,7 +35,7 @@ namespace bgl
 		const BLine<BPixelPos>* GetEdges()  const;
 		const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
 
-		BBuffer<uint>& GetBuffer();
+		BBuffer<FrameDataType>& GetBuffer();
 
 		BPlatformWindow* GetWindow();
 
