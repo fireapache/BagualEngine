@@ -7,5 +7,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include <thread>
 
 #include <SDL.h>

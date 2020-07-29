@@ -86,6 +86,13 @@ namespace bgl
 		for (auto& camera : cameras)
 		{
 			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
+			DrawCameraLine(camera);
 		}
 	}
 

@@ -86,7 +86,7 @@ namespace bgl
 				
 			}
 			
-			graphicsPlatform->Delay(1);
+			//graphicsPlatform->Delay(1);
 		}
 	}
 

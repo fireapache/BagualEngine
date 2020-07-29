@@ -1,6 +1,8 @@
 
 #include "Bagual.pch.h"
 
+#include <thread>
+
 #include "GraphicsDriverGeneric.h"
 #include "Camera.h"
 #include "CameraManager.h"
@@ -56,10 +58,23 @@ namespace bgl
 			// Rendering queued 2D lines
 			auto lines = camera->GetLine2DBuffer();
 
+			std::vector<std::thread> DrawLineThreads;
+
 			for (auto& line : lines)
 			{
-				DrawLine(*camera.get(), line);
+				DrawLineThreads.push_back(std::thread(
+				[&]()
+				{
+					DrawLine(*camera.get(), line);
+				}));
 			}
+
+			for (auto& thread : DrawLineThreads)
+			{
+				thread.join();
+			}
+
+			DrawLineThreads.empty();
 
 			camera->ClearLine2DBuffer();
 
