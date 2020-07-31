@@ -274,7 +274,7 @@ namespace bgl
 
 		~BVector3() {}
 
-		inline const BVector3<T>& operator-(const BVector3<T> &p) const
+		inline const BVector3<T> operator-(const BVector3<T> &p) const
 		{
 			return BVector3<T>(this->x - p.x, this->y - p.y, this->z - p.z);
 		}

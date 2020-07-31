@@ -10,6 +10,7 @@
 #include "Draw.h"
 #include "Viewport.h"
 #include "PlatformGeneric.h"
+#include "BagualEngine.h"
 
 #include <SDL.h>
 
@@ -74,7 +75,7 @@ namespace bgl
 				thread.join();
 			}
 
-			DrawLineThreads.empty();
+			DrawLineThreads.clear();
 
 			camera->ClearLine2DBuffer();
 
@@ -97,7 +98,7 @@ namespace bgl
 			const auto width = viewport.GetSize().width;
 			const auto height = viewport.GetSize().height;
 
-			float scale = tan(deg2rad(camera->GetFOV() * 0.5));
+			float scale = static_cast<float>(tan(deg2rad(camera->GetFOV() * 0.5)));
 			float imageAspectRatio = width / (float)height;
 			BVector3<float> orig(0.f, 0.f, 0.f);
 
@@ -162,7 +163,7 @@ namespace bgl
 			}
 			else
 			{
-				BGL_LOG("Could not get generic window!");
+				//BGL_LOG("Could not get generic window!");
 			}
 		}
 
