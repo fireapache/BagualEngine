@@ -5,6 +5,9 @@ Binaries/
 Intermediate/
 BagualEngine/lib/
 
+*.sln
+*.vcxproj*
+
 # User-specific files
 *.suo
 *.user

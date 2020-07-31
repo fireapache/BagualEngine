@@ -1,30 +1,37 @@
+
+--[[
+
+	Premake5 script for Bagual Engine and its dependicies.
+
+	Projects:
+		BagualEngine
+		BagualGame
+
+	Windows:
+		Debug, Release
+		Win32, x64
+
+	Linux: TODO!
+
+--]]
+
 workspace "BagualEngine"
 	
-	configurations
-	{
-		"Debug32",
-		"Test32",
-		"Release32",
-		"Debug64",
-		"Test64",
-		"Release64"
-	}
-
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+	configurations { "Debug", "Release" }
+	platforms { "Win32", "x64" }
 
 	startproject "BagualGame"
+	defaultplatform "x64"
 
-   filter "configurations:*32"
-      architecture "x86"
+	flags { "MultiProcessorCompile" }
 
-   filter "configurations:*64"
-      architecture "x86_64"
+	filter { "platforms:Win32" }
+		system "Windows"
+		architecture "x86"
 
-	
-	
+	filter { "platforms:x64" }
+		system "Windows"
+		architecture "x86_64"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/"
 
@@ -33,20 +40,10 @@ project "BagualEngine"
 	location "BagualEngine"
 	kind "StaticLib"
 	language "C++"
-
 	targetdir ("BagualEngine/lib/" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
-
-	links 
-	{ 
-		"SDL2.lib",
-		"SDL2main.lib"
-	}
-
-	defines
-	{
-		"BGL_UNITY_BUILD=0"
-	}
+	links { "SDL2.lib", "SDL2main.lib" }
+	defines { "BGL_UNITY_BUILD=0" }
 
 	includedirs
 	{
@@ -74,39 +71,21 @@ project "BagualEngine"
 		defines "BGL_DEBUG"
 		symbols "On"
 
-	filter "configurations:Test"
-		defines "BGL_TEST"
-		optimize "On"
-
 	filter "configurations:Release"
 		defines "BGL_RELEASE"
 		optimize "On"
 
 project "BagualGame"
+
 	location "BagualGame"
 	kind "ConsoleApp"
-
 	language "C++"
-
 	targetdir ("Binaries/%{prj.name}-" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
-
 	dependson { "BagualEngine" }
-
-	links 
-	{ 
-		"BagualEngine.lib"
-	}
-
-	includedirs
-	{
-		"./BagualEngine/include/"
-	}
-
-	libdirs
-	{
-		("BagualEngine/lib/" .. outputdir)
-	}
+	links { "BagualEngine.lib" }
+	includedirs { "./BagualEngine/include/" }
+	libdirs { ("BagualEngine/lib/" .. outputdir) }
 
 	files
 	{
@@ -124,14 +103,10 @@ project "BagualGame"
 			("{COPY} %{wks.location}BagualEngine/third/SDL2/lib/%{cfg.system}/%{cfg.architecture}/SDL2.dll %{wks.location}Binaries/%{prj.name}-" .. outputdir)
 		}
 
-	filter "configurations:Debug*"
+	filter "configurations:Debug"
 		defines "BGL_DEBUG"
 		symbols "On"
 
-	filter "configurations:Test*"
-		defines "BGL_TEST"
-		optimize "On"
-
-	filter "configurations:Release*"
+	filter "configurations:Release"
 		defines "BGL_RELEASE"
 		optimize "On"
