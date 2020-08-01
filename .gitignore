@@ -3,7 +3,8 @@
 
 Binaries/
 Intermediate/
-BagualEngine/lib/
+
+*.lib
 
 *.sln
 *.vcxproj*

@@ -7,6 +7,10 @@
 		BagualEngine
 		BagualGame
 
+	Dependencies:
+		GLAD
+		GLFW
+
 	Windows:
 		Debug, Release
 		Win32, x64
@@ -35,31 +39,134 @@ workspace "BagualEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/"
 
+group "Dependencies"
+
+project "GLAD"
+	
+	location "Source/GLAD/"
+	kind "StaticLib"
+	language "C"
+	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
+	objdir ("Intermediate/%{prj.name}-" .. outputdir)
+	
+	defines {  }
+
+	libdirs {  }
+
+	includedirs { "%{prj.location}/include/" }
+
+	files
+	{
+		"%{prj.location}/include/**.h",
+		"%{prj.location}/src/glad.c"
+	}
+
+	filter "system:windows"
+		cppdialect "C++17"
+		staticruntime "On"
+		systemversion "latest"
+		defines {  }
+
+		files
+		{
+
+		}
+
+	filter "configurations:Debug"
+		symbols "On"
+
+	filter "configurations:Release"
+		optimize "On"
+
+project "GLFW"
+	
+	location "Source/GLFW/"
+	kind "StaticLib"
+	language "C"
+	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
+	objdir ("Intermediate/%{prj.name}-" .. outputdir)
+	
+	defines {  }
+
+	libdirs {  }
+
+	files
+	{
+		"%{prj.location}/src/internal.h",
+		"%{prj.location}/src/mappings.h",
+        "%{prj.location}/src/glfw_config.h",
+        "%{prj.location}/include/GLFW/glfw3.h",
+        "%{prj.location}/include/GLFW/glfw3native.h",
+		"%{prj.location}/src/context.c",
+		"%{prj.location}/src/init.c",
+        "%{prj.location}/src/input.c",
+		"%{prj.location}/src/monitor.c",
+		"%{prj.location}/src/vulkan.c",
+        "%{prj.location}/src/window.c"
+	}
+
+	filter "system:windows"
+		staticruntime "On"
+		systemversion "latest"
+		defines { "_GLFW_WIN32", "_CRT_SECURE_NO_WARNINGS" }
+
+		files
+		{
+			"%{prj.location}/src/win32_platform.h",
+			"%{prj.location}/src/win32_joystick.h",
+			"%{prj.location}/src/wgl_context.h",
+			"%{prj.location}/src/egl_context.h",
+			"%{prj.location}/src/osmesa_context.h",
+			"%{prj.location}/src/win32_init.c",
+			"%{prj.location}/src/win32_joystick.c",
+			"%{prj.location}/src/win32_monitor.c",
+			"%{prj.location}/src/win32_time.c",
+			"%{prj.location}/src/win32_thread.c",
+			"%{prj.location}/src/win32_window.c",
+			"%{prj.location}/src/wgl_context.c",
+			"%{prj.location}/src/egl_context.c",
+			"%{prj.location}/src/osmesa_context.c"
+		}
+
+	filter "configurations:Debug"
+		symbols "On"
+		runtime "Debug"
+
+	filter "configurations:Release"
+		optimize "On"
+		runtime "Release"
+
+group ""
+
 project "BagualEngine"
 	
-	location "BagualEngine"
+	location "Source/BagualEngine/"
 	kind "StaticLib"
 	language "C++"
-	targetdir ("BagualEngine/lib/" .. outputdir)
+	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
-	links { "SDL2.lib", "SDL2main.lib" }
 	defines { "BGL_UNITY_BUILD=0" }
 
 	includedirs
 	{
-		"./BagualEngine/include/",
-		"./BagualEngine/third/SDL2/include/"
+		"%{prj.location}/include/",
+		"Source/GLAD/include/",
+		"Source/GLFW/include/"
 	}
+
+	dependson { "GLAD", "GLFW" }
+	links { "GLAD.lib", "GLFW.lib" }
 
 	libdirs
 	{
-		"./BagualEngine/third/SDL2/lib/%{cfg.system}/%{cfg.architecture}/"
+		("Intermediate/GLAD-" .. outputdir),
+		("Intermediate/GLFW-" .. outputdir)
 	}
 
 	files
 	{
-		"%{prj.name}/include/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.location}/include/**.h",
+		"%{prj.location}/src/**.cpp"
 	}
 
 	filter "system:windows"
@@ -70,27 +177,30 @@ project "BagualEngine"
 	filter "configurations:Debug"
 		defines "BGL_DEBUG"
 		symbols "On"
+		runtime "Debug"
 
 	filter "configurations:Release"
 		defines "BGL_RELEASE"
 		optimize "On"
+		runtime "Release"
 
 project "BagualGame"
 
-	location "BagualGame"
+	location "Source/BagualGame/"
 	kind "ConsoleApp"
 	language "C++"
 	targetdir ("Binaries/%{prj.name}-" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
+	
 	dependson { "BagualEngine" }
+	includedirs { "Source/BagualEngine/include/" }
 	links { "BagualEngine.lib" }
-	includedirs { "./BagualEngine/include/" }
-	libdirs { ("BagualEngine/lib/" .. outputdir) }
+	libdirs { ("Intermediate/BagualEngine-" .. outputdir) }
 
 	files
 	{
-		"%{prj.name}/include/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.location}/include/**.h",
+		"%{prj.location}/src/**.cpp"
 	}
 
 	filter "system:windows"
@@ -98,15 +208,10 @@ project "BagualGame"
 		staticruntime "On"
 		systemversion "latest"
 
-		postbuildcommands
-		{
-			("{COPY} %{wks.location}BagualEngine/third/SDL2/lib/%{cfg.system}/%{cfg.architecture}/SDL2.dll %{wks.location}Binaries/%{prj.name}-" .. outputdir)
-		}
-
 	filter "configurations:Debug"
-		defines "BGL_DEBUG"
 		symbols "On"
+		runtime "Debug"
 
 	filter "configurations:Release"
-		defines "BGL_RELEASE"
 		optimize "On"
+		runtime "Release"
