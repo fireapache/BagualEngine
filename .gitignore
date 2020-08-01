@@ -8,6 +8,7 @@ Intermediate/
 
 *.sln
 *.vcxproj*
+*.exe
 
 # User-specific files
 *.suo
