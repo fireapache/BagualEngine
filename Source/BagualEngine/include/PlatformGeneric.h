@@ -19,7 +19,10 @@ namespace bgl
 
 	class BGenericPlatformWindow : public BPlatformWindow
 	{
-		GLFWwindow* glfWindow = nullptr;
+
+	private:
+
+		GLFWwindow* glfwWindow = nullptr;
 
 	protected:
 

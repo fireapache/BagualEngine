@@ -24,15 +24,15 @@ namespace bgl
 		bool isValid = true;
 		bool isIn;
 		BPixelPos inters[4];
-		int p1Dist = INT_MAX;
-		int p2Dist = INT_MAX;
-		int dist;
+		int32 p1Dist = INT_MAX;
+		int32 p2Dist = INT_MAX;
+		int32 dist;
 		BPixelPos* newP1 = nullptr;
 		BPixelPos* newP2 = nullptr;
 
 		auto& viewEdges = viewport.GetLimits();
 
-		for (int i = 0; i < 4; i++)
+		for (int32 i = 0; i < 4; i++)
 		{
 			if (LinesIntersection(line, viewEdges.GetEdges()[i], inters[i]))
 			{
@@ -78,10 +78,10 @@ namespace bgl
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineLow!");
 
 		auto& screen = canvas->GetBuffer();
-		const ushort width = canvas->GetWidth();
-		int dx = line.p2.x - line.p1.x;
-		int dy = line.p2.y - line.p1.y;
-		int yi = 1;
+		const int32 width = canvas->GetWidth();
+		int32 dx = line.p2.x - line.p1.x;
+		int32 dy = line.p2.y - line.p1.y;
+		int32 yi = 1;
 
 		if (dy < 0)
 		{
@@ -89,10 +89,10 @@ namespace bgl
 			dy = -dy;
 		}
 
-		int D = 2 * dy - dx;
-		int y = line.p1.y;
+		int32 D = 2 * dy - dx;
+		int32 y = line.p1.y;
 
-		for (int x = line.p1.x; x <= line.p2.x; x++)
+		for (int32 x = line.p1.x; x <= line.p2.x; x++)
 		{
 			screen[x + width * y] = 0xFF0000;
 
@@ -113,10 +113,10 @@ namespace bgl
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineHigh!");
 
 		auto& screen = canvas->GetBuffer();
-		const ushort width = canvas->GetWidth();
-		int dx = line.p2.x - line.p1.x;
-		int dy = line.p2.y - line.p1.y;
-		int xi = 1;
+		const int32 width = canvas->GetWidth();
+		int32 dx = line.p2.x - line.p1.x;
+		int32 dy = line.p2.y - line.p1.y;
+		int32 xi = 1;
 
 		if (dx < 0)
 		{
@@ -124,10 +124,10 @@ namespace bgl
 			dx = -dx;
 		}
 
-		int D = 2 * dx - dy;
-		int x = line.p1.x;
+		int32 D = 2 * dx - dy;
+		int32 x = line.p1.x;
 
-		for (int y = line.p1.y; y <= line.p2.y; y++)
+		for (int32 y = line.p1.y; y <= line.p2.y; y++)
 		{
 			screen[x + width * y] = 0xFF0000;
 

@@ -54,7 +54,7 @@ namespace bgl
 		return viewport;
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint& width, const uint& height)
+	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height)
 	{
 		auto viewport = std::make_shared<BViewport>(canvas, width, height);
 
@@ -65,7 +65,7 @@ namespace bgl
 		return viewport;
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint& x, const uint& y, const uint& width, const uint& height)
+	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
 	{
 		auto viewport = std::make_shared<BViewport>(canvas, x, y, width, height);
 
@@ -76,7 +76,7 @@ namespace bgl
 		return viewport;
 	}
 
-	void BGraphicsPlatform::Delay(const uint&& ms)
+	void BGraphicsPlatform::Delay(const uint32&& ms)
 	{
 		if (driverInstance)
 		{
@@ -84,7 +84,7 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsPlatform::Delay(const uint& ms)
+	void BGraphicsPlatform::Delay(const uint32& ms)
 	{
 		if (driverInstance)
 		{

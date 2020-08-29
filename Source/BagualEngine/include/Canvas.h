@@ -11,12 +11,12 @@ namespace bgl
 {
 	class BCanvas
 	{
-		ushort width;
-		ushort height;
+		uint16 width;
+		uint16 height;
 
 		BLine<BPixelPos> edges[4];
 
-		std::shared_ptr<BBuffer<FrameDataType>> buffer;
+		std::shared_ptr<BBuffer<CanvasDataType>> buffer;
 
 		inline void UpdateEdges();
 
@@ -25,19 +25,21 @@ namespace bgl
 
 	public:
 
-		BCanvas(ushort width, ushort height);
-		BCanvas(BPlatformWindow* window, void* pixels, ushort width, ushort height);
+		BCanvas(uint16 width, uint16 height);
+		BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height);
 		//BCanvas(const BCanvas& canvas);
 
-		ushort GetWidth() const;
-		ushort GetHeight() const;
+		uint16 GetWidth() const;
+		uint16 GetHeight() const;
 
 		const BLine<BPixelPos>* GetEdges()  const;
 		const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
 
-		BBuffer<FrameDataType>& GetBuffer();
+		BBuffer<CanvasDataType>& GetBuffer();
 
 		BPlatformWindow* GetWindow();
+
+		void SetSize(uint16 newWidth, uint16 newHeight);
 
 	};
 }

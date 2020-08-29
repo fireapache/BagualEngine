@@ -26,8 +26,8 @@ namespace bgl
 
 		BViewport(const std::shared_ptr<BCanvas>& canvas);
 		BViewport(const std::shared_ptr<BCanvas>& canvas, const BBox<BVector2<float>>& normalizedSize);
-		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& width, const uint& height);
-		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& x, const uint& y, const uint& width, const uint& height);
+		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height);
+		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height);
 
 		/*	Calculates viewport's position in the canvas based on its
 		 *	normalized size if set.
@@ -53,9 +53,9 @@ namespace bgl
 
 		const BPixelPos GetPosition() const;
 
-		const BSize<uint> GetSize() const;
+		const BSize<uint32> GetSize() const;
 
-		FrameDataType& operator()(size_t x, size_t y);
+		CanvasDataType& operator()(size_t x, size_t y);
 
 	};
 

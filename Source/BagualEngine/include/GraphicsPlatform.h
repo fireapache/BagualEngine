@@ -21,12 +21,12 @@ namespace bgl
 
 		virtual void RenderFrame() override;
 		virtual void RenderCamera(const BCamera& camera) override;
-		virtual void Delay(const uint&& ms) override;
-		virtual void Delay(const uint& ms) override;
+		virtual void Delay(const uint32&& ms) override;
+		virtual void Delay(const uint32& ms) override;
 		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas);
 		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const BBox<BVector2<float>>& normalizedSize);
-		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint& width, const uint& height);
-		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint& x, const uint& y, const uint& width, const uint& height);
+		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height);
+		virtual std::shared_ptr<BViewport> CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height);
 
 	};
 }

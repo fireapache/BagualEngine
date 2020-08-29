@@ -6,15 +6,15 @@
 
 namespace bgl
 {
-	static constexpr const uint& BGL_WINDOW_CENTRALIZED = -1;
+	static constexpr const uint32& BGL_WINDOW_CENTRALIZED = -1;
 
 	struct FWindowSettings
 	{
-		uint x = BGL_WINDOW_CENTRALIZED;
-		uint y = BGL_WINDOW_CENTRALIZED;
-		uint width = 320;
-		uint height = 240;
-		std::string name = "Bagual Engine Window";
+		uint32 x = BGL_WINDOW_CENTRALIZED;
+		uint32 y = BGL_WINDOW_CENTRALIZED;
+		uint32 width = 320;
+		uint32 height = 240;
+		std::string Title = "Bagual Engine Window";
 	};
 
 	class BPlatformWindow
@@ -61,7 +61,7 @@ namespace bgl
 		virtual std::shared_ptr<BPlatformWindow> CreateWindow() = 0;
 		virtual std::shared_ptr<BPlatformWindow> CreateWindow(const FWindowSettings& settings) = 0;
 
-		BArray<std::shared_ptr<BPlatformWindow>> GetWindows();
+		BArray<std::shared_ptr<BPlatformWindow>>& GetWindows();
 
 	};
 

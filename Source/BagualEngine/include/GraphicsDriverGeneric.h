@@ -13,8 +13,8 @@ namespace bgl
 		~BGraphicsDriverGeneric();
 
 		void RenderFrame() override;
-		void Delay(const uint&& ms) override;
-		void Delay(const uint& ms) override;
+		void Delay(const uint32&& ms) override;
+		void Delay(const uint32& ms) override;
 
 	};
 }

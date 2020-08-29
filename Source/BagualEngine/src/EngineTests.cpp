@@ -25,10 +25,14 @@ namespace bgl
 
 		//FWindowSettings windowSettings;
 
+		windowSettings.Title = "Bagual Engine Test #1 Window #1";
 		windowSettings.width = 640;
 		windowSettings.height = 480;
 
 		auto window = platform->CreateWindow(windowSettings);
+
+		windowSettings.Title = "Bagual Engine Test #1 Window #2";
+		platform->CreateWindow(windowSettings);
 		
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 

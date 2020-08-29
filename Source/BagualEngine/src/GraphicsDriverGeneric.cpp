@@ -58,6 +58,8 @@ namespace bgl
 
 			BGL_ASSERT(genericWindow != nullptr && "Got null generic window during render!");
 
+			auto glfwWindow = genericWindow->GetGLFW_Window();
+
 			// Rendering queued 2D lines
 			auto lines = camera->GetLine2DBuffer();
 
@@ -83,7 +85,7 @@ namespace bgl
 
 			//continue;
 
-			const uint32_t tn = 2;
+			const uint32 tn = 2;
 
 			BTriangle<float> tris[tn];
 
@@ -104,9 +106,9 @@ namespace bgl
 			float imageAspectRatio = width / (float)height;
 			BVector3<float> orig(0.f, 0.f, 0.f);
 
-			for (uint32_t j = 0; j < height; ++j)
+			for (uint32 j = 0; j < height; ++j)
 			{
-				for (uint32_t i = 0; i < width; ++i)
+				for (uint32 i = 0; i < width; ++i)
 				{
 					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
 					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
@@ -128,7 +130,7 @@ namespace bgl
 							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
 							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
-							uint rgb = r;
+							uint32 rgb = r;
 							// 0x0000RR
 
 							rgb = (rgb << 8) + g;
@@ -146,7 +148,6 @@ namespace bgl
 				}
 			}
 
-			
 		}
 
 		auto& platform = Engine::Platform();
@@ -158,7 +159,11 @@ namespace bgl
 
 			if (genericWindow)
 			{
-				//SDL_UpdateWindowSurface(genericWindow->GetSDL_Window());
+				auto glfwWindow = genericWindow->GetGLFW_Window();
+				glfwMakeContextCurrent(glfwWindow);
+				glClear(GL_COLOR_BUFFER_BIT);
+				glfwSwapBuffers(glfwWindow);
+				glfwPollEvents();
 			}
 			else
 			{
@@ -170,12 +175,12 @@ namespace bgl
 
 	}
 
-	void BGraphicsDriverGeneric::Delay(const uint&& ms)
+	void BGraphicsDriverGeneric::Delay(const uint32&& ms)
 	{
 		//SDL_Delay(ms);
 	}
 
-	void BGraphicsDriverGeneric::Delay(const uint& ms)
+	void BGraphicsDriverGeneric::Delay(const uint32& ms)
 	{
 		//SDL_Delay(ms);
 	}

@@ -48,7 +48,7 @@ namespace bgl
 		SetNormalizedSize(normalizedSize);
 	}
 
-	BViewport::BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& width, const uint& height)
+	BViewport::BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height)
 	{
 		this->canvas = canvas;
 
@@ -60,7 +60,7 @@ namespace bgl
 		UpdateLimits();
 	}
 
-	BViewport::BViewport(const std::shared_ptr<BCanvas>& canvas, const uint& x, const uint& y, const uint& width, const uint& height)
+	BViewport::BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
 	{
 		this->canvas = canvas;
 
@@ -82,10 +82,10 @@ namespace bgl
 
 		normalSize = normalizedSize;
 
-		bounds.p1.x = static_cast<uint>(normalSize.p1.x * static_cast<float>(canvasRes.width));
-		bounds.p1.y = static_cast<uint>(normalSize.p1.y * static_cast<float>(canvasRes.height));
-		bounds.p2.x = static_cast<uint>(normalSize.p2.x * static_cast<float>(canvasRes.width)) - 1;
-		bounds.p2.y = static_cast<uint>(normalSize.p2.y * static_cast<float>(canvasRes.height)) - 1;
+		bounds.p1.x = static_cast<uint32>(normalSize.p1.x * static_cast<float>(canvasRes.width));
+		bounds.p1.y = static_cast<uint32>(normalSize.p1.y * static_cast<float>(canvasRes.height));
+		bounds.p2.x = static_cast<uint32>(normalSize.p2.x * static_cast<float>(canvasRes.width)) - 1;
+		bounds.p2.y = static_cast<uint32>(normalSize.p2.y * static_cast<float>(canvasRes.height)) - 1;
 
 		UpdateLimits();
 	}
@@ -105,12 +105,12 @@ namespace bgl
 		return BPixelPos(GetBounds().p1.x, GetBounds().p1.y);
 	}
 
-	const bgl::BSize<bgl::uint> BViewport::GetSize() const
+	const bgl::BSize<bgl::uint32> BViewport::GetSize() const
 	{
-		return BSize<uint>(GetBounds().p2.x - GetBounds().p1.x, GetBounds().p2.y - GetBounds().p1.y);
+		return BSize<uint32>(GetBounds().p2.x - GetBounds().p1.x, GetBounds().p2.y - GetBounds().p1.y);
 	}
 
-	bgl::FrameDataType& BViewport::operator()(size_t x, size_t y)
+	bgl::CanvasDataType& BViewport::operator()(size_t x, size_t y)
 	{
 		auto canvasPtr = canvas.lock();
 		auto width = canvasPtr->GetWidth();

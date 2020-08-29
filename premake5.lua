@@ -155,7 +155,7 @@ project "BagualEngine"
 	}
 
 	dependson { "GLAD", "GLFW" }
-	links { "GLAD.lib", "GLFW.lib" }
+	links { "GLAD.lib", "GLFW.lib", "opengl32.lib" }
 
 	libdirs
 	{

@@ -44,7 +44,7 @@ namespace bgl
 		BGL_NEED_IMPLEMENTATION
 	}
 
-	BArray<std::shared_ptr<BPlatformWindow>> BPlatformBase::GetWindows()
+	BArray<std::shared_ptr<BPlatformWindow>>& BPlatformBase::GetWindows()
 	{
 		return windows;
 	}

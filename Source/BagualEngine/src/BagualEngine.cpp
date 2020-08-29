@@ -79,6 +79,14 @@ namespace bgl
 
 			if (engineState != EBEngineState::Paused)
 			{
+				TickWindows();
+
+				if (platform->GetWindows().Size() <= 0)
+				{
+					SetState(EBEngineState::Quitting);
+					continue;
+				}
+
 				if (graphicsPlatform)
 				{
 					graphicsPlatform->RenderFrame();
@@ -90,11 +98,35 @@ namespace bgl
 		}
 	}
 
+	void Engine::TickWindows()
+	{
+		// Ticking windows to check if need to be destroyed
+		auto& windows = platform->GetWindows();
+
+		for (uint32 i = 0; i < windows.Size(); i++)
+		{
+			if (windows[i]->Tick() == false)
+			{
+				windows.erase(windows.begin() + i);
+				i--;
+			}
+		}
+	}
+
 	void Engine::ModulesLoop()
 	{
 		for (size_t i = 0; i < modules->Size(); i++)
 		{
 			(*modules)[i]->Tick();
+		}
+	}
+
+	void Engine::SetState(EBEngineState newState)
+	{
+		if (engineState != newState)
+		{
+			engineState = newState;
+			// TODO: Broadcast new engine state through an event
 		}
 	}
 

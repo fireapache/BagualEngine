@@ -19,8 +19,8 @@ namespace bgl
 
 		virtual void RenderFrame() = 0;
 		virtual void RenderCamera(const BCamera& camera) = 0;
-		virtual void Delay(const uint&& ms) = 0;
-		virtual void Delay(const uint& ms) = 0;
+		virtual void Delay(const uint32&& ms) = 0;
+		virtual void Delay(const uint32& ms) = 0;
 
 	};
 

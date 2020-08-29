@@ -15,7 +15,7 @@ namespace bgl
 	{
 
 #pragma region Private Types
-		enum class EBEngineState
+		enum class EBEngineState : uint8
 		{
 			None,
 			Initializing,
@@ -45,7 +45,12 @@ namespace bgl
 		void Term();
 		void ProcessInput();
 		void MainLoop();
+
+		void TickWindows();
+
 		void ModulesLoop();
+
+		void SetState(EBEngineState newState);
 
 		Engine();
 

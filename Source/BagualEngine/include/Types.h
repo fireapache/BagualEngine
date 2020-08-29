@@ -77,7 +77,7 @@ namespace bgl
 
 	};
 
-	enum class BEBoxEdge : uint
+	enum class BEBoxEdge : uint32
 	{
 		Top = 0,
 		Bottom,
@@ -307,10 +307,10 @@ namespace bgl
 
 		BBoxEdges(const EdgeType& topEdge, const EdgeType& bottomEdge, const EdgeType& LeftEdge, const EdgeType& rightEdge)
 		{
-			edges[(uint)BEBoxEdge::Top] = topEdge;
-			edges[(uint)BEBoxEdge::Bottom] = bottomEdge;
-			edges[(uint)BEBoxEdge::Left] = LeftEdge;
-			edges[(uint)BEBoxEdge::Right] = rightEdge;
+			edges[(uint32)BEBoxEdge::Top] = topEdge;
+			edges[(uint32)BEBoxEdge::Bottom] = bottomEdge;
+			edges[(uint32)BEBoxEdge::Left] = LeftEdge;
+			edges[(uint32)BEBoxEdge::Right] = rightEdge;
 		}
 
 		BBoxEdges(const BBoxEdges& otherBox)
@@ -325,10 +325,10 @@ namespace bgl
 
 		EdgeType& operator[](const BEBoxEdge&& index)
 		{
-			return edges[(uint)index];
+			return edges[(uint32)index];
 		}
 
-		EdgeType& operator[](uint index)
+		EdgeType& operator[](uint32 index)
 		{
 			return edges[index];
 		}
@@ -379,9 +379,10 @@ namespace bgl
 	class BBuffer
 	{
 
-		T* _data;
+		T* _memBlock;
 
 		size_t _length;
+		size_t _allocLength;
 
 	public:
 
@@ -389,32 +390,69 @@ namespace bgl
 		{
 			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
 
-			_data = new T[length];
+			_memBlock = new T[length];
+			_length = length;
+			_allocLength = length;
 		}
 
 		BBuffer(T* data, size_t length)
 		{
 			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
 
-			_data = data;
+			_memBlock = data;
 			_length = length;
+			_allocLength = length;
 		}
 
 		T& operator[](size_t index)
 		{
 			BGL_ASSERT(index < Length() && "Out of range!");
-			return _data[index];
+			return _memBlock[index];
 		}
 
 		const T& operator[](size_t index) const
 		{
 			BGL_ASSERT(index < Length() && "Out of range!");
-			return _data[index];
+			return _memBlock[index];
 		}
 
 		size_t Length()
 		{
 			return _length;
+		}
+
+		void Allocate(size_t allocLength, bool bMove = false)
+		{
+			BGL_ASSERT(allocLength > 0 && "Got negative allocLength!");
+
+			if (allocLength > _allocLength)
+			{
+				BGL_LOG("Reallocating Buffer!");
+
+				T* newMemBlock = new T[allocLength];
+
+				if (bMove)
+				{
+					memcpy(newMemBlock, _memBlock, _allocLength);
+				}
+
+				_allocLength = allocLength;
+				delete[] _memBlock;
+
+				_memBlock = newMemBlock;
+			}
+		}
+
+		void SetLength(size_t newLength, bool bMove = false)
+		{
+			BGL_ASSERT(newLength > 0 && "Got negative newLength!");
+
+			if (newLength > _allocLength)
+			{
+				Allocate(newLength, bMove);
+			}
+
+			_length = newLength;
 		}
 
 	};
