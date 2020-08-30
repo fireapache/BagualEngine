@@ -136,6 +136,37 @@ project "GLFW"
 		optimize "On"
 		runtime "Release"
 
+project "IMGUI"
+	
+	location "Source/IMGUI/"
+	kind "StaticLib"
+	language "C"
+	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
+	objdir ("Intermediate/%{prj.name}-" .. outputdir)
+	
+	defines {  }
+
+	libdirs {  }
+
+	files
+	{
+		"%{prj.location}/imgui.h",
+		"%{prj.location}/imgui.cpp"
+	}
+
+	filter "system:windows"
+		staticruntime "On"
+		systemversion "latest"
+		defines {  }
+
+	filter "configurations:Debug"
+		symbols "On"
+		runtime "Debug"
+
+	filter "configurations:Release"
+		optimize "On"
+		runtime "Release"
+
 group ""
 
 project "BagualEngine"
@@ -151,16 +182,18 @@ project "BagualEngine"
 	{
 		"%{prj.location}/include/",
 		"Source/GLAD/include/",
-		"Source/GLFW/include/"
+		"Source/GLFW/include/",
+		"Source/IMGUI/"
 	}
 
-	dependson { "GLAD", "GLFW" }
-	links { "GLAD.lib", "GLFW.lib", "opengl32.lib" }
+	dependson { "GLAD", "GLFW", "IMGUI" }
+	links { "GLAD.lib", "GLFW.lib", "IMGUI.lib", "opengl32.lib" }
 
 	libdirs
 	{
 		("Intermediate/GLAD-" .. outputdir),
-		("Intermediate/GLFW-" .. outputdir)
+		("Intermediate/GLFW-" .. outputdir),
+		("Intermediate/IMGUI-" .. outputdir)
 	}
 
 	files
