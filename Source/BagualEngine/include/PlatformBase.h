@@ -20,6 +20,9 @@ namespace bgl
 	class BPlatformWindow
 	{
 
+	public:
+
+		typedef void(*GuiTickMethod)();
 
 	protected:
 
@@ -33,6 +36,8 @@ namespace bgl
 
 		virtual void Destroy();
 
+		GuiTickMethod GuiTickPtr = nullptr;
+
 	public:
 
 		BPlatformWindow() {  };
@@ -45,6 +50,10 @@ namespace bgl
 		virtual void SetWindow(const FWindowSettings& newSettings);
 
 		virtual const std::shared_ptr<BCanvas>& GetCanvas();
+
+		void SetGuiTickMethod(GuiTickMethod ptr);
+
+		GuiTickMethod GetGuiTickMethod();
 
 	};
 

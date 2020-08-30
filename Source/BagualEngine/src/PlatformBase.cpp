@@ -29,6 +29,17 @@ namespace bgl
 		return canvas;
 	}
 
+	void BPlatformWindow::SetGuiTickMethod(GuiTickMethod ptr)
+	{
+		BGL_ASSERT(ptr != nullptr && "Got null GUI_Tick_Function parameter!");
+		GuiTickPtr = ptr;
+	}
+
+	bgl::BPlatformWindow::GuiTickMethod BPlatformWindow::GetGuiTickMethod()
+	{
+		return GuiTickPtr;
+	}
+
 	void BPlatformWindow::ApplySettings()
 	{
 		BGL_NEED_IMPLEMENTATION

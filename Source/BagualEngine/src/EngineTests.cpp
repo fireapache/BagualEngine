@@ -10,6 +10,8 @@
 #include "Viewport.h"
 #include "GraphicsPlatform.h"
 
+#include <imgui.h>
+
 namespace bgl
 {
 
@@ -26,15 +28,25 @@ namespace bgl
 		//FWindowSettings windowSettings;
 
 		windowSettings.Title = "Bagual Engine Test #1 Window #1";
-		windowSettings.width = 640;
-		windowSettings.height = 480;
+		windowSettings.width = 1280;
+		windowSettings.height = 720;
 
 		auto window = platform->CreateWindow(windowSettings);
 
-		windowSettings.Title = "Bagual Engine Test #1 Window #2";
-		platform->CreateWindow(windowSettings);
-		
 		BGL_ASSERT(window != nullptr && "Could not create window!");
+
+		auto guiTick = []()
+		{
+			ImGui::ShowDemoWindow();
+		};
+
+		// Gui update procedure
+		window->SetGuiTickMethod(guiTick);
+
+		// TODO: Test multi viewport Imgui support from https://github.com/morgoth990/imgui/tree/docking
+		//windowSettings.Title = "Bagual Engine Test #1 Window #2";
+		//window = platform->CreateWindow(windowSettings);
+		//window->SetGuiTickMethod(guiTick);
 
 		return;
 

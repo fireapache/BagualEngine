@@ -4,6 +4,8 @@
 Binaries/
 Intermediate/
 
+imgui.ini
+
 *.lib
 
 *.sln

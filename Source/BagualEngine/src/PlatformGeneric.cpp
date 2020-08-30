@@ -3,8 +3,48 @@
 
 #include "PlatformGeneric.h"
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+#include <glad/glad.h>
+
+#include <GLFW/glfw3.h>
+
 namespace bgl
 {
+
+	BPlatformGeneric::BPlatformGeneric()
+	{
+		bool gladerr = gladLoadGL() == 0;
+
+		BGL_ASSERT(gladerr && "Could not start glad!");
+
+		// Setup Dear ImGui context
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		imguiConfig = &ImGui::GetIO(); (void)imguiConfig;
+		imguiConfig->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		imguiConfig->ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		imguiConfig->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+		//io.ConfigViewportsNoAutoMerge = true;
+		//io.ConfigViewportsNoTaskBarIcon = true;
+
+		// Setup Dear ImGui style
+		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
+
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (imguiConfig->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
+	}
+
 	std::shared_ptr<BPlatformWindow> BPlatformGeneric::CreateWindow(const FWindowSettings& settings)
 	{
 		auto window = std::make_shared<BGenericPlatformWindow>(settings);
@@ -17,6 +57,11 @@ namespace bgl
 		auto window = std::make_shared<BGenericPlatformWindow>(FWindowSettings());
 		windows.Add(window);
 		return window;
+	}
+
+	ImGuiIO* BPlatformGeneric::GetImguiConfig()
+	{
+		return imguiConfig;
 	}
 
 	BGenericPlatformWindow::BGenericPlatformWindow(const FWindowSettings& windowSettings)
@@ -38,6 +83,8 @@ namespace bgl
 	{
 		BGL_ASSERT(glfwWindow == nullptr && "This window was already created!");
 		
+		// GL 3.0 + GLSL 130
+		const char* glsl_version = "#version 130";
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -73,6 +120,15 @@ namespace bgl
 		// Creating canvas
 		canvas = std::make_shared<BCanvas>(settings.width, settings.height);
 
+		// Need context to load GLAD
+		glfwMakeContextCurrent(glfwWindow);
+		// TODO: Load GLAD only once
+		BGL_ASSERT(gladLoadGL() && "Could not load GLAD!");
+
+		// Setup Platform/Renderer bindings
+		ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+		ImGui_ImplOpenGL3_Init(glsl_version);
+
 	}
 
 	void BGenericPlatformWindow::Destroy()
@@ -101,6 +157,8 @@ namespace bgl
 			Destroy();
 			return false;
 		}
+
+		glfwPollEvents();
 
 		// Checking if need to resize canvas based on the window size
 		{

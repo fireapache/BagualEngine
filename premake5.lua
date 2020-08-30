@@ -146,12 +146,34 @@ project "IMGUI"
 	
 	defines {  }
 
-	libdirs {  }
+	libdirs
+	{
+		("Intermediate/GLAD-" .. outputdir),
+		("Intermediate/GLFW-" .. outputdir)
+	}
+
+	dependson { "GLAD", "GLFW" }
+
+	includedirs
+	{
+		"%{prj.location}/",
+		"%{prj.location}/examples",
+		"Source/GLAD/include/",
+		"Source/GLFW/include/"
+	}
 
 	files
 	{
 		"%{prj.location}/imgui.h",
-		"%{prj.location}/imgui.cpp"
+		"%{prj.location}/imgui.cpp",
+		"%{prj.location}/imgui_draw.cpp",
+		"%{prj.location}/imgui_internal.h",
+		"%{prj.location}/imgui_widgets.cpp",
+		"%{prj.location}/imgui_demo.cpp",
+		"%{prj.location}/examples/imgui_impl_glfw.h",
+		"%{prj.location}/examples/imgui_impl_glfw.cpp",
+		"%{prj.location}/examples/imgui_impl_opengl3.h",
+		"%{prj.location}/examples/imgui_impl_opengl3.cpp"
 	}
 
 	filter "system:windows"
@@ -183,7 +205,8 @@ project "BagualEngine"
 		"%{prj.location}/include/",
 		"Source/GLAD/include/",
 		"Source/GLFW/include/",
-		"Source/IMGUI/"
+		"Source/IMGUI/",
+		"Source/IMGUI/examples/"	
 	}
 
 	dependson { "GLAD", "GLFW", "IMGUI" }

@@ -12,6 +12,10 @@
 #include "PlatformGeneric.h"
 #include "BagualEngine.h"
 
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 namespace bgl
@@ -27,11 +31,13 @@ namespace bgl
 
 		glfwSetErrorCallback(ErrorCallback);
 
-		
 	}
 
 	BGraphicsDriverGeneric::~BGraphicsDriverGeneric()
 	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 		glfwTerminate();
 	}
 
@@ -162,8 +168,41 @@ namespace bgl
 				auto glfwWindow = genericWindow->GetGLFW_Window();
 				glfwMakeContextCurrent(glfwWindow);
 				glClear(GL_COLOR_BUFFER_BIT);
+
+				// Executing GUI tick method if assigned
+				{
+					auto GuiTickPtr = window->GetGuiTickMethod();
+
+					if (GuiTickPtr)
+					{
+						// Start the Dear ImGui frame
+						ImGui_ImplOpenGL3_NewFrame();
+						ImGui_ImplGlfw_NewFrame();
+						ImGui::NewFrame();
+
+						// User code
+						GuiTickPtr();
+
+						ImGui::Render();
+						ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+						
+						auto plat = static_cast<BPlatformGeneric*>(Engine::Instance().Platform().get());
+						ImGuiIO& io = *plat->GetImguiConfig();
+
+						// Update and Render additional Platform Windows
+						// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+						//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+						if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+						{
+							GLFWwindow* backup_current_context = glfwGetCurrentContext();
+							ImGui::UpdatePlatformWindows();
+							ImGui::RenderPlatformWindowsDefault();
+							glfwMakeContextCurrent(backup_current_context);
+						}
+					}
+				}
+				
 				glfwSwapBuffers(glfwWindow);
-				glfwPollEvents();
 			}
 			else
 			{
