@@ -1,3 +1,6 @@
 [submodule "Source/IMGUI"]
 	path = Source/IMGUI
 	url = https://github.com/fireapache/imgui.git
+[submodule "Source/GLFW"]
+	path = Source/GLFW
+	url = https://github.com/glfw/glfw.git
