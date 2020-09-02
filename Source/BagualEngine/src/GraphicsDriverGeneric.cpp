@@ -126,28 +126,14 @@ namespace bgl
 					{
 						if (RayTriangleIntersect(orig, dir, tris[tri].v0, tris[tri].v1, tris[tri].v2, t, u, v))
 						{
-							//*pix = u * cols[0] + v * cols[1] + (1 - u - v) * cols[2];
-							// uncomment this line if you want to visualize the row barycentric coordinates
-							// char r = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].x));
-							// char g = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].y));
-							// char b = (char)(255 * scratch::utils::clamp(0, 1, framebuffer[i].z));
-							
 							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
 							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
 							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
 							uint32 rgb = r;
-							// 0x0000RR
-
 							rgb = (rgb << 8) + g;
-							// 0x00RR00
-							// 0x00RRGG
-
 							rgb = (rgb << 8) + b;
-							// 0xRRGG00
-							// 0xRRGGBB
 
-							//pix[i + width * j] = rgb;
 							viewport(i, j) = rgb;
 						}
 					}
@@ -165,9 +151,56 @@ namespace bgl
 
 			if (genericWindow)
 			{
+				
+#pragma region Rendering Window Canvas to OpenGL
+
 				auto glfwWindow = genericWindow->GetGLFW_Window();
 				glfwMakeContextCurrent(glfwWindow);
 				glClear(GL_COLOR_BUFFER_BIT);
+
+				const GLfloat windowWidth = static_cast<GLfloat>(window->GetCanvas()->GetWidth());
+				const GLfloat windowHeight = static_cast<GLfloat>(window->GetCanvas()->GetHeight());
+
+				GLuint& tex = genericWindow->GetglTex();
+
+				if (tex == -1)
+				{
+					glGenTextures(1, &tex);
+				}
+
+				glBindTexture(GL_TEXTURE_2D, tex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 
+					static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight), 
+					0, GL_RGBA, GL_UNSIGNED_BYTE, window->GetCanvas()->GetBuffer().GetData());
+				glBindTexture(GL_TEXTURE_2D, 0);
+
+				// Match projection to window resolution
+				glMatrixMode(GL_PROJECTION);
+				glPushMatrix();
+				glLoadIdentity();
+				glOrtho(0, windowWidth, 0, windowHeight, -1, 1);
+				glMatrixMode(GL_MODELVIEW);
+				glPushMatrix();
+
+				// Clear and draw quad with texture
+				glClear(GL_COLOR_BUFFER_BIT);
+				glBindTexture(GL_TEXTURE_2D, tex);
+				glEnable(GL_TEXTURE_2D);
+				glBegin(GL_QUADS);
+				glTexCoord2f(1, 1); glVertex3f(windowWidth, 0, 0);
+				glTexCoord2f(1, 0); glVertex3f(windowWidth, windowHeight, 0);
+				glTexCoord2f(0, 0); glVertex3f(0, windowHeight, 0);
+				glTexCoord2f(0, 1); glVertex3f(0, 0, 0);
+				glEnd();
+				glDisable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glFlush();
+
+#pragma endregion
+
+#pragma region Rendering ImGui
 
 				// Executing GUI tick method if assigned
 				{
@@ -201,6 +234,8 @@ namespace bgl
 						}
 					}
 				}
+
+#pragma endregion
 				
 				glfwSwapBuffers(glfwWindow);
 			}

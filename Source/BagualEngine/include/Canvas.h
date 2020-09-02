@@ -25,7 +25,7 @@ namespace bgl
 
 	public:
 
-		BCanvas(uint16 width, uint16 height);
+		BCanvas(BPlatformWindow* window, uint16 width, uint16 height);
 		BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height);
 		//BCanvas(const BCanvas& canvas);
 

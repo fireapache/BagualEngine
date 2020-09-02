@@ -421,6 +421,11 @@ namespace bgl
 			return _length;
 		}
 
+		T* GetData()
+		{
+			return _memBlock;
+		}
+
 		void Allocate(size_t allocLength, bool bMove = false)
 		{
 			BGL_ASSERT(allocLength > 0 && "Got negative allocLength!");

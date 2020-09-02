@@ -33,6 +33,8 @@ namespace bgl
 
 		GLFWwindow* glfwWindow = nullptr;
 
+		uint32 glTex = -1;
+
 	protected:
 
 		virtual void ApplySettings() override;
@@ -50,6 +52,10 @@ namespace bgl
 		virtual bool Tick() override;
 
 		GLFWwindow* GetGLFW_Window();
+
+		uint32& GetglTex();
+
+		void SetglTex(uint32 index);
 
 	};
 }

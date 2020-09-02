@@ -94,7 +94,7 @@ namespace bgl
 
 		for (int32 x = line.p1.x; x <= line.p2.x; x++)
 		{
-			screen[x + width * y] = 0xFF0000;
+			screen[x + width * y] = 0x0000FF;
 
 			if (D > 0)
 			{
@@ -129,7 +129,7 @@ namespace bgl
 
 		for (int32 y = line.p1.y; y <= line.p2.y; y++)
 		{
-			screen[x + width * y] = 0xFF0000;
+			screen[x + width * y] = 0x0000FF;
 
 			if (D > 0)
 			{

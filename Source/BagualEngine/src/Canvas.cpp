@@ -8,10 +8,12 @@
 namespace bgl
 {
 
-	BCanvas::BCanvas(uint16 width, uint16 height)
+	BCanvas::BCanvas(BPlatformWindow* window, uint16 width, uint16 height)
 		: width(width), height(height)
 	{
 		this->buffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<size_t>(width) * height);
+
+		this->window = window;
 
 		UpdateEdges();
 

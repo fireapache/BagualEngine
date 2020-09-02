@@ -35,6 +35,7 @@ namespace bgl
 
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 
+		// 
 		auto guiTick = []()
 		{
 			ImGui::ShowDemoWindow();
@@ -48,7 +49,7 @@ namespace bgl
 		//window = platform->CreateWindow(windowSettings);
 		//window->SetGuiTickMethod(guiTick);
 
-		return;
+		//return;
 
 		auto& canvas = window->GetCanvas();
 
@@ -65,7 +66,7 @@ namespace bgl
 			
 			BCameraManager::Create(viewport);
 		}
-
+		
 		{
 			//auto viewport = graphicsDriver->CreateViewport(canvas);
 			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);

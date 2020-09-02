@@ -16,10 +16,6 @@ namespace bgl
 
 	BPlatformGeneric::BPlatformGeneric()
 	{
-		bool gladerr = gladLoadGL() == 0;
-
-		BGL_ASSERT(gladerr && "Could not start glad!");
-
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -118,7 +114,7 @@ namespace bgl
 		}
 
 		// Creating canvas
-		canvas = std::make_shared<BCanvas>(settings.width, settings.height);
+		canvas = std::make_shared<BCanvas>(this, settings.width, settings.height);
 
 		// Need context to load GLAD
 		glfwMakeContextCurrent(glfwWindow);
@@ -182,5 +178,14 @@ namespace bgl
 		return glfwWindow;
 	}
 
+	uint32& BGenericPlatformWindow::GetglTex()
+	{
+		return glTex;
+	}
+
+	void BGenericPlatformWindow::SetglTex(uint32 index)
+	{
+		glTex = index;
+	}
 
 }
