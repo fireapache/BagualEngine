@@ -24,11 +24,11 @@ namespace bgl
 		viewports = std::make_unique<BArray<std::shared_ptr<BViewport>>>();
 	}
 
-	void BGraphicsPlatform::RenderFrame()
+	void BGraphicsPlatform::SwapFrames()
 	{
 		if (driverInstance)
 		{
-			driverInstance->RenderFrame();
+			driverInstance->SwapFrames();
 		}
 	}
 

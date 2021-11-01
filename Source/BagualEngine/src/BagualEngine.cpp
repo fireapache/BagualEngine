@@ -89,7 +89,7 @@ namespace bgl
 
 				if (graphicsPlatform)
 				{
-					graphicsPlatform->RenderFrame();
+					graphicsPlatform->SwapFrames();
 				}
 				
 			}

@@ -31,6 +31,14 @@ namespace bgl
 
 		glfwSetErrorCallback(ErrorCallback);
 
+		RenderGameFrameThread = std::thread([this]()
+			{
+				while (true)
+				{
+					RenderGameFrame();
+				}
+			});
+
 	}
 
 	BGraphicsDriverGeneric::~BGraphicsDriverGeneric()
@@ -41,9 +49,29 @@ namespace bgl
 		glfwTerminate();
 	}
 
-	void BGraphicsDriverGeneric::RenderFrame()
+	void BGraphicsDriverGeneric::SwapFrames()
 	{
-		BGraphicsDriverBase::RenderFrame();
+		auto& platform = Engine::Platform();
+		auto& windows = platform->GetWindows();
+
+		for (auto& window : windows)
+		{
+			CachedPlatformWindowPtr = static_cast<BGenericPlatformWindow*>(window.get());
+
+			if (CachedPlatformWindowPtr)
+			{
+				auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+				glfwMakeContextCurrent(glfwWindow);
+				glClear(GL_COLOR_BUFFER_BIT);
+				BGraphicsDriverBase::SwapFrames();
+				glfwSwapBuffers(glfwWindow);
+			}
+		}
+	}
+
+	void BGraphicsDriverGeneric::RenderGameFrame()
+	{
+		BGraphicsDriverBase::RenderGameFrame();
 
 		auto cameras = BCameraManager::GetCameras();
 
@@ -142,111 +170,119 @@ namespace bgl
 
 		}
 
-		auto& platform = Engine::Platform();
-		auto& windows = platform->GetWindows();
+		bGameFrameReady = true;
 
-		for (auto& window : windows)
+	}
+
+	void BGraphicsDriverGeneric::SwapUIFrame()
+	{
+		if (CachedPlatformWindowPtr)
 		{
-			auto genericWindow = static_cast<BGenericPlatformWindow*>(window.get());
-
-			if (genericWindow)
-			{
-				
-#pragma region Rendering Window Canvas to OpenGL
-
-				auto glfwWindow = genericWindow->GetGLFW_Window();
-				glfwMakeContextCurrent(glfwWindow);
-				glClear(GL_COLOR_BUFFER_BIT);
-
-				const GLfloat windowWidth = static_cast<GLfloat>(window->GetCanvas()->GetWidth());
-				const GLfloat windowHeight = static_cast<GLfloat>(window->GetCanvas()->GetHeight());
-
-				GLuint& tex = genericWindow->GetglTex();
-
-				if (tex == -1)
-				{
-					glGenTextures(1, &tex);
-				}
-
-				glBindTexture(GL_TEXTURE_2D, tex);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 
-					static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight), 
-					0, GL_RGBA, GL_UNSIGNED_BYTE, window->GetCanvas()->GetBuffer().GetData());
-				glBindTexture(GL_TEXTURE_2D, 0);
-
-				// Match projection to window resolution
-				glMatrixMode(GL_PROJECTION);
-				glPushMatrix();
-				glLoadIdentity();
-				glOrtho(0, windowWidth, 0, windowHeight, -1, 1);
-				glMatrixMode(GL_MODELVIEW);
-				glPushMatrix();
-
-				// Clear and draw quad with texture
-				glClear(GL_COLOR_BUFFER_BIT);
-				glBindTexture(GL_TEXTURE_2D, tex);
-				glEnable(GL_TEXTURE_2D);
-				glBegin(GL_QUADS);
-				glTexCoord2f(1, 1); glVertex3f(windowWidth, 0, 0);
-				glTexCoord2f(1, 0); glVertex3f(windowWidth, windowHeight, 0);
-				glTexCoord2f(0, 0); glVertex3f(0, windowHeight, 0);
-				glTexCoord2f(0, 1); glVertex3f(0, 0, 0);
-				glEnd();
-				glDisable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glFlush();
-
-#pragma endregion
 
 #pragma region Rendering ImGui
 
-				// Executing GUI tick method if assigned
+			auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+
+			// Executing GUI tick method if assigned
+			{
+				auto GuiTickPtr = CachedPlatformWindowPtr->GetGuiTickMethod();
+
+				if (GuiTickPtr)
 				{
-					auto GuiTickPtr = window->GetGuiTickMethod();
+					// Start the Dear ImGui frame
+					ImGui_ImplOpenGL3_NewFrame();
+					ImGui_ImplGlfw_NewFrame();
+					ImGui::NewFrame();
 
-					if (GuiTickPtr)
+					// User code
+					GuiTickPtr();
+
+					ImGui::Render();
+					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+					auto plat = static_cast<BPlatformGeneric*>(Engine::Instance().Platform().get());
+					ImGuiIO& io = *plat->GetImguiConfig();
+
+					// Update and Render additional Platform Windows
+					// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+					//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+					if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 					{
-						// Start the Dear ImGui frame
-						ImGui_ImplOpenGL3_NewFrame();
-						ImGui_ImplGlfw_NewFrame();
-						ImGui::NewFrame();
-
-						// User code
-						GuiTickPtr();
-
-						ImGui::Render();
-						ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-						
-						auto plat = static_cast<BPlatformGeneric*>(Engine::Instance().Platform().get());
-						ImGuiIO& io = *plat->GetImguiConfig();
-
-						// Update and Render additional Platform Windows
-						// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-						//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-						if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-						{
-							GLFWwindow* backup_current_context = glfwGetCurrentContext();
-							ImGui::UpdatePlatformWindows();
-							ImGui::RenderPlatformWindowsDefault();
-							glfwMakeContextCurrent(backup_current_context);
-						}
+						GLFWwindow* backup_current_context = glfwGetCurrentContext();
+						ImGui::UpdatePlatformWindows();
+						ImGui::RenderPlatformWindowsDefault();
+						glfwMakeContextCurrent(backup_current_context);
 					}
 				}
+			}
 
 #pragma endregion
-				
-				glfwSwapBuffers(glfwWindow);
-			}
-			else
-			{
-				//BGL_LOG("Could not get generic window!");
-			}
+
 		}
+		else
+		{
+			//BGL_LOG("Could not get generic window!");
+		}
+	}
 
-		
+	void BGraphicsDriverGeneric::SwapGameFrame()
+	{
+		if (CachedPlatformWindowPtr)
+		{
 
+#pragma region Rendering Window Canvas to OpenGL
+
+			auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+			glfwMakeContextCurrent(glfwWindow);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			const GLfloat windowWidth = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetWidth());
+			const GLfloat windowHeight = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetHeight());
+
+			GLuint& tex = CachedPlatformWindowPtr->GetglTex();
+
+			if (tex == -1)
+			{
+				glGenTextures(1, &tex);
+			}
+
+			glBindTexture(GL_TEXTURE_2D, tex);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+				static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight),
+				0, GL_RGBA, GL_UNSIGNED_BYTE, CachedPlatformWindowPtr->GetCanvas()->GetBuffer().GetData());
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			// Match projection to window resolution
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glLoadIdentity();
+			glOrtho(0, windowWidth, 0, windowHeight, -1, 1);
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+
+			// Clear and draw quad with texture
+			glClear(GL_COLOR_BUFFER_BIT);
+			glBindTexture(GL_TEXTURE_2D, tex);
+			glEnable(GL_TEXTURE_2D);
+			glBegin(GL_QUADS);
+			glTexCoord2f(1, 1); glVertex3f(windowWidth, 0, 0);
+			glTexCoord2f(1, 0); glVertex3f(windowWidth, windowHeight, 0);
+			glTexCoord2f(0, 0); glVertex3f(0, windowHeight, 0);
+			glTexCoord2f(0, 1); glVertex3f(0, 0, 0);
+			glEnd();
+			glDisable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glFlush();
+
+#pragma endregion
+
+		}
+		else
+		{
+			//BGL_LOG("Could not get generic window!");
+		}
 	}
 
 	void BGraphicsDriverGeneric::Delay(const uint32&& ms)

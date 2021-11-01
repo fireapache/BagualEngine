@@ -17,7 +17,7 @@ namespace bgl
 
 	public:
 
-		virtual void RenderFrame() = 0;
+		virtual void SwapFrames() = 0;
 		virtual void RenderCamera(const BCamera& camera) = 0;
 		virtual void Delay(const uint32&& ms) = 0;
 		virtual void Delay(const uint32& ms) = 0;
@@ -27,9 +27,18 @@ namespace bgl
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
 
+	protected:
+
+		bool bGameFrameReady = false;
+		std::thread RenderGameFrameThread;
+
 	public:
 
-		virtual void RenderFrame();
+		void StartGameFrameRenderingThread();
+		virtual void SwapFrames();
+		virtual void RenderGameFrame();
+		virtual void SwapUIFrame();
+		virtual void SwapGameFrame();
 		virtual void RenderCamera(const BCamera& camera);
 
 	};

@@ -19,7 +19,7 @@ namespace bgl
 
 		BGraphicsPlatform();
 
-		virtual void RenderFrame() override;
+		virtual void SwapFrames() override;
 		virtual void RenderCamera(const BCamera& camera) override;
 		virtual void Delay(const uint32&& ms) override;
 		virtual void Delay(const uint32& ms) override;
