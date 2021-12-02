@@ -143,14 +143,18 @@ namespace bgl
 				{
 					BTriangle<float> triCache;
 					objl::Vertex vert0, vert1, vert2;
+					uint32 index0, index1, index2;
+					const BVec3f translation(0.f, -2.f, -2.f);
 
-					for (size_t i = 0; i < objLoader.LoadedIndices.size() && i < 100; i += 3)
+					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
 					{
-						vert0 = objLoader.LoadedVertices[i];
-						vert1 = objLoader.LoadedVertices[i + 1];
-						vert2 = objLoader.LoadedVertices[i + 2];
+						index0 = objLoader.LoadedIndices[i];
+						index1 = objLoader.LoadedIndices[i + 1];
+						index2 = objLoader.LoadedIndices[i + 2];
 
-						static BVec3f translation(0.f, -2.f, -2.f);
+						vert0 = objLoader.LoadedVertices[index0];
+						vert1 = objLoader.LoadedVertices[index1];
+						vert2 = objLoader.LoadedVertices[index2];
 
 						triCache.v0.x = vert0.Position.X + translation.x;
 						triCache.v0.y = vert0.Position.Y + translation.y;
