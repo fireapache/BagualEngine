@@ -206,7 +206,8 @@ project "BagualEngine"
 		"Source/GLAD/include/",
 		"Source/GLFW/include/",
 		"Source/IMGUI/",
-		"Source/IMGUI/examples/"	
+		"Source/IMGUI/examples/",
+		"Source/OBJ-Loader/"
 	}
 
 	dependson { "GLAD", "GLFW", "IMGUI" }
