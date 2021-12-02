@@ -78,6 +78,7 @@ namespace bgl
 		// Rendering each camera
 		for (auto& camera : cameras)
 		{
+			if (camera == nullptr) continue;
 			BGL_ASSERT(camera != nullptr && "Got null camera during render!");
 
 			auto canvas = camera->GetViewport().GetCanvas().lock();
