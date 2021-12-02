@@ -17,6 +17,7 @@
 #include <imgui_impl_glfw.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <obj_parse.h>
 
 namespace bgl
 {
@@ -96,7 +97,7 @@ namespace bgl
 			auto glfwWindow = genericWindow->GetGLFW_Window();
 
 			// Rendering queued 2D lines
-			auto lines = camera->GetLine2DBuffer();
+			/*auto lines = camera->GetLine2DBuffer();
 
 			std::vector<std::thread> DrawLineThreads;
 
@@ -116,7 +117,7 @@ namespace bgl
 
 			DrawLineThreads.clear();
 
-			camera->ClearLine2DBuffer();
+			camera->ClearLine2DBuffer();*/
 
 			//continue;
 
@@ -131,6 +132,40 @@ namespace bgl
 			tris[1].v0 = BVec3f(-4.f, -1.f, -6.f);
 			tris[1].v1 = BVec3f(-2.f, -1.f, -5.f);
 			tris[1].v2 = BVec3f(-3.f, 1.f, -5.f);
+
+			static BArray<BTriangle<float>> meshTris;
+
+			if (meshTris.Size() <= 0)
+			{
+				objl::Loader objLoader("./assets/basemesh/basemesh.obj");
+
+				if (objLoader.LoadedIndices.size() > 0)
+				{
+					BTriangle<float> triCache;
+					objl::Vertex vert0, vert1, vert2;
+
+					for (size_t i = 0; i < objLoader.LoadedIndices.size() && i < 100; i += 3)
+					{
+						vert0 = objLoader.LoadedVertices[i];
+						vert1 = objLoader.LoadedVertices[i + 1];
+						vert2 = objLoader.LoadedVertices[i + 2];
+
+						static BVec3f translation(0.f, -2.f, -2.f);
+
+						triCache.v0.x = vert0.Position.X + translation.x;
+						triCache.v0.y = vert0.Position.Y + translation.y;
+						triCache.v0.z = vert0.Position.Z + translation.z;
+						triCache.v1.x = vert1.Position.X + translation.x;
+						triCache.v1.y = vert1.Position.Y + translation.y;
+						triCache.v1.z = vert1.Position.Z + translation.z;
+						triCache.v2.x = vert2.Position.X + translation.x;
+						triCache.v2.y = vert2.Position.Y + translation.y;
+						triCache.v2.z = vert2.Position.Z + translation.z;
+
+						meshTris.Add(triCache);
+					}
+				}
+			}
 
 			auto& viewport = camera->GetViewport();
 
@@ -151,9 +186,9 @@ namespace bgl
 					dir.Normalize();
 					float t, u, v;
 
-					for (uint32_t tri = 0; tri < tn; ++tri)
+					for (auto tri : meshTris)
 					{
-						if (RayTriangleIntersect(orig, dir, tris[tri].v0, tris[tri].v1, tris[tri].v2, t, u, v))
+						if (RayTriangleIntersect(orig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
 							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
 							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));

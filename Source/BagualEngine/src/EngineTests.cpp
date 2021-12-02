@@ -53,43 +53,43 @@ namespace bgl
 
 		auto& canvas = window->GetCanvas();
 
-		{
-			//auto viewport = graphicsDriver->CreateViewport(canvas);
-			auto viewport = graphicsDriver->CreateViewport(canvas, 20, 20, 250, 200);
-			
-			/*BBox<BVector2<float>> normalizedSize;
-			normalizedSize.p1.x = 0.005f;
-			normalizedSize.p1.y = 0.01f;
-			normalizedSize.p2.x = 0.995f;
-			normalizedSize.p2.y = 0.495f;
-			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);*/
-			
-			BCameraManager::Create(viewport);
-		}
-		
+		//{
+		//	//auto viewport = graphicsDriver->CreateViewport(canvas);
+		//	auto viewport = graphicsDriver->CreateViewport(canvas, 20, 20, 250, 200);
+		//	
+		//	/*BBox<BVector2<float>> normalizedSize;
+		//	normalizedSize.p1.x = 0.005f;
+		//	normalizedSize.p1.y = 0.01f;
+		//	normalizedSize.p2.x = 0.995f;
+		//	normalizedSize.p2.y = 0.495f;
+		//	auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);*/
+		//	
+		//	BCameraManager::Create(viewport);
+		//}
+		//
+		//{
+		//	//auto viewport = graphicsDriver->CreateViewport(canvas);
+		//	//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
+
+		//	BBox<BVector2<float>> normalizedSize;
+		//	normalizedSize.p1.x = 0.005f;
+		//	normalizedSize.p1.y = 0.505f;
+		//	normalizedSize.p2.x = 0.995f;
+		//	normalizedSize.p2.y = 0.99f;
+		//	auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+
+		//	BCameraManager::Create(viewport);
+		//}
+
 		{
 			//auto viewport = graphicsDriver->CreateViewport(canvas);
 			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
 
 			BBox<BVector2<float>> normalizedSize;
 			normalizedSize.p1.x = 0.005f;
-			normalizedSize.p1.y = 0.505f;
-			normalizedSize.p2.x = 0.995f;
-			normalizedSize.p2.y = 0.99f;
-			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
-
-			BCameraManager::Create(viewport);
-		}
-
-		{
-			//auto viewport = graphicsDriver->CreateViewport(canvas);
-			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
-
-			BBox<BVector2<float>> normalizedSize;
-			normalizedSize.p1.x = 0.505f;
 			normalizedSize.p1.y = 0.005f;
 			normalizedSize.p2.x = 0.995f;
-			normalizedSize.p2.y = 0.495f;
+			normalizedSize.p2.y = 0.995f;
 			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
 
 			BCameraManager::Create(viewport);
