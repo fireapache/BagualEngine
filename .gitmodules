@@ -6,4 +6,4 @@
 	url = https://github.com/glfw/glfw.git
 [submodule "Source/OBJ-Loader"]
 	path = Source/OBJ-Loader
-	url = git@github.com:fireapache/OBJ-Loader.git
+	url = https://github.com/fireapache/OBJ-Loader.git
