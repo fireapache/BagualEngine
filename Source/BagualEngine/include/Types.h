@@ -220,6 +220,26 @@ namespace bgl
 			return BVector3<T>(this->x + p.x, this->y + p.y, this->z + p.z);
 		}
 
+		inline const BVector3<T>& operator*(const BVector3<T>& p) const
+		{
+			return BVector3<T>(this->x * p.x, this->y * p.y, this->z * p.z);
+		}
+
+		inline const BVector3<T>& operator*(const float& p) const
+		{
+			return BVector3<T>(this->x * p, this->y * p, this->z * p);
+		}
+
+		inline const BVector3<T>& operator/(const BVector3<T>& p) const
+		{
+			return BVector3<T>(this->x / p.x, this->y / p.y, this->z / p.z);
+		}
+
+		inline const BVector3<T>& operator/(const float& p) const
+		{
+			return BVector3<T>(this->x / p, this->y / p, this->z / p);
+		}
+
 		inline float operator|(const BVector3<T> &p) const
 		{
 			float a = static_cast<float>(this->x - p.x);
@@ -267,6 +287,14 @@ namespace bgl
 			this->v1 = v1;
 			this->v2 = v2;
 		}
+
+		inline BVector3<T> GetPointOnSurface(const float u, const float v)
+		{
+			const BVector3<T> v0v1 = v1 - v0;
+			const BVector3<T> v0v2 = v2 - v0;
+			return v0 + v0v1 * u + v0v2 * v;
+		}
+
 	};
 
 	template <typename T>

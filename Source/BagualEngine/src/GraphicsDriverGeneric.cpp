@@ -144,7 +144,7 @@ namespace bgl
 					BTriangle<float> triCache;
 					objl::Vertex vert0, vert1, vert2;
 					uint32 index0, index1, index2;
-					const BVec3f translation(0.f, -2.f, -2.f);
+					const BVec3f translation(0.f, -1.85f, -2.f);
 
 					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
 					{
@@ -180,6 +180,11 @@ namespace bgl
 			float imageAspectRatio = width / (float)height;
 			BVector3<float> orig(0.f, 0.f, 0.f);
 
+			static double maxZ = 225.0, minZ = 178.0;
+			static double zRange = maxZ - minZ;
+
+			viewport.ResetPixelDepth();
+
 			for (uint32 j = 0; j < height; ++j)
 			{
 				for (uint32 i = 0; i < width; ++i)
@@ -189,6 +194,7 @@ namespace bgl
 					BVector3<float> dir(x, y, -1);
 					dir.Normalize();
 					float t, u, v;
+					uint32 rgb = 0x000000;
 
 					for (auto tri : meshTris)
 					{
@@ -198,9 +204,32 @@ namespace bgl
 							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
 							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
-							uint32 rgb = r;
-							rgb = (rgb << 8) + g;
-							rgb = (rgb << 8) + b;
+							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
+							const double depthZ = std::abs(surfacePoint.z) * 100.0;
+							//maxZ = depthZ > maxZ ? depthZ : maxZ;
+							//minZ = depthZ < minZ ? depthZ : minZ;
+							//zRange = maxZ - minZ;
+
+							if (viewport.GetPixelDepth(i, j) < depthZ)
+							{
+								viewport.SetPixelDepth(i, j, depthZ);
+
+								const double calcA = depthZ - minZ;
+								const double calcB = zRange - calcA;
+								const double calcC = calcB / zRange;
+
+								const uint32 gray = static_cast<uint32>(255.0 * (1 - std::clamp(calcC, 0.0, 1.0)));
+
+								rgb = gray;
+								rgb = (rgb << 8) + gray;
+								rgb = (rgb << 8) + gray;
+							}
+							/*else
+							{
+								rgb = r;
+								rgb = (rgb << 8) + g;
+								rgb = (rgb << 8) + b;
+							}*/
 
 							viewport(i, j) = rgb;
 						}
@@ -291,7 +320,7 @@ namespace bgl
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 				static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight),
-				0, GL_RGBA, GL_UNSIGNED_BYTE, CachedPlatformWindowPtr->GetCanvas()->GetBuffer().GetData());
+				0, GL_RGBA, GL_UNSIGNED_BYTE, CachedPlatformWindowPtr->GetCanvas()->GetColorBuffer().GetData());
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			// Match projection to window resolution

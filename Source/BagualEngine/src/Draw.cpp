@@ -77,7 +77,7 @@ namespace bgl
 
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineLow!");
 
-		auto& screen = canvas->GetBuffer();
+		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();
 		int32 dx = line.p2.x - line.p1.x;
 		int32 dy = line.p2.y - line.p1.y;
@@ -112,7 +112,7 @@ namespace bgl
 
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineHigh!");
 
-		auto& screen = canvas->GetBuffer();
+		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();
 		int32 dx = line.p2.x - line.p1.x;
 		int32 dy = line.p2.y - line.p1.y;

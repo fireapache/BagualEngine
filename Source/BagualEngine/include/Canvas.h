@@ -16,7 +16,8 @@ namespace bgl
 
 		BLine<BPixelPos> edges[4];
 
-		std::shared_ptr<BBuffer<CanvasDataType>> buffer;
+		std::shared_ptr<BBuffer<CanvasDataType>> colorBuffer;
+		std::shared_ptr<BBuffer<DepthDataType>> zBuffer;
 
 		inline void UpdateEdges();
 
@@ -32,10 +33,13 @@ namespace bgl
 		uint16 GetWidth() const;
 		uint16 GetHeight() const;
 
+		void ResetZBuffer();
+
 		const BLine<BPixelPos>* GetEdges()  const;
 		const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
 
-		BBuffer<CanvasDataType>& GetBuffer();
+		BBuffer<CanvasDataType>& GetColorBuffer();
+		BBuffer<DepthDataType>& GetZBuffer();
 
 		BPlatformWindow* GetWindow();
 

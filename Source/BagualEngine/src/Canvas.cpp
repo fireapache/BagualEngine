@@ -11,7 +11,8 @@ namespace bgl
 	BCanvas::BCanvas(BPlatformWindow* window, uint16 width, uint16 height)
 		: width(width), height(height)
 	{
-		this->buffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<size_t>(width) * height);
+		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<size_t>(width) * height);
+		ResetZBuffer();
 
 		this->window = window;
 
@@ -22,7 +23,8 @@ namespace bgl
 	BCanvas::BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height)
 		: width(width), height(height)
 	{
-		this->buffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<CanvasDataType*>(pixels), static_cast<size_t>(width) * height);
+		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<CanvasDataType*>(pixels), static_cast<size_t>(width) * height);
+		ResetZBuffer();
 
 		this->window = window;
 
@@ -62,6 +64,11 @@ namespace bgl
 		return height;
 	}
 
+	inline void BCanvas::ResetZBuffer()
+	{
+		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(static_cast<size_t>(width) * height);
+	}
+
 	const BLine<BPixelPos>* BCanvas::GetEdges() const
 	{
 		return edges;
@@ -72,9 +79,14 @@ namespace bgl
 		return edges[static_cast<int>(edge)];
 	}
 
-	BBuffer<CanvasDataType>& BCanvas::GetBuffer()
+	BBuffer<CanvasDataType>& BCanvas::GetColorBuffer()
 	{
-		return *buffer.get();
+		return *colorBuffer.get();
+	}
+
+	BBuffer<DepthDataType>& BCanvas::GetZBuffer()
+	{
+		return *zBuffer.get();
 	}
 
 	BPlatformWindow* BCanvas::GetWindow()
@@ -87,7 +99,7 @@ namespace bgl
 		width = newWidth;
 		height = newHeight;
 		uint32 newLength = static_cast<uint32>(width) * static_cast<uint32>(height);
-		buffer->SetLength(newLength);
+		colorBuffer->SetLength(newLength);
 	}
 
 }

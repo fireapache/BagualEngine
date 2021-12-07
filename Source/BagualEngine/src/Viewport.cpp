@@ -114,8 +114,30 @@ namespace bgl
 	{
 		auto canvasPtr = canvas.lock();
 		auto width = canvasPtr->GetWidth();
-		auto& buffer = canvasPtr->GetBuffer();
-		return buffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
+		auto& colorBuffer = canvasPtr->GetColorBuffer();
+		return colorBuffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
+	}
+
+	DepthDataType BViewport::GetPixelDepth(size_t x, size_t y)
+	{
+		auto canvasPtr = canvas.lock();
+		auto width = canvasPtr->GetWidth();
+		auto& zBuffer = canvasPtr->GetZBuffer();
+		return zBuffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
+	}
+
+	void BViewport::SetPixelDepth(size_t x, size_t y, DepthDataType value)
+	{
+		auto canvasPtr = canvas.lock();
+		auto width = canvasPtr->GetWidth();
+		auto& zBuffer = canvasPtr->GetZBuffer();
+		zBuffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)] = value;
+	}
+
+	void BViewport::ResetPixelDepth()
+	{
+		auto canvasPtr = canvas.lock();
+		canvasPtr->ResetZBuffer();
 	}
 
 	void BViewport::SetBounds(const BBox<BPixelPos>& newBounds)

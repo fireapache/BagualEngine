@@ -14,6 +14,7 @@ namespace bgl
 	typedef uint8_t uint8;
 
 	typedef uint32 CanvasDataType;
+	typedef double DepthDataType;
 
 
 }

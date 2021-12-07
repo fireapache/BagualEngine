@@ -56,6 +56,10 @@ namespace bgl
 		const BSize<uint32> GetSize() const;
 
 		CanvasDataType& operator()(size_t x, size_t y);
+		
+		DepthDataType GetPixelDepth(size_t x, size_t y);
+		void SetPixelDepth(size_t x, size_t y, DepthDataType value);
+		void ResetPixelDepth();
 
 	};
 
