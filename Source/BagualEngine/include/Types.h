@@ -225,7 +225,7 @@ namespace bgl
 			return BVector3<T>(this->x * p.x, this->y * p.y, this->z * p.z);
 		}
 
-		inline const BVector3<T>& operator*(const float& p) const
+		inline const BVector3<T>& operator*(const T& p) const
 		{
 			return BVector3<T>(this->x * p, this->y * p, this->z * p);
 		}
@@ -235,7 +235,7 @@ namespace bgl
 			return BVector3<T>(this->x / p.x, this->y / p.y, this->z / p.z);
 		}
 
-		inline const BVector3<T>& operator/(const float& p) const
+		inline const BVector3<T>& operator/(const T& p) const
 		{
 			return BVector3<T>(this->x / p, this->y / p, this->z / p);
 		}
@@ -247,6 +247,40 @@ namespace bgl
 			float c = static_cast<float>(this->z - p.z);
 
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f) + pow(c, 2.0f));
+		}
+
+		inline void operator+=(const BVector3<T>& p)
+		{
+			this->x += p.x;
+			this->y += p.y;
+			this->z += p.z;
+		}
+
+		inline void operator-=(const BVector3<T>& p)
+		{
+			this->x -= p.x;
+			this->y -= p.y;
+			this->z -= p.z;
+		}
+
+		inline void operator*=(const T& p)
+		{
+			*this = *this * p;
+		}
+
+		inline void operator*=(const BVector3<T>& p)
+		{
+			*this = *this * p;
+		}
+
+		inline void operator/=(const T& p)
+		{
+			*this = *this / p;
+		}
+
+		inline void operator/=(const BVector3<T>& p)
+		{
+			*this = *this / p;
 		}
 
 		T Norm() const
@@ -486,6 +520,169 @@ namespace bgl
 			}
 
 			_length = newLength;
+		}
+
+	};
+
+	template <typename T>
+	class BQuaternion
+	{
+		typedef BVector3<T> VecType;
+
+	public:
+
+		float s;
+		VecType v;
+
+		BQuaternion<T>() : s(0), v(VecType()) { }
+
+		BQuaternion<T>(const float scalar, const BVector3<T>& vec)
+		{
+			this->s = scalar;
+			this->v = vec;
+		}
+
+		~BQuaternion<T>() { }
+
+		BQuaternion<T>(const BQuaternion& value)
+		{
+			this->s = value.s;
+			this->v = value.v;
+		}
+
+		inline BQuaternion<T>& operator=(const BQuaternion& value)
+		{
+			this->s = value.s;
+			this->v = value.v;
+			return *this;
+		}
+
+		inline void operator+=(const BQuaternion& q)
+		{
+			s += q.s;
+			v += q.v;
+		}
+
+		inline BQuaternion<T> operator+(const BQuaternion& q) const
+		{
+			const float scalar = s + q.s;
+			const VecType imaginary = v + q.v;
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		inline void operator-=(const BQuaternion& q)
+		{
+			s -= q.s;
+			v -= q.v;
+		}
+
+		inline BQuaternion<T> operator-(const BQuaternion<T>& q) const
+		{
+			const float scalar = s - q.s;
+			const VecType imaginary = v - q.v;
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		inline void operator*=(const BQuaternion<T>& q)
+		{
+			(*this) = multiply(q);
+		}
+
+		inline BQuaternion<T> operator*(const BQuaternion<T>& q) const
+		{
+			return multiply(q);
+		}
+
+		inline BQuaternion<T> multiply(const BQuaternion<T>& q) const
+		{
+			const float scalar = s * q.s - v.dot(q.v);
+			const VecType imaginary = q.v * s + v * q.s + v.cross(q.v);
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		inline void operator*=(const float value)
+		{
+			s *= value;
+			v *= value;
+		}
+
+		inline BQuaternion<T> operator*(const float value) const
+		{
+			const float scalar = s * value;
+			const VecType imaginary = v * value;
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		inline float norm()
+		{
+			const float scalar = s * s;
+			const float imaginary = v * v;
+			return std::sqrt(scalar + imaginary);
+		}
+
+		inline void normalize()
+		{
+			if (norm() != 0)
+			{
+				const float normValue = 1.f / norm();
+				s *= normValue;
+				v *= normValue;
+			}
+		}
+
+		inline void convertToUnitNormQuaternion()
+		{
+			const float angle = s * fPi / 180.f;
+			v.Normalize();
+			s = cosf(angle * 0.5);
+			v *= sinf(angle * 0.5);
+		}
+
+		inline BQuaternion<T> conjugate()
+		{
+			const float scalar = s;
+			const VecType imaginary = v * (-1.f);
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		inline BQuaternion<T> inverse()
+		{
+			float absoluteValue = norm();
+			absoluteValue *= absoluteValue;
+			absoluteValue = 1 / absoluteValue;
+			BQuaternion<T> conjugateValue = conjugate();
+			const float scalar = conjugateValue.s * absoluteValue;
+			const VecType imaginary = conjugateValue.v * absoluteValue;
+			return BQuaternion<T>(scalar, imaginary);
+		}
+
+		static inline VecType RotateAroundAxis(float uAngle, VecType&& uAxis, VecType& uVector)
+		{
+			RotateAroundAxis(uAngle, uAxis, uVector);
+		}
+
+		static inline VecType RotateAroundAxis(float uAngle, VecType& uAxis, VecType& uVector)
+		{
+			//convert our vector to a pure quaternion
+			BQuaternion<T> p(0, uVector);
+
+			//normalize the axis
+			uAxis.Normalize();
+
+			//create the real quaternion
+			BQuaternion<T> q(uAngle, uAxis);
+
+			//convert quaternion to unit norm quaternion
+			q.convertToUnitNormQuaternion();
+
+			//Get the inverse of the quaternion
+			BQuaternion<T> qInverse = q.inverse();
+
+			//rotate the quaternion
+			BQuaternion<T> rotatedVector = q * p * qInverse;
+
+			//return the vector part of the quaternion
+			return rotatedVector.v;
 		}
 
 	};

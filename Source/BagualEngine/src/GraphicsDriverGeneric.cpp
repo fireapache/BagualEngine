@@ -144,7 +144,7 @@ namespace bgl
 					BTriangle<float> triCache;
 					objl::Vertex vert0, vert1, vert2;
 					uint32 index0, index1, index2;
-					const BVec3f translation(0.f, -1.85f, -2.f);
+					const BVec3f translation(0.f, -1.85f, 2.f);
 
 					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
 					{
@@ -191,8 +191,9 @@ namespace bgl
 				{
 					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
 					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
-					BVector3<float> dir(x, y, -1);
+					BVector3<float> dir(x, y, 1);
 					dir.Normalize();
+					BQuaternion<float>::RotateAroundAxis(45.f, BVector3<float>(0.f, 1.f, 0.f), dir);
 					float t, u, v;
 					uint32 rgb = 0x000000;
 
