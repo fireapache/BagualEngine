@@ -11,7 +11,7 @@ namespace bgl
 	template <typename T>
 	inline T deg2rad(const T& deg)
 	{
-		return deg * M_PI / 180.0;
+		return deg * static_cast<T>(M_PI / 180.0);
 	}
 
 	template <typename T>

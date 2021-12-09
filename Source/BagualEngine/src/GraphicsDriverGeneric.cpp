@@ -176,9 +176,9 @@ namespace bgl
 			const auto width = viewport.GetSize().width;
 			const auto height = viewport.GetSize().height;
 
-			float scale = static_cast<float>(tan(deg2rad(camera->GetFOV() * 0.5)));
+			float scale = static_cast<float>(tan(deg2rad(camera->GetFOV() * 0.5f)));
 			float imageAspectRatio = width / (float)height;
-			BVector3<float> orig(0.f, 0.f, 0.f);
+			BVector3<float> orig(0.f, 0.0f, 0.f);
 
 			static double maxZ = 225.0, minZ = 178.0;
 			static double zRange = maxZ - minZ;
@@ -193,7 +193,7 @@ namespace bgl
 					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
 					BVector3<float> dir(x, y, 1);
 					dir.Normalize();
-					BQuaternion<float>::RotateAroundAxis(45.f, BVector3<float>(0.f, 1.f, 0.f), dir);
+					//dir = BQuaternion<float>::RotateAroundAxis(25.f, BVector3<float>(0.f, 1.f, 0.f), dir);
 					float t, u, v;
 					uint32 rgb = 0x000000;
 

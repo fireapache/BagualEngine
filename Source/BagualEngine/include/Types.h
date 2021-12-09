@@ -249,6 +249,22 @@ namespace bgl
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f) + pow(c, 2.0f));
 		}
 
+		inline T Dot (const BVector3<T>& p) const
+		{
+			return (this->x * p.x + this->y * p.y + this->z * p.z);
+		}
+
+		inline BVector3<T> Cross(const BVector3<T>& p) const
+		{
+			BVector3<T> Result;
+
+			Result.x = this->y * p.z - this->z * p.y;
+			Result.y = this->z * p.x - this->x * p.z;
+			Result.z = this->x * p.y - this->y * p.x;
+
+			return Result;
+		}
+
 		inline void operator+=(const BVector3<T>& p)
 		{
 			this->x += p.x;
@@ -531,12 +547,12 @@ namespace bgl
 
 	public:
 
-		float s;
+		T s;
 		VecType v;
 
 		BQuaternion<T>() : s(0), v(VecType()) { }
 
-		BQuaternion<T>(const float scalar, const BVector3<T>& vec)
+		BQuaternion<T>(const T scalar, const BVector3<T>& vec)
 		{
 			this->s = scalar;
 			this->v = vec;
@@ -565,7 +581,7 @@ namespace bgl
 
 		inline BQuaternion<T> operator+(const BQuaternion& q) const
 		{
-			const float scalar = s + q.s;
+			const T scalar = s + q.s;
 			const VecType imaginary = v + q.v;
 			return BQuaternion<T>(scalar, imaginary);
 		}
@@ -578,7 +594,7 @@ namespace bgl
 
 		inline BQuaternion<T> operator-(const BQuaternion<T>& q) const
 		{
-			const float scalar = s - q.s;
+			const T scalar = s - q.s;
 			const VecType imaginary = v - q.v;
 			return BQuaternion<T>(scalar, imaginary);
 		}
@@ -595,36 +611,36 @@ namespace bgl
 
 		inline BQuaternion<T> multiply(const BQuaternion<T>& q) const
 		{
-			const float scalar = s * q.s - v.dot(q.v);
-			const VecType imaginary = q.v * s + v * q.s + v.cross(q.v);
+			const T scalar = s * q.s - v.Dot(q.v);
+			const VecType imaginary = q.v * s + v * q.s + v.Cross(q.v);
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
-		inline void operator*=(const float value)
+		inline void operator*=(const T value)
 		{
 			s *= value;
 			v *= value;
 		}
 
-		inline BQuaternion<T> operator*(const float value) const
+		inline BQuaternion<T> operator*(const T value) const
 		{
-			const float scalar = s * value;
+			const T scalar = s * value;
 			const VecType imaginary = v * value;
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
-		inline float norm()
+		inline T norm()
 		{
-			const float scalar = s * s;
-			const float imaginary = v * v;
-			return std::sqrt(scalar + imaginary);
+			const T scalar = s * s;
+			const VecType imaginary = v * v;
+			return std::sqrt(scalar + imaginary.x + imaginary.y + imaginary.z);
 		}
 
 		inline void normalize()
 		{
 			if (norm() != 0)
 			{
-				const float normValue = 1.f / norm();
+				const T normValue = 1.f / norm();
 				s *= normValue;
 				v *= normValue;
 			}
@@ -632,7 +648,7 @@ namespace bgl
 
 		inline void convertToUnitNormQuaternion()
 		{
-			const float angle = s * fPi / 180.f;
+			const T angle = s * fPi / 180.f;
 			v.Normalize();
 			s = cosf(angle * 0.5);
 			v *= sinf(angle * 0.5);
@@ -640,28 +656,28 @@ namespace bgl
 
 		inline BQuaternion<T> conjugate()
 		{
-			const float scalar = s;
+			const T scalar = s;
 			const VecType imaginary = v * (-1.f);
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
 		inline BQuaternion<T> inverse()
 		{
-			float absoluteValue = norm();
+			T absoluteValue = norm();
 			absoluteValue *= absoluteValue;
 			absoluteValue = 1 / absoluteValue;
 			BQuaternion<T> conjugateValue = conjugate();
-			const float scalar = conjugateValue.s * absoluteValue;
+			const T scalar = conjugateValue.s * absoluteValue;
 			const VecType imaginary = conjugateValue.v * absoluteValue;
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
-		static inline VecType RotateAroundAxis(float uAngle, VecType&& uAxis, VecType& uVector)
+		static inline VecType RotateAroundAxis(T uAngle, VecType&& uAxis, VecType& uVector)
 		{
-			RotateAroundAxis(uAngle, uAxis, uVector);
+			return RotateAroundAxis(uAngle, uAxis, uVector);
 		}
 
-		static inline VecType RotateAroundAxis(float uAngle, VecType& uAxis, VecType& uVector)
+		static inline VecType RotateAroundAxis(T uAngle, VecType& uAxis, VecType& uVector)
 		{
 			//convert our vector to a pure quaternion
 			BQuaternion<T> p(0, uVector);

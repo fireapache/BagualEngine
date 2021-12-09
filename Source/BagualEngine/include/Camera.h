@@ -18,7 +18,7 @@ namespace bgl
 
 		BArray<BLine<BPixelPos>> Line2DBuffer;
 
-		float fov = 51.52f;
+		float fov = 60.f;
 
 	public:
 
