@@ -10,6 +10,11 @@ namespace bgl
 
 	public:
 
+		static double maxZ, minZ;
+		static BVector3<float> camOrig;
+		static uint32 i, j;
+		static BViewport* cachedViewport;
+
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 

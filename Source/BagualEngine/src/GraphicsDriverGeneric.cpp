@@ -26,6 +26,13 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
+	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, -0.5f, -1.f);
+	double BGraphicsDriverGeneric::maxZ = 400.0;
+	double BGraphicsDriverGeneric::minZ = 275.0;
+	uint32 BGraphicsDriverGeneric::i = 0;
+	uint32 BGraphicsDriverGeneric::j = 0;
+	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
+
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
 		BGL_ASSERT(glfwInit() && "Could not start GLFW!");
@@ -95,6 +102,39 @@ namespace bgl
 			BGL_ASSERT(genericWindow != nullptr && "Got null generic window during render!");
 
 			auto glfwWindow = genericWindow->GetGLFW_Window();
+
+			auto guiTick = []()
+			{
+				IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
+
+				ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+				ImGui::SetNextWindowPos(ImVec2(main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20), ImGuiCond_FirstUseEver);
+				ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+
+				ImGuiWindowFlags window_flags = 0;
+				if (!ImGui::Begin("Bagual Game", nullptr, window_flags))
+				{
+					ImGui::End();
+					return;
+				}
+
+				ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
+
+				if (ImGui::Button("Restart Rendering"))
+				{
+					i = 0; j = 0;
+					if (cachedViewport) cachedViewport->ResetPixelDepth();
+				}
+
+				ImGui::InputFloat3("Camera Position", reinterpret_cast<float*>(&camOrig));
+				ImGui::InputDouble("MinZ", &minZ);
+				ImGui::InputDouble("MaxZ", &maxZ);
+
+				ImGui::End();
+			};
+
+			// Gui update procedure
+			window->SetGuiTickMethod(guiTick);
 
 			// Rendering queued 2D lines
 			/*auto lines = camera->GetLine2DBuffer();
@@ -178,16 +218,15 @@ namespace bgl
 
 			float scale = static_cast<float>(tan(deg2rad(camera->GetFOV() * 0.5f)));
 			float imageAspectRatio = width / (float)height;
-			BVector3<float> orig(0.f, 0.0f, 0.f);
 
-			static double maxZ = 225.0, minZ = 178.0;
-			static double zRange = maxZ - minZ;
+			double zRange = maxZ - minZ;
 
 			viewport.ResetPixelDepth();
+			cachedViewport = &viewport;
 
-			for (uint32 j = 0; j < height; ++j)
+			for (j = 0; j < height; ++j)
 			{
-				for (uint32 i = 0; i < width; ++i)
+				for (i = 0; i < width; ++i)
 				{
 					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
 					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
@@ -199,27 +238,23 @@ namespace bgl
 
 					for (auto tri : meshTris)
 					{
-						if (RayTriangleIntersect(orig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
+						if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
 							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
 							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
 							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
-							const double depthZ = std::abs(surfacePoint.z) * 100.0;
-							//maxZ = depthZ > maxZ ? depthZ : maxZ;
-							//minZ = depthZ < minZ ? depthZ : minZ;
-							//zRange = maxZ - minZ;
+							const double depthZ = (camOrig | surfacePoint) * 100.0;
 
 							if (viewport.GetPixelDepth(i, j) < depthZ)
 							{
 								viewport.SetPixelDepth(i, j, depthZ);
 
-								const double calcA = depthZ - minZ;
-								const double calcB = zRange - calcA;
-								const double calcC = calcB / zRange;
+								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
+								const double calcB = calcA / zRange;
 
-								const uint32 gray = static_cast<uint32>(255.0 * (1 - std::clamp(calcC, 0.0, 1.0)));
+								const uint32 gray = static_cast<uint32>(255.0 * (std::clamp(calcB, 0.0, 1.0)));
 
 								rgb = gray;
 								rgb = (rgb << 8) + gray;
