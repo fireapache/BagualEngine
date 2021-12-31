@@ -14,6 +14,7 @@ namespace bgl
 		static BVector3<float> camOrig;
 		static uint32 i, j;
 		static BViewport* cachedViewport;
+		static float zValue;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();

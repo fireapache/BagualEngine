@@ -26,12 +26,13 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
-	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, -0.5f, -1.f);
+	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, -1.5f, -3.f);
 	double BGraphicsDriverGeneric::maxZ = 400.0;
 	double BGraphicsDriverGeneric::minZ = 275.0;
 	uint32 BGraphicsDriverGeneric::i = 0;
 	uint32 BGraphicsDriverGeneric::j = 0;
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
+	float BGraphicsDriverGeneric::zValue = 1.f;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
@@ -123,12 +124,18 @@ namespace bgl
 				if (ImGui::Button("Restart Rendering"))
 				{
 					i = 0; j = 0;
-					if (cachedViewport) cachedViewport->ResetPixelDepth();
+
+					if (cachedViewport)
+					{
+						cachedViewport->ResetPixelDepth();
+						cachedViewport->GetCanvas().lock()->GetColorBuffer().SetBufferValue(0);
+					}
 				}
 
 				ImGui::InputFloat3("Camera Position", reinterpret_cast<float*>(&camOrig));
 				ImGui::InputDouble("MinZ", &minZ);
 				ImGui::InputDouble("MaxZ", &maxZ);
+				ImGui::InputFloat("ZValue", &zValue);
 
 				ImGui::End();
 			};
@@ -184,7 +191,7 @@ namespace bgl
 					BTriangle<float> triCache;
 					objl::Vertex vert0, vert1, vert2;
 					uint32 index0, index1, index2;
-					const BVec3f translation(0.f, -1.85f, 2.f);
+					const BVec3f translation(0.f, 0.f, 0.f);
 
 					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
 					{
@@ -230,7 +237,7 @@ namespace bgl
 				{
 					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
 					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
-					BVector3<float> dir(x, y, 1);
+					BVector3<float> dir(x, y, zValue);
 					dir.Normalize();
 					//dir = BQuaternion<float>::RotateAroundAxis(25.f, BVector3<float>(0.f, 1.f, 0.f), dir);
 					float t, u, v;

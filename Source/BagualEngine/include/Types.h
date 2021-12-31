@@ -538,6 +538,11 @@ namespace bgl
 			_length = newLength;
 		}
 
+		void SetBufferValue(T value)
+		{
+			memset(_memBlock, 0, sizeof(T) * _length);
+		}
+
 	};
 
 	template <typename T>
