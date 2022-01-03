@@ -26,13 +26,15 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
-	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, -1.5f, -3.f);
-	double BGraphicsDriverGeneric::maxZ = 400.0;
-	double BGraphicsDriverGeneric::minZ = 275.0;
+	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 1.4f, -2.6f);
+	BVector3<float> BGraphicsDriverGeneric::camRot = BVec3f(0.f, 0.f, 0.f);
+	double BGraphicsDriverGeneric::maxZ = 350.0;
+	double BGraphicsDriverGeneric::minZ = 175.0;
 	uint32 BGraphicsDriverGeneric::i = 0;
 	uint32 BGraphicsDriverGeneric::j = 0;
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
-	float BGraphicsDriverGeneric::zValue = 1.f;
+	BVector2<float> BGraphicsDriverGeneric::sensorSize = BVec3f(24.f, 36.f);
+	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
@@ -133,9 +135,15 @@ namespace bgl
 				}
 
 				ImGui::InputFloat3("Camera Position", reinterpret_cast<float*>(&camOrig));
+				ImGui::InputFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot));
 				ImGui::InputDouble("MinZ", &minZ);
 				ImGui::InputDouble("MaxZ", &maxZ);
-				ImGui::InputFloat("ZValue", &zValue);
+				ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
+
+				if (cachedCamera)
+				{
+					ImGui::InputFloat("Camera FOV", &cachedCamera->GetFOV_Mutable());
+				}
 
 				ImGui::End();
 			};
@@ -191,7 +199,6 @@ namespace bgl
 					BTriangle<float> triCache;
 					objl::Vertex vert0, vert1, vert2;
 					uint32 index0, index1, index2;
-					const BVec3f translation(0.f, 0.f, 0.f);
 
 					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
 					{
@@ -203,15 +210,15 @@ namespace bgl
 						vert1 = objLoader.LoadedVertices[index1];
 						vert2 = objLoader.LoadedVertices[index2];
 
-						triCache.v0.x = vert0.Position.X + translation.x;
-						triCache.v0.y = vert0.Position.Y + translation.y;
-						triCache.v0.z = vert0.Position.Z + translation.z;
-						triCache.v1.x = vert1.Position.X + translation.x;
-						triCache.v1.y = vert1.Position.Y + translation.y;
-						triCache.v1.z = vert1.Position.Z + translation.z;
-						triCache.v2.x = vert2.Position.X + translation.x;
-						triCache.v2.y = vert2.Position.Y + translation.y;
-						triCache.v2.z = vert2.Position.Z + translation.z;
+						triCache.v0.x = vert0.Position.X;
+						triCache.v0.y = vert0.Position.Y;
+						triCache.v0.z = vert0.Position.Z;
+						triCache.v1.x = vert1.Position.X;
+						triCache.v1.y = vert1.Position.Y;
+						triCache.v1.z = vert1.Position.Z;
+						triCache.v2.x = vert2.Position.X;
+						triCache.v2.y = vert2.Position.Y;
+						triCache.v2.z = vert2.Position.Z;
 
 						meshTris.Add(triCache);
 					}
@@ -223,21 +230,23 @@ namespace bgl
 			const auto width = viewport.GetSize().width;
 			const auto height = viewport.GetSize().height;
 
-			float scale = static_cast<float>(tan(deg2rad(camera->GetFOV() * 0.5f)));
-			float imageAspectRatio = width / (float)height;
+			BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
+			float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
+			float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV())));
 
 			double zRange = maxZ - minZ;
 
 			viewport.ResetPixelDepth();
 			cachedViewport = &viewport;
+			cachedCamera = camera.get();
 
 			for (j = 0; j < height; ++j)
 			{
 				for (i = 0; i < width; ++i)
 				{
-					float x = (2 * (i + 0.5f) / (float)width - 1) * imageAspectRatio * scale;
-					float y = (1 - 2 * (j + 0.5f) / (float)height) * scale;
-					BVector3<float> dir(x, y, zValue);
+					float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
+					float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
+					BVector3<float> dir(x, y, sensorDistance);
 					dir.Normalize();
 					//dir = BQuaternion<float>::RotateAroundAxis(25.f, BVector3<float>(0.f, 1.f, 0.f), dir);
 					float t, u, v;

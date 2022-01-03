@@ -28,6 +28,7 @@ namespace bgl
 		void SetFOV(const float& newFov);
 
 		const float& GetFOV() const;
+		float& GetFOV_Mutable();
 
 		// Line to be render on top of everything during camera render loop in the Renderer
 		void AddLine2DBuffer(const BLine<BPixelPos>& line);

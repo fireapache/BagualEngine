@@ -185,12 +185,12 @@ namespace bgl
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}
 
-	bool RayTriangleIntersect(const BVec3f& orig, const BVec3f& dir, const BVec3f& v0, const BVec3f& v1, const BVec3f& v2, float& t, float& u, float& v)
+	bool RayTriangleIntersect(const BVec3f orig, const BVec3f dir, const BVec3f v0, const BVec3f v1, const BVec3f v2, float t, float u, float v)
 	{
 
-#define MOLLER_TRUMBORE 1
+#define MOLLER_TRUMBORE 0
 
-#ifdef MOLLER_TRUMBORE
+#if MOLLER_TRUMBORE
 		BVec3f v0v1 = v1 - v0;
 		BVec3f v0v2 = v2 - v0;
 		BVec3f pvec = CrossProduct<float>(dir, v0v2);
@@ -221,26 +221,26 @@ namespace bgl
 		BVec3f v0v1 = v1 - v0;
 		BVec3f v0v2 = v2 - v0;
 		// no need to normalize
-		BVec3f N = v0v1.crossProduct(v0v2); // N
-		float denom = N.dotProduct(N);
+		BVec3f N = CrossProduct(v0v1, v0v2); // N
+		float area2 = N.Length();
 
 		// Step 1: finding P
 
 		// check if ray and plane are parallel ?
-		float NdotRayDirection = N.dotProduct(dir);
+		float NdotRayDirection = DotProduct(N, dir);
 		if (fabs(NdotRayDirection) < kEpsilon) // almost 0
 			return false; // they are parallel so they don't intersect !
 
 		// compute d parameter using equation 2
-		float d = N.dotProduct(v0);
+		float d = DotProduct(N, v0);
 
 		// compute t (equation 3)
-		t = (N.dotProduct(orig) + d) / NdotRayDirection;
+		t = (DotProduct(N, orig) + d) / NdotRayDirection;
 		// check if the triangle is in behind the ray
 		if (t < 0) return false; // the triangle is behind
 
 		// compute the intersection point using equation 1
-		BVec3f P = orig + t * dir;
+		BVec3f P = orig + BVec3f(dir.x * t, dir.y * t, dir.z * t);
 
 		// Step 2: inside-outside test
 		BVec3f C; // vector perpendicular to triangle's plane
@@ -248,23 +248,22 @@ namespace bgl
 		// edge 0
 		BVec3f edge0 = v1 - v0;
 		BVec3f vp0 = P - v0;
-		C = edge0.crossProduct(vp0);
-		if (N.dotProduct(C) < 0) return false; // P is on the right side
+		C = CrossProduct(edge0, vp0);
+		if (DotProduct(N, C) < 0) return false; // P is on the right side
 
 		// edge 1
 		BVec3f edge1 = v2 - v1;
 		BVec3f vp1 = P - v1;
-		C = edge1.crossProduct(vp1);
-		if ((u = N.dotProduct(C)) < 0) return false; // P is on the right side
+		C = CrossProduct(edge1, vp1);
+		u = C.Length() / area2;
+		if ((DotProduct(N, C)) < 0) return false; // P is on the right side
 
 		// edge 2
 		BVec3f edge2 = v0 - v2;
 		BVec3f vp2 = P - v2;
-		C = edge2.crossProduct(vp2);
-		if ((v = N.dotProduct(C)) < 0) return false; // P is on the right side;
-
-		u /= denom;
-		v /= denom;
+		C = CrossProduct(edge2, vp2);
+		v = C.Length() / area2;
+		if ((DotProduct(N, C)) < 0) return false; // P is on the right side;
 
 		return true; // this ray hits the triangle
 #endif

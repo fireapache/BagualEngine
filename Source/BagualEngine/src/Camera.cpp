@@ -51,4 +51,9 @@ namespace bgl
 		return fov;
 	}
 
+	float& BCamera::GetFOV_Mutable()
+	{
+		return fov;
+	}
+
 }

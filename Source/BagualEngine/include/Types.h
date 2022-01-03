@@ -304,6 +304,11 @@ namespace bgl
 			return this->x * this->x + this->y * this->y + this->z * this->z;
 		}
 
+		T Length() const
+		{
+			return sqrt(Norm());
+		}
+
 		BVector3<T> Normalize()
 		{
 			T n = Norm();

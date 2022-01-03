@@ -12,9 +12,11 @@ namespace bgl
 
 		static double maxZ, minZ;
 		static BVector3<float> camOrig;
+		static BVector3<float> camRot;
 		static uint32 i, j;
 		static BViewport* cachedViewport;
-		static float zValue;
+		static BVector2<float> sensorSize;
+		static BCamera* cachedCamera;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();

@@ -28,7 +28,7 @@ namespace bgl
 // (use the flag -DMOLLER_TRUMBORE when you compile)
 // [/comment]
 	bool RayTriangleIntersect(
-		const BVec3f& orig, const BVec3f& dir,
-		const BVec3f& v0, const BVec3f& v1, const BVec3f& v2,
-		float& t, float& u, float& v);
+		const BVec3f orig, const BVec3f dir,
+		const BVec3f v0, const BVec3f v1, const BVec3f v2,
+		float t, float u, float v);
 }
