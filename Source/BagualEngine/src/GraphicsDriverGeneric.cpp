@@ -26,16 +26,16 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
-	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 1.4f, -2.6f);
+	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 1.640f, -4.f);
 	BVector3<float> BGraphicsDriverGeneric::camRot = BVec3f(0.f, 0.f, 0.f);
-	double BGraphicsDriverGeneric::minZ = 300.0;
-	double BGraphicsDriverGeneric::maxZ = 1100.0;
-	uint32 BGraphicsDriverGeneric::i = 0;
-	uint32 BGraphicsDriverGeneric::j = 0;
+	double BGraphicsDriverGeneric::minZ = 200.0;
+	double BGraphicsDriverGeneric::maxZ = 900.0;
+	int32 BGraphicsDriverGeneric::i = 0;
+	int32 BGraphicsDriverGeneric::j = 0;
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
 	BVector2<float> BGraphicsDriverGeneric::sensorSize = BVec3f(24.f, 36.f);
 	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
-	bool BGraphicsDriverGeneric::bFastRender = true;
+	BERenderSpeed BGraphicsDriverGeneric::RenderSpeed = BERenderSpeed::VeryFast;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
@@ -126,6 +126,8 @@ namespace bgl
 
 				if (ImGui::Button("Restart Rendering"))
 				{
+#define RENDERSPEED (RenderSpeed == BERenderSpeed::Normal ? 1 : (int32)RenderSpeed * 2)
+
 					i = 0; j = 0;
 
 					if (cachedViewport)
@@ -136,11 +138,14 @@ namespace bgl
 				}
 
 				ImGui::InputFloat3("Camera Position", reinterpret_cast<float*>(&camOrig));
-				ImGui::InputFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot));
+				const float rotRange = 20.f;
+				ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
 				ImGui::InputDouble("MinZ", &minZ);
 				ImGui::InputDouble("MaxZ", &maxZ);
 				ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
-				ImGui::Checkbox("Fast Render", &bFastRender);
+
+				const char* items[] = { "Normal", "Fast", "Very Fast" };
+				ImGui::Combo("Render Speed", reinterpret_cast<int*>(&RenderSpeed), items, IM_ARRAYSIZE(items));
 
 				if (cachedCamera)
 				{
@@ -194,63 +199,85 @@ namespace bgl
 
 			if (meshTris.Size() <= 0)
 			{
-				//objl::Loader objLoader("./assets/basemesh/basemesh.obj");
-				objl::Loader objLoader("./assets/basemap/basemap.obj");
+				objl::Loader charObjLoader("./assets/basemesh/basemesh.obj");
+				objl::Loader mapObjLoader("./assets/basemap/basemap.obj");
 
-				if (objLoader.LoadedIndices.size() > 0)
+				BTriangle<float> triCache;
+				objl::Vertex vert0, vert1, vert2;
+				uint32 index0, index1, index2;
+
+				/*for (size_t i = 0; i < charObjLoader.LoadedIndices.size(); i += 3)
 				{
-					BTriangle<float> triCache;
-					objl::Vertex vert0, vert1, vert2;
-					uint32 index0, index1, index2;
+					index0 = charObjLoader.LoadedIndices[i];
+					index1 = charObjLoader.LoadedIndices[i + 1];
+					index2 = charObjLoader.LoadedIndices[i + 2];
 
-					for (size_t i = 0; i < objLoader.LoadedIndices.size(); i += 3)
-					{
-						index0 = objLoader.LoadedIndices[i];
-						index1 = objLoader.LoadedIndices[i + 1];
-						index2 = objLoader.LoadedIndices[i + 2];
+					vert0 = charObjLoader.LoadedVertices[index0];
+					vert1 = charObjLoader.LoadedVertices[index1];
+					vert2 = charObjLoader.LoadedVertices[index2];
 
-						vert0 = objLoader.LoadedVertices[index0];
-						vert1 = objLoader.LoadedVertices[index1];
-						vert2 = objLoader.LoadedVertices[index2];
+					triCache.v0.x = vert0.Position.X;
+					triCache.v0.y = vert0.Position.Y;
+					triCache.v0.z = vert0.Position.Z;
+					triCache.v1.x = vert1.Position.X;
+					triCache.v1.y = vert1.Position.Y;
+					triCache.v1.z = vert1.Position.Z;
+					triCache.v2.x = vert2.Position.X;
+					triCache.v2.y = vert2.Position.Y;
+					triCache.v2.z = vert2.Position.Z;
 
-						triCache.v0.x = vert0.Position.X;
-						triCache.v0.y = vert0.Position.Y;
-						triCache.v0.z = vert0.Position.Z;
-						triCache.v1.x = vert1.Position.X;
-						triCache.v1.y = vert1.Position.Y;
-						triCache.v1.z = vert1.Position.Z;
-						triCache.v2.x = vert2.Position.X;
-						triCache.v2.y = vert2.Position.Y;
-						triCache.v2.z = vert2.Position.Z;
+					meshTris.Add(triCache);
+				}*/
 
-						meshTris.Add(triCache);
-					}
+				for (size_t i = 0; i < mapObjLoader.LoadedIndices.size(); i += 3)
+				{
+					index0 = mapObjLoader.LoadedIndices[i];
+					index1 = mapObjLoader.LoadedIndices[i + 1];
+					index2 = mapObjLoader.LoadedIndices[i + 2];
+
+					vert0 = mapObjLoader.LoadedVertices[index0];
+					vert1 = mapObjLoader.LoadedVertices[index1];
+					vert2 = mapObjLoader.LoadedVertices[index2];
+
+					triCache.v0.x = vert0.Position.X;
+					triCache.v0.y = vert0.Position.Y;
+					triCache.v0.z = vert0.Position.Z;
+					triCache.v1.x = vert1.Position.X;
+					triCache.v1.y = vert1.Position.Y;
+					triCache.v1.z = vert1.Position.Z;
+					triCache.v2.x = vert2.Position.X;
+					triCache.v2.y = vert2.Position.Y;
+					triCache.v2.z = vert2.Position.Z;
+
+					meshTris.Add(triCache);
 				}
 			}
 
 			auto& viewport = camera->GetViewport();
 
-			const auto width = viewport.GetSize().width;
-			const auto height = viewport.GetSize().height;
+			const int32 width = (int32)viewport.GetSize().width;
+			const int32 height = (int32)viewport.GetSize().height;
 
 			viewport.ResetPixelDepth();
 			cachedViewport = &viewport;
 			cachedCamera = camera.get();
 
-			for (j = 0; j < height; bFastRender ? j+=2 : ++j)
+			for (j = 0; j < height; j += RENDERSPEED)
 			{
-				for (i = 0; i < width; bFastRender ? i+=2 : ++i)
+				for (i = 0; i < width; i += RENDERSPEED)
 				{
 					BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
 					float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
-					float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV())));
+					float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
 					double zRange = maxZ - minZ;
 
 					float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
 					float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
 					BVector3<float> dir(x, y, sensorDistance);
 					dir.Normalize();
-					//dir = BQuaternion<float>::RotateAroundAxis(25.f, BVector3<float>(0.f, 1.f, 0.f), dir);
+					dir = BQuaternion<float>::RotateAroundAxis(camRot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
+					dir = BQuaternion<float>::RotateAroundAxis(camRot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
+					dir = BQuaternion<float>::RotateAroundAxis(camRot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
 					float t, u, v;
 					uint32 rgb = 0x000000;
 
@@ -265,18 +292,47 @@ namespace bgl
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
 							const double depthZ = (camOrig | surfacePoint) * 100.0;
 
+							rgb = 0x000000;
+
 							if (viewport.GetPixelDepth(i, j) < depthZ)
 							{
 								viewport.SetPixelDepth(i, j, depthZ);
 
 								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
-								const double calcB = calcA / zRange;
+								const double calcB = 1 - calcA / zRange;
 
 								const uint32 gray = static_cast<uint32>(255.0 * calcB);
 
 								rgb = gray;
 								rgb = (rgb << 8) + gray;
 								rgb = (rgb << 8) + gray;
+
+								viewport(i, j) = rgb;
+
+								if (RenderSpeed > BERenderSpeed::Normal)
+								{
+									viewport(i + 1, j) = rgb;
+									viewport(i, j + 1) = rgb;
+									viewport(i + 1, j + 1) = rgb;
+								}
+
+								if (RenderSpeed > BERenderSpeed::Fast)
+								{
+									viewport(i + 2, j) = rgb;
+									viewport(i + 3, j) = rgb;
+									viewport(i + 2, j + 1) = rgb;
+									viewport(i + 3, j + 1) = rgb;
+
+									viewport(i, j + 2) = rgb;
+									viewport(i, j + 3) = rgb;
+									viewport(i + 1, j + 2) = rgb;
+									viewport(i + 1, j + 3) = rgb;
+
+									viewport(i + 2, j + 2) = rgb;
+									viewport(i + 2, j + 3) = rgb;
+									viewport(i + 3, j + 2) = rgb;
+									viewport(i + 3, j + 3) = rgb;
+								}
 							}
 							/*else
 							{
@@ -285,14 +341,7 @@ namespace bgl
 								rgb = (rgb << 8) + b;
 							}*/
 
-							viewport(i, j) = rgb;
-
-							if (bFastRender)
-							{
-								viewport(i + 1, j) = rgb;
-								viewport(i, j + 1) = rgb;
-								viewport(i + 1, j + 1) = rgb;
-							}
+							
 						}
 					}
 				}

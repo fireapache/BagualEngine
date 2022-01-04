@@ -4,6 +4,13 @@
 
 namespace bgl
 {
+	enum class BERenderSpeed
+	{
+		Normal,
+		Fast,
+		VeryFast
+	};
+
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
 		class BGenericPlatformWindow* CachedPlatformWindowPtr = nullptr;
@@ -13,11 +20,11 @@ namespace bgl
 		static double maxZ, minZ;
 		static BVector3<float> camOrig;
 		static BVector3<float> camRot;
-		static uint32 i, j;
+		static int32 i, j;
 		static BViewport* cachedViewport;
 		static BVector2<float> sensorSize;
 		static BCamera* cachedCamera;
-		static bool bFastRender;
+		static BERenderSpeed RenderSpeed;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();

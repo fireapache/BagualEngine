@@ -246,7 +246,7 @@ namespace bgl
 			float b = static_cast<float>(this->y - p.y);
 			float c = static_cast<float>(this->z - p.z);
 
-			return sqrt(pow(a, 2.0f) + pow(b, 2.0f) + pow(c, 2.0f));
+			return sqrt(a*a + b*b + c*c);
 		}
 
 		inline T Dot (const BVector3<T>& p) const
@@ -660,8 +660,8 @@ namespace bgl
 		{
 			const T angle = s * fPi / 180.f;
 			v.Normalize();
-			s = cosf(angle * 0.5);
-			v *= sinf(angle * 0.5);
+			s = cosf(angle * 0.5f);
+			v *= sinf(angle * 0.5f);
 		}
 
 		inline BQuaternion<T> conjugate()
