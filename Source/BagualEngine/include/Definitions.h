@@ -2,6 +2,9 @@
 
 namespace bgl
 {
+
+//#define TRIANGLE_SOURCE
+
 	constexpr float kInfinity = std::numeric_limits<float>::max();
 	constexpr float kEpsilon = static_cast<float>(1e-8);
 	constexpr double dPi = 3.14159265358979323846;

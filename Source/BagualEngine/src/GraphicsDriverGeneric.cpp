@@ -35,7 +35,8 @@ namespace bgl
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
 	BVector2<float> BGraphicsDriverGeneric::sensorSize = BVec3f(24.f, 36.f);
 	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
-	BERenderSpeed BGraphicsDriverGeneric::RenderSpeed = BERenderSpeed::VeryFast;
+	BERenderSpeed BGraphicsDriverGeneric::renderSpeed = BERenderSpeed::VeryFast;
+	BESceneSetup BGraphicsDriverGeneric::sceneSetup = BESceneSetup::Empty;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
@@ -126,7 +127,7 @@ namespace bgl
 
 				if (ImGui::Button("Restart Rendering"))
 				{
-#define RENDERSPEED (RenderSpeed == BERenderSpeed::Normal ? 1 : (int32)RenderSpeed * 2)
+#define RENDERSPEED (renderSpeed == BERenderSpeed::Normal ? 1 : (int32)renderSpeed * 2)
 
 					i = 0; j = 0;
 
@@ -137,7 +138,8 @@ namespace bgl
 					}
 				}
 
-				ImGui::InputFloat3("Camera Position", reinterpret_cast<float*>(&camOrig));
+				const float positionRange = 10.f;
+				ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camOrig), -positionRange, positionRange);
 				const float rotRange = 20.f;
 				ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
 				ImGui::InputDouble("MinZ", &minZ);
@@ -145,7 +147,10 @@ namespace bgl
 				ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
 
 				const char* items[] = { "Normal", "Fast", "Very Fast" };
-				ImGui::Combo("Render Speed", reinterpret_cast<int*>(&RenderSpeed), items, IM_ARRAYSIZE(items));
+				ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), items, IM_ARRAYSIZE(items));
+
+				const char* SceneItems[] = { "Empty", "With Objects", "Objects and Character" };
+				ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), SceneItems, IM_ARRAYSIZE(SceneItems));
 
 				if (cachedCamera)
 				{
@@ -195,63 +200,13 @@ namespace bgl
 			tris[1].v1 = BVec3f(-2.f, -1.f, -5.f);
 			tris[1].v2 = BVec3f(-3.f, 1.f, -5.f);
 
-			static BArray<BTriangle<float>> meshTris;
+			static BArray<BTriangle<float>> charTris;
+			static BArray<BTriangle<float>> mapTris;
+			static BArray<BTriangle<float>> objTris;
 
-			if (meshTris.Size() <= 0)
-			{
-				objl::Loader charObjLoader("./assets/basemesh/basemesh.obj");
-				objl::Loader mapObjLoader("./assets/basemap/basemap.obj");
-
-				BTriangle<float> triCache;
-				objl::Vertex vert0, vert1, vert2;
-				uint32 index0, index1, index2;
-
-				/*for (size_t i = 0; i < charObjLoader.LoadedIndices.size(); i += 3)
-				{
-					index0 = charObjLoader.LoadedIndices[i];
-					index1 = charObjLoader.LoadedIndices[i + 1];
-					index2 = charObjLoader.LoadedIndices[i + 2];
-
-					vert0 = charObjLoader.LoadedVertices[index0];
-					vert1 = charObjLoader.LoadedVertices[index1];
-					vert2 = charObjLoader.LoadedVertices[index2];
-
-					triCache.v0.x = vert0.Position.X;
-					triCache.v0.y = vert0.Position.Y;
-					triCache.v0.z = vert0.Position.Z;
-					triCache.v1.x = vert1.Position.X;
-					triCache.v1.y = vert1.Position.Y;
-					triCache.v1.z = vert1.Position.Z;
-					triCache.v2.x = vert2.Position.X;
-					triCache.v2.y = vert2.Position.Y;
-					triCache.v2.z = vert2.Position.Z;
-
-					meshTris.Add(triCache);
-				}*/
-
-				for (size_t i = 0; i < mapObjLoader.LoadedIndices.size(); i += 3)
-				{
-					index0 = mapObjLoader.LoadedIndices[i];
-					index1 = mapObjLoader.LoadedIndices[i + 1];
-					index2 = mapObjLoader.LoadedIndices[i + 2];
-
-					vert0 = mapObjLoader.LoadedVertices[index0];
-					vert1 = mapObjLoader.LoadedVertices[index1];
-					vert2 = mapObjLoader.LoadedVertices[index2];
-
-					triCache.v0.x = vert0.Position.X;
-					triCache.v0.y = vert0.Position.Y;
-					triCache.v0.z = vert0.Position.Z;
-					triCache.v1.x = vert1.Position.X;
-					triCache.v1.y = vert1.Position.Y;
-					triCache.v1.z = vert1.Position.Z;
-					triCache.v2.x = vert2.Position.X;
-					triCache.v2.y = vert2.Position.Y;
-					triCache.v2.z = vert2.Position.Z;
-
-					meshTris.Add(triCache);
-				}
-			}
+			if (charTris.Size() <= 0) loadTris("./assets/basemesh/basemesh.obj", charTris);
+			if (mapTris.Size() <= 0) loadTris("./assets/basemap/basemap.obj", mapTris);
+			if (objTris.Size() <= 0) loadTris("./assets/basemap/basemap_objects.obj", objTris);
 
 			auto& viewport = camera->GetViewport();
 
@@ -261,6 +216,12 @@ namespace bgl
 			viewport.ResetPixelDepth();
 			cachedViewport = &viewport;
 			cachedCamera = camera.get();
+
+			BArray<BTriangle<float>> sceneTris;
+			
+			sceneTris.Add(mapTris);
+			if (sceneSetup > BESceneSetup::Empty) sceneTris.Add(objTris);
+			if (sceneSetup > BESceneSetup::WithObjects) sceneTris.Add(charTris);
 
 			for (j = 0; j < height; j += RENDERSPEED)
 			{
@@ -281,7 +242,7 @@ namespace bgl
 					float t, u, v;
 					uint32 rgb = 0x000000;
 
-					for (auto tri : meshTris)
+					for (auto tri : sceneTris)
 					{
 						if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
@@ -291,11 +252,24 @@ namespace bgl
 
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
 							const double depthZ = (camOrig | surfacePoint) * 100.0;
+							const double currentDepthZ = viewport.GetPixelDepth(i, j);
 
 							rgb = 0x000000;
 
-							if (viewport.GetPixelDepth(i, j) < depthZ)
+							if (depthZ < currentDepthZ)
 							{
+#ifdef TRIANGLE_SOURCE
+								uint32 currentMeshID = viewport.GetMeshSource(i, j);
+								uint32 triMeshID = tri.meshID;
+
+								if (currentMeshID == 2 && triMeshID == 1)
+								{
+									printf("%d <- %d | %f <- %f\n", currentMeshID, triMeshID, currentDepthZ, depthZ);
+								}
+
+								viewport.SetMeshSource(i, j, tri.meshID);
+#endif
+
 								viewport.SetPixelDepth(i, j, depthZ);
 
 								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
@@ -309,14 +283,14 @@ namespace bgl
 
 								viewport(i, j) = rgb;
 
-								if (RenderSpeed > BERenderSpeed::Normal)
+								if (renderSpeed > BERenderSpeed::Normal)
 								{
 									viewport(i + 1, j) = rgb;
 									viewport(i, j + 1) = rgb;
 									viewport(i + 1, j + 1) = rgb;
 								}
 
-								if (RenderSpeed > BERenderSpeed::Fast)
+								if (renderSpeed > BERenderSpeed::Fast)
 								{
 									viewport(i + 2, j) = rgb;
 									viewport(i + 3, j) = rgb;
@@ -472,6 +446,42 @@ namespace bgl
 	void BGraphicsDriverGeneric::Delay(const uint32& ms)
 	{
 		//SDL_Delay(ms);
+	}
+
+	inline void BGraphicsDriverGeneric::loadTris(const char* filePath, BArray<BTriangle<float>>& triBuffer, uint32 meshID)
+	{
+		BTriangle<float> triCache;
+		objl::Vertex vert0, vert1, vert2;
+		uint32 index0, index1, index2;
+
+		objl::Loader triLoader(filePath);
+
+		for (size_t i = 0; i < triLoader.LoadedIndices.size(); i += 3)
+		{
+			index0 = triLoader.LoadedIndices[i];
+			index1 = triLoader.LoadedIndices[i + 1];
+			index2 = triLoader.LoadedIndices[i + 2];
+
+			vert0 = triLoader.LoadedVertices[index0];
+			vert1 = triLoader.LoadedVertices[index1];
+			vert2 = triLoader.LoadedVertices[index2];
+
+			triCache.v0.x = vert0.Position.X;
+			triCache.v0.y = vert0.Position.Y;
+			triCache.v0.z = vert0.Position.Z;
+			triCache.v1.x = vert1.Position.X;
+			triCache.v1.y = vert1.Position.Y;
+			triCache.v1.z = vert1.Position.Z;
+			triCache.v2.x = vert2.Position.X;
+			triCache.v2.y = vert2.Position.Y;
+			triCache.v2.z = vert2.Position.Z;
+
+#ifdef TRIANGLE_SOURCE
+			triCache.meshID = meshID;
+#endif
+
+			triBuffer.Add(triCache);
+		}
 	}
 
 }

@@ -11,9 +11,18 @@ namespace bgl
 		VeryFast
 	};
 
+	enum class BESceneSetup
+	{
+		Empty,
+		WithObjects,
+		ObjectsCharacter
+	};
+
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
 		class BGenericPlatformWindow* CachedPlatformWindowPtr = nullptr;
+
+		void loadTris(const char* filePath, BArray<BTriangle<float>>& triBuffer, uint32 meshID = 0);
 
 	public:
 
@@ -24,7 +33,8 @@ namespace bgl
 		static BViewport* cachedViewport;
 		static BVector2<float> sensorSize;
 		static BCamera* cachedCamera;
-		static BERenderSpeed RenderSpeed;
+		static BERenderSpeed renderSpeed;
+		static BESceneSetup sceneSetup;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();

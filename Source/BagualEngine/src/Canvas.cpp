@@ -12,7 +12,7 @@ namespace bgl
 		: width(width), height(height)
 	{
 		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<size_t>(width) * height);
-		ResetZBuffer();
+		AllocateZBuffer();
 
 		this->window = window;
 
@@ -24,7 +24,7 @@ namespace bgl
 		: width(width), height(height)
 	{
 		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<CanvasDataType*>(pixels), static_cast<size_t>(width) * height);
-		ResetZBuffer();
+		AllocateZBuffer();
 
 		this->window = window;
 
@@ -64,9 +64,20 @@ namespace bgl
 		return height;
 	}
 
-	inline void BCanvas::ResetZBuffer()
+	void BCanvas::AllocateZBuffer()
 	{
-		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(static_cast<size_t>(width) * height);
+		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(static_cast<size_t>(width) * height, DepthDataType(9999999999999));
+#ifdef TRIANGLE_SOURCE
+		this->sourceMesh = std::make_shared<BBuffer<uint32>>(static_cast<size_t>(width) * height);
+#endif
+	}
+
+	void BCanvas::ResetZBuffer()
+	{
+		this->zBuffer.get()->SetBufferValue((DepthDataType)999999999999);
+#ifdef TRIANGLE_SOURCE
+		this->sourceMesh.get()->SetBufferValue(0);
+#endif
 	}
 
 	const BLine<BPixelPos>* BCanvas::GetEdges() const

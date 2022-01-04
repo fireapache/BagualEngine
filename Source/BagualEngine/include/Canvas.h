@@ -26,6 +26,10 @@ namespace bgl
 
 	public:
 
+#ifdef TRIANGLE_SOURCE
+		std::shared_ptr<BBuffer<uint32>> sourceMesh;
+#endif
+
 		BCanvas(BPlatformWindow* window, uint16 width, uint16 height);
 		BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height);
 		//BCanvas(const BCanvas& canvas);
@@ -33,6 +37,7 @@ namespace bgl
 		uint16 GetWidth() const;
 		uint16 GetHeight() const;
 
+		void AllocateZBuffer();
 		void ResetZBuffer();
 
 		const BLine<BPixelPos>* GetEdges()  const;

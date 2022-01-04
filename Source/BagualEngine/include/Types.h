@@ -332,12 +332,22 @@ namespace bgl
 
 	public:
 
+#ifdef TRIANGLE_SOURCE
+		uint32 meshID;
+#endif
+
 		BVector3<T> v0, v1, v2;
 
 		BTriangle() {};
 
+#ifdef TRIANGLE_SOURCE
+		BTriangle(const BVector3<T>& v0, const BVector3<T>& v1, const BVector3<T>& v2, uint32 sourceMeshID = 0)
+		{
+			meshID = sourceMeshID;
+#else
 		BTriangle(const BVector3<T>& v0, const BVector3<T>& v1, const BVector3<T>& v2)
 		{
+#endif
 			this->v0 = v0;
 			this->v1 = v1;
 			this->v2 = v2;
@@ -478,6 +488,17 @@ namespace bgl
 			_allocLength = length;
 		}
 
+		BBuffer(size_t length, T defaultValue)
+		{
+			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+
+			_memBlock = new T[length];
+			_length = length;
+			_allocLength = length;
+
+			SetBufferValue(defaultValue);
+		}
+
 		BBuffer(T* data, size_t length)
 		{
 			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
@@ -485,6 +506,12 @@ namespace bgl
 			_memBlock = data;
 			_length = length;
 			_allocLength = length;
+		}
+
+		BBuffer(T* data, size_t length, T defaultValue)
+		{
+			BBuffer(data, length);
+			SetBufferValue(defaultValue);
 		}
 
 		T& operator[](size_t index)
@@ -545,7 +572,7 @@ namespace bgl
 
 		void SetBufferValue(T value)
 		{
-			memset(_memBlock, 0, sizeof(T) * _length);
+			std::fill_n(_memBlock, _length, value);
 		}
 
 	};
