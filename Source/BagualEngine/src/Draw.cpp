@@ -185,7 +185,10 @@ namespace bgl
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}
 
-	bool RayTriangleIntersect(const BVec3f orig, const BVec3f dir, const BVec3f v0, const BVec3f v1, const BVec3f v2, float& t, float& u, float& v)
+	bool RayTriangleIntersect(
+		const BVec3f orig, const BVec3f dir, 
+		const BVec3f v0, const BVec3f v1, const BVec3f v2, 
+		float& t, float& u, float& v)
 	{
 
 #define MOLLER_TRUMBORE 1

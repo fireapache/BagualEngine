@@ -35,6 +35,7 @@ namespace bgl
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
 	BVector2<float> BGraphicsDriverGeneric::sensorSize = BVec3f(24.f, 36.f);
 	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
+	bool BGraphicsDriverGeneric::bFastRender = true;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
@@ -139,6 +140,7 @@ namespace bgl
 				ImGui::InputDouble("MinZ", &minZ);
 				ImGui::InputDouble("MaxZ", &maxZ);
 				ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
+				ImGui::Checkbox("Fast Render", &bFastRender);
 
 				if (cachedCamera)
 				{
@@ -234,9 +236,9 @@ namespace bgl
 			cachedViewport = &viewport;
 			cachedCamera = camera.get();
 
-			for (j = 0; j < height; ++j)
+			for (j = 0; j < height; bFastRender ? j+=2 : ++j)
 			{
-				for (i = 0; i < width; ++i)
+				for (i = 0; i < width; bFastRender ? i+=2 : ++i)
 				{
 					BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
 					float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
@@ -283,6 +285,13 @@ namespace bgl
 							}*/
 
 							viewport(i, j) = rgb;
+
+							if (bFastRender)
+							{
+								viewport(i + 1, j) = rgb;
+								viewport(i, j + 1) = rgb;
+								viewport(i + 1, j + 1) = rgb;
+							}
 						}
 					}
 				}
@@ -356,8 +365,8 @@ namespace bgl
 			glfwMakeContextCurrent(glfwWindow);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			const GLfloat windowWidth = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetWidth());
-			const GLfloat windowHeight = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetHeight());
+			GLfloat windowWidth = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetWidth());
+			GLfloat windowHeight = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetHeight());
 
 			GLuint& tex = CachedPlatformWindowPtr->GetglTex();
 

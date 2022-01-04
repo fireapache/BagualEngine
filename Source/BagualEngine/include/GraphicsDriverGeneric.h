@@ -17,6 +17,7 @@ namespace bgl
 		static BViewport* cachedViewport;
 		static BVector2<float> sensorSize;
 		static BCamera* cachedCamera;
+		static bool bFastRender;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
