@@ -28,8 +28,8 @@ namespace bgl
 
 	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 1.4f, -2.6f);
 	BVector3<float> BGraphicsDriverGeneric::camRot = BVec3f(0.f, 0.f, 0.f);
-	double BGraphicsDriverGeneric::maxZ = 350.0;
-	double BGraphicsDriverGeneric::minZ = 175.0;
+	double BGraphicsDriverGeneric::minZ = 300.0;
+	double BGraphicsDriverGeneric::maxZ = 1100.0;
 	uint32 BGraphicsDriverGeneric::i = 0;
 	uint32 BGraphicsDriverGeneric::j = 0;
 	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
@@ -194,7 +194,8 @@ namespace bgl
 
 			if (meshTris.Size() <= 0)
 			{
-				objl::Loader objLoader("./assets/basemesh/basemesh.obj");
+				//objl::Loader objLoader("./assets/basemesh/basemesh.obj");
+				objl::Loader objLoader("./assets/basemap/basemap.obj");
 
 				if (objLoader.LoadedIndices.size() > 0)
 				{
