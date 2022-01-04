@@ -185,17 +185,18 @@ namespace bgl
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}
 
-	bool RayTriangleIntersect(const BVec3f orig, const BVec3f dir, const BVec3f v0, const BVec3f v1, const BVec3f v2, float t, float u, float v)
+	bool RayTriangleIntersect(const BVec3f orig, const BVec3f dir, const BVec3f v0, const BVec3f v1, const BVec3f v2, float& t, float& u, float& v)
 	{
 
-#define MOLLER_TRUMBORE 0
+#define MOLLER_TRUMBORE 1
+#define CULLING 0
 
 #if MOLLER_TRUMBORE
 		BVec3f v0v1 = v1 - v0;
 		BVec3f v0v2 = v2 - v0;
 		BVec3f pvec = CrossProduct<float>(dir, v0v2);
 		float det = DotProduct<float>(v0v1, pvec);
-#ifdef CULLING
+#if CULLING
 		// if the determinant is negative the triangle is backfacing
 		// if the determinant is close to 0, the ray misses the triangle
 		if (det < kEpsilon) return false;

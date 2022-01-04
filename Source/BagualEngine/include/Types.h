@@ -315,8 +315,8 @@ namespace bgl
 
 			if (n > 0)
 			{
-				T factor = 1 / sqrt(n);
-				this->x *= factor, this->y *= factor, this->z *= factor;
+				T div = sqrt(n);
+				this->x /= div, this->y /= div, this->z /= div;
 			}
 
 			return *this;

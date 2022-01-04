@@ -230,12 +230,6 @@ namespace bgl
 			const auto width = viewport.GetSize().width;
 			const auto height = viewport.GetSize().height;
 
-			BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
-			float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
-			float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV())));
-
-			double zRange = maxZ - minZ;
-
 			viewport.ResetPixelDepth();
 			cachedViewport = &viewport;
 			cachedCamera = camera.get();
@@ -244,6 +238,11 @@ namespace bgl
 			{
 				for (i = 0; i < width; ++i)
 				{
+					BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
+					float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
+					float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV())));
+					double zRange = maxZ - minZ;
+
 					float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
 					float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
 					BVector3<float> dir(x, y, sensorDistance);
@@ -270,7 +269,7 @@ namespace bgl
 								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
 								const double calcB = calcA / zRange;
 
-								const uint32 gray = static_cast<uint32>(255.0 * (std::clamp(calcB, 0.0, 1.0)));
+								const uint32 gray = static_cast<uint32>(255.0 * calcB);
 
 								rgb = gray;
 								rgb = (rgb << 8) + gray;
