@@ -10,7 +10,7 @@ To learn and create a custom game engine and a 3D renderer from scratch, mainly 
 
 The engine compiles an super early editor and a game project and render a mockup character. It's using ImGUI to set some static variables to aid rendering and debugging.
 
-<img src="https://user-images.githubusercontent.com/5270978/148053473-fb2a0acf-1837-49c8-ac6a-2160e29bca98.png" width="485" height="287">
+<img src="https://user-images.githubusercontent.com/5270978/148115029-74c9b870-29e3-4fc5-8653-c80dd669338a.png" width="485" height="287">
 
 **Windows**: Compiles and run<br>
 **Linux (arm)**: Compiles but fails to run
