@@ -159,7 +159,9 @@ namespace bgl
 
 				if (cachedCamera)
 				{
-					ImGui::InputFloat("Camera FOV", &cachedCamera->GetFOV_Mutable());
+					const float fovRange = 60.f;
+					const float fovCenter = 90.f;
+					ImGui::SliderFloat("Camera FOV", &cachedCamera->GetFOV_Mutable(), fovCenter - fovRange, fovCenter + fovRange);
 				}
 
 				ImGui::End();
