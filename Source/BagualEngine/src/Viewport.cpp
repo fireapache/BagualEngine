@@ -115,7 +115,16 @@ namespace bgl
 		auto canvasPtr = canvas.lock();
 		auto width = canvasPtr->GetWidth();
 		auto& colorBuffer = canvasPtr->GetColorBuffer();
-		return colorBuffer[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
+		const uint32 index = (bounds.p1.x + x) + width * (bounds.p1.y + y);
+		const uint32 lastIndex = colorBuffer.Length() - 1;
+		if (index <= lastIndex)
+		{
+			return colorBuffer[index];
+		}
+		else
+		{
+			return colorBuffer[lastIndex];
+		}
 	}
 
 	DepthDataType BViewport::GetPixelDepth(size_t x, size_t y)

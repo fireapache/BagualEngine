@@ -18,6 +18,13 @@ namespace bgl
 		ObjectsCharacter
 	};
 
+	enum class BERenderMode
+	{
+		SingleThread,
+		MultiThread,
+		HyperThread
+	};
+
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
 		class BGenericPlatformWindow* CachedPlatformWindowPtr = nullptr;
@@ -29,15 +36,17 @@ namespace bgl
 		static double maxZ, minZ;
 		static BVector3<float> camOrig;
 		static BVector3<float> camRot;
-		static int32 i, j;
 		static BViewport* cachedViewport;
 		static BVector2<float> sensorSize;
 		static BCamera* cachedCamera;
 		static BERenderSpeed renderSpeed;
 		static BESceneSetup sceneSetup;
+		static BERenderMode renderMode;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
+
+		static void RenderLines(BCamera* camera, BArray<BTriangle<float>>* sceneTris, const uint32 renderThreadIndex);
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;
