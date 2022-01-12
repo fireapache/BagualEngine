@@ -14,7 +14,7 @@ namespace bgl
 
 	};
 
-	class BEngineTest_DrawRandomLines : public BEngineTestBase
+	class BEngineTest_BaseRendering : public BEngineTestBase
 	{
 		FWindowSettings windowSettings;
 

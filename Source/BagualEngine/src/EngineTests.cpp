@@ -15,7 +15,7 @@
 namespace bgl
 {
 
-	void BEngineTest_DrawRandomLines::Init()
+	void BEngineTest_BaseRendering::Init()
 	{
 		auto& platform = Engine::Platform();
 
@@ -98,7 +98,7 @@ namespace bgl
 
 	}
 
-	void BEngineTest_DrawRandomLines::Tick()
+	void BEngineTest_BaseRendering::Tick()
 	{
 		auto& cameras = BCameraManager::GetCameras();
 
@@ -115,7 +115,7 @@ namespace bgl
 		}
 	}
 
-	void BEngineTest_DrawRandomLines::DrawCameraLine(std::shared_ptr<BCamera>& camera)
+	void BEngineTest_BaseRendering::DrawCameraLine(std::shared_ptr<BCamera>& camera)
 	{
 		if (camera)
 		{
@@ -131,7 +131,7 @@ namespace bgl
 		}
 	}
 
-	void BEngineTest_DrawRandomLines::Term()
+	void BEngineTest_BaseRendering::Term()
 	{
 		
 	}

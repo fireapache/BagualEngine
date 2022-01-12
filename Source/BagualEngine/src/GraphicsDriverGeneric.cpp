@@ -124,7 +124,7 @@ namespace bgl
 				ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
 
 				ImGuiWindowFlags window_flags = 0;
-				if (!ImGui::Begin("Bagual Game", nullptr, window_flags))
+				if (!ImGui::Begin("Bagual Engine Test Settings", nullptr, window_flags))
 				{
 					ImGui::End();
 					return;

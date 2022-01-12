@@ -36,7 +36,7 @@ namespace bgl
 		if (modules)
 		{
 			//Testing
-			modules->Add(std::make_shared<BEngineTest_DrawRandomLines>());
+			modules->Add(std::make_shared<BEngineTest_BaseRendering>());
 
 			BArray<std::shared_ptr<BIModule>>* moduleArray = modules.get();
 			std::shared_ptr<BIModule> mod = (*moduleArray)[0];
