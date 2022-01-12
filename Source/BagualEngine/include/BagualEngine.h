@@ -7,6 +7,7 @@ namespace bgl
 	class BGraphicsPlatform;
 	class BPlatformBase;
 	class BIModule;
+	class BScene;
 }
 
 namespace bgl
@@ -30,14 +31,16 @@ namespace bgl
 		friend std::unique_ptr<BGraphicsPlatform> std::make_unique<BGraphicsPlatform>();
 		friend std::unique_ptr<BPlatformBase> std::make_unique<BPlatformBase>();
 		friend std::unique_ptr<BArray<std::shared_ptr<BIModule>>> std::make_unique<BArray<std::shared_ptr<BIModule>>>();
+		friend std::unique_ptr<BScene> std::make_unique<BScene>();
 #pragma endregion
 
-		static std::unique_ptr<Engine> instance;
-		std::unique_ptr<BGraphicsPlatform> graphicsPlatform;
-		std::unique_ptr<BPlatformBase> platform;
-		std::unique_ptr<BArray< std::shared_ptr<BIModule>>> modules;
+		static std::unique_ptr<Engine> m_instance;
+		std::unique_ptr<BGraphicsPlatform> m_graphicsPlatform;
+		std::unique_ptr<BPlatformBase> m_platform;
+		std::unique_ptr<BArray< std::shared_ptr<BIModule>>> m_modules;
+		std::unique_ptr<BScene> m_scene;
 
-		EBEngineState engineState;
+		EBEngineState m_engineState;
 
 		void Init();
 		void LoadData();
@@ -63,9 +66,9 @@ namespace bgl
 
 		void Peleia();
 
-		static std::unique_ptr<BGraphicsPlatform>& GraphicsPlatform();
-
-		static std::unique_ptr<BPlatformBase>& Platform();
+		static BGraphicsPlatform& GraphicsPlatform();
+		static BPlatformBase& Platform();
+		static BScene& Scene();
 
 	};
 

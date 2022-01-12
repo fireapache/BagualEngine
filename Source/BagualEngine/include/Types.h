@@ -327,6 +327,57 @@ namespace bgl
 	typedef BVector3<float> BVec3f;
 
 	template <typename T>
+	class BTransform
+	{
+
+
+	public:
+
+		BVec3f translation;
+		BVec3f rotation;
+		BVec3f scale;
+
+		BTransform() = default;
+
+		BTransform(BVec3f&& inTranslation, BVec3f&& inRotation, BVec3f&& inScale)
+			: translation(inTranslation), rotation(inRotation), scale(inScale)
+		{
+
+		}
+
+		BTransform(BVec3f& inTranslation, BVec3f& inRotation, BVec3f& inScale)
+			: translation(inTranslation), rotation(inRotation), scale(inScale)
+		{
+
+		}
+
+		BTransform(BVec3f&& inTranslation, BVec3f&& inRotation)
+			: translation(inTranslation), rotation(inRotation)
+		{
+
+		}
+
+		BTransform(BVec3f& inTranslation, BVec3f& inRotation)
+			: translation(inTranslation), rotation(inRotation)
+		{
+
+		}
+
+		BTransform(BVec3f&& inTranslation)
+			: translation(inTranslation)
+		{
+
+		}
+
+		BTransform(BVec3f& inTranslation)
+			: translation(inTranslation)
+		{
+
+		}
+
+	};
+
+	template <typename T>
 	class BTriangle
 	{
 
@@ -383,7 +434,7 @@ namespace bgl
 
 	};
 
-	typedef BVector2<int> BPixelPos;
+	typedef BVector2<int32> BPixelPos;
 	
 	class BBoxEdges
 	{

@@ -115,8 +115,8 @@ namespace bgl
 		auto canvasPtr = canvas.lock();
 		auto width = canvasPtr->GetWidth();
 		auto& colorBuffer = canvasPtr->GetColorBuffer();
-		const uint32 index = (bounds.p1.x + x) + width * (bounds.p1.y + y);
-		const uint32 lastIndex = colorBuffer.Length() - 1;
+		const uint32 index = (bounds.p1.x + (int32)x) + (int32)width * (bounds.p1.y + (int32)y);
+		const uint32 lastIndex = (int32)colorBuffer.Length() - 1;
 		if (index <= lastIndex)
 		{
 			return colorBuffer[index];

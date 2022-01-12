@@ -31,7 +31,7 @@ namespace bgl
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
 
-		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		// When viewports are enabled we tweak WindowRounding/WindowBg so m_platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (imguiConfig->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{

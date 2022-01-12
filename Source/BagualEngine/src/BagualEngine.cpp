@@ -10,19 +10,19 @@
 #include "Settings.h"
 #include "GraphicsPlatform.h"
 #include "PlatformGeneric.h"
-
-//#include <SDL.h>
+#include "Scene.h"
 
 namespace bgl
 {
-	std::unique_ptr<Engine> Engine::instance(nullptr);
+	std::unique_ptr<Engine> Engine::m_instance(nullptr);
 
 	void Engine::Init()
 	{
-		graphicsPlatform = std::make_unique<BGraphicsPlatform>();
-		platform = std::make_unique<BPlatformGeneric>();
-		engineState = EBEngineState::Initializing;
-		modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
+		m_graphicsPlatform = std::make_unique<BGraphicsPlatform>();
+		m_platform = std::make_unique<BPlatformGeneric>();
+		m_engineState = EBEngineState::Initializing;
+		m_modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
+		m_scene = std::make_unique<BScene>();
 	}
 
 	void Engine::LoadData()
@@ -33,12 +33,11 @@ namespace bgl
 	void Engine::RegisterModules()
 	{
 		
-		if (modules)
+		if (m_modules)
 		{
-			//Testing
-			modules->Add(std::make_shared<BEngineTest_BaseRendering>());
+			m_modules->Add(std::make_shared<BEngineTest_BaseRendering>());
 
-			BArray<std::shared_ptr<BIModule>>* moduleArray = modules.get();
+			BArray<std::shared_ptr<BIModule>>* moduleArray = m_modules.get();
 			std::shared_ptr<BIModule> mod = (*moduleArray)[0];
 			mod->Init();
 		}
@@ -60,10 +59,10 @@ namespace bgl
 				switch (ev.key.keysym.sym)
 				{
 				case 'q':
-					engineState = EBEngineState::Quitting;
+					m_engineState = EBEngineState::Quitting;
 					break;
 				case 'p':
-					engineState = engineState == EBEngineState::Paused ? EBEngineState::Ticking : EBEngineState::Paused;
+					m_engineState = m_engineState == EBEngineState::Paused ? EBEngineState::Ticking : EBEngineState::Paused;
 				default: break;
 				}
 			}
@@ -72,36 +71,36 @@ namespace bgl
 
 	void Engine::MainLoop()
 	{
-		while (engineState != EBEngineState::Quitting)
+		while (m_engineState != EBEngineState::Quitting)
 		{
 			ProcessInput();
 			ModulesLoop();
 
-			if (engineState != EBEngineState::Paused)
+			if (m_engineState != EBEngineState::Paused)
 			{
 				TickWindows();
 
-				if (platform->GetWindows().Size() <= 0)
+				if (m_platform->GetWindows().Size() <= 0)
 				{
 					SetState(EBEngineState::Quitting);
 					continue;
 				}
 
-				if (graphicsPlatform)
+				if (m_graphicsPlatform)
 				{
-					graphicsPlatform->SwapFrames();
+					m_graphicsPlatform->SwapFrames();
 				}
 				
 			}
 			
-			//graphicsPlatform->Delay(1);
+			//m_graphicsPlatform->Delay(1);
 		}
 	}
 
 	void Engine::TickWindows()
 	{
 		// Ticking windows to check if need to be destroyed
-		auto& windows = platform->GetWindows();
+		auto& windows = m_platform->GetWindows();
 
 		for (uint32 i = 0; i < windows.Size(); i++)
 		{
@@ -115,22 +114,22 @@ namespace bgl
 
 	void Engine::ModulesLoop()
 	{
-		for (size_t i = 0; i < modules->Size(); i++)
+		for (size_t i = 0; i < m_modules->Size(); i++)
 		{
-			(*modules)[i]->Tick();
+			(*m_modules)[i]->Tick();
 		}
 	}
 
 	void Engine::SetState(EBEngineState newState)
 	{
-		if (engineState != newState)
+		if (m_engineState != newState)
 		{
-			engineState = newState;
+			m_engineState = newState;
 			// TODO: Broadcast new engine state through an event
 		}
 	}
 
-	Engine::Engine() : engineState(EBEngineState::None)
+	Engine::Engine() : m_engineState(EBEngineState::None)
 	{
 		Settings::width = 320;
 		Settings::height = 240;
@@ -138,8 +137,8 @@ namespace bgl
 
 	Engine& Engine::Instance()
 	{
-		if (!instance) instance = std::make_unique<Engine>();
-		return *instance.get();
+		if (!m_instance) m_instance = std::make_unique<Engine>();
+		return *m_instance.get();
 	}
 
 	void Engine::Peleia()
@@ -151,14 +150,19 @@ namespace bgl
 		Term();
 	}
 
-	std::unique_ptr<BGraphicsPlatform>& Engine::GraphicsPlatform()
+	BGraphicsPlatform& Engine::GraphicsPlatform()
 	{
-		return Instance().graphicsPlatform;
+		return *Instance().m_graphicsPlatform.get();
 	}
 
-	std::unique_ptr<BPlatformBase>& Engine::Platform()
+	BPlatformBase& Engine::Platform()
 	{
-		return Instance().platform;
+		return *Instance().m_platform.get();
+	}
+
+	BScene& Engine::Scene()
+	{
+		return *Instance().m_scene.get();
 	}
 
 }

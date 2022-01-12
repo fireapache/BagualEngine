@@ -9,6 +9,7 @@
 #include "PlatformBase.h"
 #include "Viewport.h"
 #include "GraphicsPlatform.h"
+#include "Scene.h"
 
 #include <imgui.h>
 
@@ -17,25 +18,14 @@ namespace bgl
 
 	void BEngineTest_BaseRendering::Init()
 	{
-		auto& platform = Engine::Platform();
-
-		BGL_ASSERT(platform != nullptr && "Not a valid platform object!");
-
-		auto& graphicsDriver = Engine::GraphicsPlatform();
-
-		BGL_ASSERT(graphicsDriver != nullptr && "Not a valid graphics driver object!");
-
-		//FWindowSettings windowSettings;
-
 		windowSettings.Title = "Bagual Engine Test #1 Window #1";
 		windowSettings.width = 1280;
 		windowSettings.height = 720;
 
-		auto window = platform->CreateWindow(windowSettings);
+		auto window = Engine::Platform().CreateWindow(windowSettings);
 
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 
-		// 
 		auto guiTick = []()
 		{
 			ImGui::ShowDemoWindow();
@@ -44,75 +34,42 @@ namespace bgl
 		// Gui update procedure
 		window->SetGuiTickMethod(guiTick);
 
-		// TODO: Test multi viewport Imgui support from https://github.com/morgoth990/imgui/tree/docking
-		//windowSettings.Title = "Bagual Engine Test #1 Window #2";
-		//window = platform->CreateWindow(windowSettings);
-		//window->SetGuiTickMethod(guiTick);
-
-		//return;
-
 		auto& canvas = window->GetCanvas();
 
-		//{
-		//	//auto viewport = graphicsDriver->CreateViewport(canvas);
-		//	auto viewport = graphicsDriver->CreateViewport(canvas, 20, 20, 250, 200);
-		//	
-		//	/*BBox<BVector2<float>> normalizedSize;
-		//	normalizedSize.p1.x = 0.005f;
-		//	normalizedSize.p1.y = 0.01f;
-		//	normalizedSize.p2.x = 0.995f;
-		//	normalizedSize.p2.y = 0.495f;
-		//	auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);*/
-		//	
-		//	BCameraManager::Create(viewport);
-		//}
-		//
-		//{
-		//	//auto viewport = graphicsDriver->CreateViewport(canvas);
-		//	//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
-
-		//	BBox<BVector2<float>> normalizedSize;
-		//	normalizedSize.p1.x = 0.005f;
-		//	normalizedSize.p1.y = 0.505f;
-		//	normalizedSize.p2.x = 0.995f;
-		//	normalizedSize.p2.y = 0.99f;
-		//	auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
-
-		//	BCameraManager::Create(viewport);
-		//}
-
 		{
-			//auto viewport = graphicsDriver->CreateViewport(canvas);
+			auto viewport = Engine::GraphicsPlatform().CreateViewport(canvas);
 			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
 
-			BBox<BVector2<float>> normalizedSize;
-			normalizedSize.p1.x = 0.005f;
-			normalizedSize.p1.y = 0.005f;
-			normalizedSize.p2.x = 0.995f;
-			normalizedSize.p2.y = 0.995f;
-			auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+			//BBox<BVector2<float>> normalizedSize;
+			//normalizedSize.p1.x = 0.005f;
+			//normalizedSize.p1.y = 0.005f;
+			//normalizedSize.p2.x = 0.995f;
+			//normalizedSize.p2.y = 0.995f;
+			//auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
 
 			BCameraManager::Create(viewport);
 		}
+
+		auto roomNode = Engine::Scene().AddNode("Room");
 		
 
 	}
 
 	void BEngineTest_BaseRendering::Tick()
 	{
-		auto& cameras = BCameraManager::GetCameras();
+		//auto& cameras = BCameraManager::GetCameras();
 
-		for (auto& camera : cameras)
-		{
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-			DrawCameraLine(camera);
-		}
+		//for (auto& camera : cameras)
+		//{
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//	DrawCameraLine(camera);
+		//}
 	}
 
 	void BEngineTest_BaseRendering::DrawCameraLine(std::shared_ptr<BCamera>& camera)

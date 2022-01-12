@@ -66,7 +66,7 @@ namespace bgl
 	void BGraphicsDriverGeneric::SwapFrames()
 	{
 		auto& platform = Engine::Platform();
-		auto& windows = platform->GetWindows();
+		auto& windows = platform.GetWindows();
 
 		for (auto& window : windows)
 		{
@@ -236,7 +236,7 @@ namespace bgl
 			uint32 renderThreadCount = renderMode == BERenderMode::SingleThread ? 1 : processorCount;
 			thread_pool renderThreadPool(renderThreadCount);
 
-			for (int32 t = 0; t < processorCount; t++)
+			for (uint32 t = 0; t < processorCount; t++)
 			{
 				renderThreadPool.push_task(RenderLines, camera.get(), &sceneTris, t);
 			}
@@ -391,7 +391,7 @@ namespace bgl
 					ImGui::Render();
 					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-					auto plat = static_cast<BPlatformGeneric*>(Engine::Instance().Platform().get());
+					auto plat = static_cast<BPlatformGeneric*>(&Engine::Instance().Platform());
 					ImGuiIO& io = *plat->GetImguiConfig();
 
 					// Update and Render additional Platform Windows
