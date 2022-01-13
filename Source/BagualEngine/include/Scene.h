@@ -2,6 +2,8 @@
 
 #include "Types.h"
 
+#include <memory>
+
 namespace bgl
 {
 	class BObject
@@ -25,26 +27,19 @@ namespace bgl
 
 	protected:
 
-		std::shared_ptr<BObject> m_owner;
+		BObject* m_owner;
 
 	public:
 
 		BComponent(BObject* owner = nullptr, const char* name = "None")
 		{
-			if (owner)
-			{
-				m_owner = std::make_shared<BObject>(*owner);
-			}
-			
+			SetOwner(owner);
 			m_name = std::string(name);
 		}
 
 		void SetOwner(BObject* owner)
 		{
-			if (owner)
-			{
-				m_owner = std::make_shared<BObject>(*owner);
-			}
+			m_owner = owner;
 		}
 
 	};
@@ -73,8 +68,8 @@ namespace bgl
 
 	protected:
 
-		std::shared_ptr<BNode> m_parent;
-		BArray<std::shared_ptr<BNode>> m_childs;
+		BNode* m_parent;
+		BArray<BNode*> m_childs;
 		BArray<std::shared_ptr<BComponent>> m_components;
 
 		BTransform<float> m_transform;
@@ -83,8 +78,8 @@ namespace bgl
 
 		BNode(BNode* parent = nullptr, const char* name = "None");
 
-		std::shared_ptr<BNode> GetParent();
-		BArray<std::shared_ptr<BNode>>& GetChilds();
+		BNode* GetParent();
+		BArray<BNode*>& GetChilds();
 		BArray<std::shared_ptr<BComponent>>& GetComponents();
 
 		BTransform<float> GetTransform();
@@ -92,9 +87,9 @@ namespace bgl
 		BVec3f GetRotation();
 		BVec3f GetScale();
 
-		void SetParent(std::shared_ptr<BNode> node);
-		void AddChild(std::shared_ptr<BNode> node);
-		void RemoveChild(std::shared_ptr<BNode> node);
+		void SetParent(BNode* node);
+		void AddChild(BNode* node);
+		void RemoveChild(BNode* node);
 
 		void SetTransform(const BTransform<float>& transform);
 		void SetLocation(const BVec3f& translation);
@@ -106,13 +101,24 @@ namespace bgl
 	class BScene
 	{
 		std::shared_ptr<BNode> m_sceneRoot;
+		BArray<std::shared_ptr<BNode>> m_nodes;
 
 	public:
 
 		BScene();
 
-		std::shared_ptr<BNode> AddNode(const char* name = "None");
-		std::shared_ptr<BNode> AddNode(BNode& parent, const char* name = "None");
+		BNode* AddNode(const char* name = "None");
+		BNode* AddNode(BNode& parent, const char* name = "None");
+
+		BNode* GetRootNode()
+		{
+			return m_sceneRoot.get();
+		}
+
+		BArray<std::shared_ptr<BNode>>& GetNodes()
+		{
+			return m_nodes;
+		}
 
 	};
 }

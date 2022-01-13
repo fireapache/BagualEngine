@@ -14,9 +14,9 @@
 
 namespace bgl
 {
-	std::unique_ptr<Engine> Engine::m_instance(nullptr);
+	std::unique_ptr<BEngine> BEngine::m_instance(nullptr);
 
-	void Engine::Init()
+	void BEngine::Init()
 	{
 		m_graphicsPlatform = std::make_unique<BGraphicsPlatform>();
 		m_platform = std::make_unique<BPlatformGeneric>();
@@ -25,12 +25,12 @@ namespace bgl
 		m_scene = std::make_unique<BScene>();
 	}
 
-	void Engine::LoadData()
+	void BEngine::LoadData()
 	{
 		
 	}
 
-	void Engine::RegisterModules()
+	void BEngine::RegisterModules()
 	{
 		
 		if (m_modules)
@@ -43,12 +43,12 @@ namespace bgl
 		}
 	}
 
-	void Engine::Term()
+	void BEngine::Term()
 	{
 		
 	}
 
-	void Engine::ProcessInput()
+	void BEngine::ProcessInput()
 	{
 		/*SDL_Event ev;
 
@@ -69,7 +69,7 @@ namespace bgl
 		}*/
 	}
 
-	void Engine::MainLoop()
+	void BEngine::MainLoop()
 	{
 		while (m_engineState != EBEngineState::Quitting)
 		{
@@ -97,7 +97,7 @@ namespace bgl
 		}
 	}
 
-	void Engine::TickWindows()
+	void BEngine::TickWindows()
 	{
 		// Ticking windows to check if need to be destroyed
 		auto& windows = m_platform->GetWindows();
@@ -112,7 +112,7 @@ namespace bgl
 		}
 	}
 
-	void Engine::ModulesLoop()
+	void BEngine::ModulesLoop()
 	{
 		for (size_t i = 0; i < m_modules->Size(); i++)
 		{
@@ -120,7 +120,7 @@ namespace bgl
 		}
 	}
 
-	void Engine::SetState(EBEngineState newState)
+	void BEngine::SetState(EBEngineState newState)
 	{
 		if (m_engineState != newState)
 		{
@@ -129,19 +129,19 @@ namespace bgl
 		}
 	}
 
-	Engine::Engine() : m_engineState(EBEngineState::None)
+	BEngine::BEngine() : m_engineState(EBEngineState::None)
 	{
 		Settings::width = 320;
 		Settings::height = 240;
 	}
 
-	Engine& Engine::Instance()
+	BEngine& BEngine::Instance()
 	{
-		if (!m_instance) m_instance = std::make_unique<Engine>();
+		if (!m_instance) m_instance = std::make_unique<BEngine>();
 		return *m_instance.get();
 	}
 
-	void Engine::Peleia()
+	void BEngine::Peleia()
 	{
 		Init();
 		LoadData();
@@ -150,17 +150,17 @@ namespace bgl
 		Term();
 	}
 
-	BGraphicsPlatform& Engine::GraphicsPlatform()
+	BGraphicsPlatform& BEngine::GraphicsPlatform()
 	{
 		return *Instance().m_graphicsPlatform.get();
 	}
 
-	BPlatformBase& Engine::Platform()
+	BPlatformBase& BEngine::Platform()
 	{
 		return *Instance().m_platform.get();
 	}
 
-	BScene& Engine::Scene()
+	BScene& BEngine::Scene()
 	{
 		return *Instance().m_scene.get();
 	}

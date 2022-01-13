@@ -22,7 +22,7 @@ namespace bgl
 		windowSettings.width = 1280;
 		windowSettings.height = 720;
 
-		auto window = Engine::Platform().CreateWindow(windowSettings);
+		auto window = BEngine::Platform().CreateWindow(windowSettings);
 
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 
@@ -37,7 +37,7 @@ namespace bgl
 		auto& canvas = window->GetCanvas();
 
 		{
-			auto viewport = Engine::GraphicsPlatform().CreateViewport(canvas);
+			auto viewport = BEngine::GraphicsPlatform().CreateViewport(canvas);
 			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
 
 			//BBox<BVector2<float>> normalizedSize;
@@ -50,8 +50,14 @@ namespace bgl
 			BCameraManager::Create(viewport);
 		}
 
-		auto roomNode = Engine::Scene().AddNode("Room");
-		
+		auto roomNode = BEngine::Scene().AddNode("Room");
+		auto objectsNode = BEngine::Scene().AddNode("Objects");
+		auto charNode = BEngine::Scene().AddNode("Character");
+
+		auto rootNode = BEngine::Scene().GetRootNode();
+		auto sceneNodes = BEngine::Scene().GetNodes();
+
+		window->SetGuiTickMethod(guiTick);
 
 	}
 

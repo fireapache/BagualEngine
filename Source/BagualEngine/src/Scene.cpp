@@ -10,10 +10,7 @@ namespace bgl
 
 	BNode::BNode(BNode* parent, const char* name)
 	{
-		if (parent)
-		{
-			m_parent = std::shared_ptr<BNode>(parent);
-		}
+		m_parent = parent;
 
 		if (name)
 		{
@@ -22,12 +19,12 @@ namespace bgl
 
 	}
 
-	std::shared_ptr<BNode> BNode::GetParent()
+	BNode* BNode::GetParent()
 	{
 		return m_parent;
 	}
 
-	BArray<std::shared_ptr<BNode>>& BNode::GetChilds()
+	BArray<BNode*>& BNode::GetChilds()
 	{
 		return m_childs;
 	}
@@ -57,23 +54,23 @@ namespace bgl
 		return m_transform.scale;
 	}
 
-	void BNode::SetParent(std::shared_ptr<BNode> node)
+	void BNode::SetParent(BNode* node)
 	{
 		if (m_parent)
 		{
-			m_parent->RemoveChild(std::shared_ptr<BNode>(this));
+			m_parent->RemoveChild(this);
 		}
 
 		m_parent = node;
-		node->AddChild(std::shared_ptr<BNode>(this));
+		node->AddChild(this);
 	}
 
-	void BNode::AddChild(std::shared_ptr<BNode> node)
+	void BNode::AddChild(BNode* node)
 	{
 		m_childs.Add(node);
 	}
 
-	void BNode::RemoveChild(std::shared_ptr<BNode> node)
+	void BNode::RemoveChild(BNode* node)
 	{
 		m_childs.Remove(node);
 	}
@@ -146,21 +143,23 @@ namespace bgl
 
 	BScene::BScene()
 	{
-		m_sceneRoot = std::make_shared<BNode>(nullptr, "Scene Root Actor");
+		m_sceneRoot = std::make_unique<BNode>(nullptr, "Scene Root Actor");
 	}
 
-	std::shared_ptr<BNode> BScene::AddNode(const char* name /*= "None"*/)
+	BNode* BScene::AddNode(const char* name /*= "None"*/)
 	{
-		std::shared_ptr<BNode> newActor = std::make_shared<BNode>(m_sceneRoot.get(), name);
-		m_sceneRoot->AddChild(newActor);
-		return newActor;
+		m_nodes.push_back(std::make_shared<BNode>(m_sceneRoot.get(), name));
+		BNode* rawPtr = m_nodes.back().get();
+		m_sceneRoot->AddChild(rawPtr);
+		return rawPtr;
 	}
 
-	std::shared_ptr<BNode> BScene::AddNode(BNode& parent, const char* name /*= "None"*/)
+	BNode* BScene::AddNode(BNode& parent, const char* name /*= "None"*/)
 	{
-		std::shared_ptr<BNode> newActor = std::make_shared<BNode>(&parent, name);
-		parent.AddChild(newActor);
-		return newActor;
+		m_nodes.push_back(std::make_shared<BNode>(&parent, name));
+		BNode* rawPtr = m_nodes.back().get();
+		m_sceneRoot->AddChild(rawPtr);
+		return rawPtr;
 	}
 
 }

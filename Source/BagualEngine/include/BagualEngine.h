@@ -12,7 +12,7 @@ namespace bgl
 
 namespace bgl
 {
-	class Engine
+	class BEngine
 	{
 
 #pragma region Private Types
@@ -27,14 +27,14 @@ namespace bgl
 #pragma endregion
 
 #pragma region std::unique_ptr "permissions"
-		friend std::unique_ptr<Engine> std::make_unique<Engine>();
+		friend std::unique_ptr<BEngine> std::make_unique<BEngine>();
 		friend std::unique_ptr<BGraphicsPlatform> std::make_unique<BGraphicsPlatform>();
 		friend std::unique_ptr<BPlatformBase> std::make_unique<BPlatformBase>();
 		friend std::unique_ptr<BArray<std::shared_ptr<BIModule>>> std::make_unique<BArray<std::shared_ptr<BIModule>>>();
 		friend std::unique_ptr<BScene> std::make_unique<BScene>();
 #pragma endregion
 
-		static std::unique_ptr<Engine> m_instance;
+		static std::unique_ptr<BEngine> m_instance;
 		std::unique_ptr<BGraphicsPlatform> m_graphicsPlatform;
 		std::unique_ptr<BPlatformBase> m_platform;
 		std::unique_ptr<BArray< std::shared_ptr<BIModule>>> m_modules;
@@ -55,14 +55,14 @@ namespace bgl
 
 		void SetState(EBEngineState newState);
 
-		Engine();
+		BEngine();
 
 	public:
 
-		Engine(const Engine&) = delete;
-		Engine& operator=(const Engine&) = delete;
+		BEngine(const BEngine&) = delete;
+		BEngine& operator=(const BEngine&) = delete;
 
-		static Engine& Instance();
+		static BEngine& Instance();
 
 		void Peleia();
 

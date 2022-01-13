@@ -3,7 +3,7 @@
 
 int main(int argc, char** argv)
 {
-	bgl::Engine::Instance().Peleia();
+	bgl::BEngine::Instance().Peleia();
 
 	return 0;
 }

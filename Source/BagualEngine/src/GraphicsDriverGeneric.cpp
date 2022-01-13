@@ -65,7 +65,7 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::SwapFrames()
 	{
-		auto& platform = Engine::Platform();
+		auto& platform = BEngine::Platform();
 		auto& windows = platform.GetWindows();
 
 		for (auto& window : windows)
@@ -391,7 +391,7 @@ namespace bgl
 					ImGui::Render();
 					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-					auto plat = static_cast<BPlatformGeneric*>(&Engine::Instance().Platform());
+					auto plat = static_cast<BPlatformGeneric*>(&BEngine::Instance().Platform());
 					ImGuiIO& io = *plat->GetImguiConfig();
 
 					// Update and Render additional Platform Windows
