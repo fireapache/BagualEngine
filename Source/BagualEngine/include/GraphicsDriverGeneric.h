@@ -46,7 +46,7 @@ namespace bgl
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
-		static void RenderLines(BCamera* camera, BArray<BTriangle<float>>* sceneTris, const uint32 renderThreadIndex);
+		static void RenderLines(BCamera* camera, const uint32 renderThreadIndex);
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;

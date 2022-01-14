@@ -8,6 +8,8 @@
 namespace bgl
 {
 
+	BArray<BArray<BTriangle<float>>*> BMeshComponent::g_meshComponentTriangles;
+
 	BNode::BNode(BNode* parent, const char* name)
 	{
 		m_parent = parent;
@@ -95,15 +97,27 @@ namespace bgl
 		m_transform.scale = scale;
 	}
 
-	MeshComponent::MeshComponent(const char* assetPath, BObject* owner, const char* name)
+	BMeshComponent::BMeshComponent(BObject* owner /*= nullptr*/, const char* name /*= "None"*/, const char* assetPath /*= nullptr*/)
 	{
 		SetOwner(owner);
 		m_name = std::string(name);
+		g_meshComponentTriangles.Add(&m_triangles);
 		LoadMesh(assetPath);
 	}
 
-	void MeshComponent::LoadMesh(const char* assetPath)
+	BMeshComponent::~BMeshComponent()
 	{
+		g_meshComponentTriangles.Remove(&m_triangles);
+	}
+
+	void BMeshComponent::LoadMesh(const char* assetPath)
+	{
+		if (assetPath == nullptr)
+		{
+			BGL_LOG("Got null asset path when loading mesh!");
+			return;
+		}
+
 		BTriangle<float> triCache;
 		objl::Vertex vert0, vert1, vert2;
 		uint32 index0, index1, index2;
@@ -134,7 +148,7 @@ namespace bgl
 		}
 	}
 
-	bgl::BArray<bgl::BTriangle<float>>& MeshComponent::GetTriangles()
+	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
 	{
 		return m_triangles;
 	}
@@ -144,7 +158,7 @@ namespace bgl
 		m_sceneRoot = std::make_unique<BNode>(nullptr, "Scene Root Actor");
 	}
 
-	BNode* BScene::AddNode(const char* name /*= "None"*/)
+	BNode* BScene::CreateNode(const char* name /*= "None"*/)
 	{
 		m_nodes.push_back(std::make_shared<BNode>(m_sceneRoot.get(), name));
 		BNode* rawPtr = m_nodes.back().get();
@@ -152,7 +166,7 @@ namespace bgl
 		return rawPtr;
 	}
 
-	BNode* BScene::AddNode(BNode& parent, const char* name /*= "None"*/)
+	BNode* BScene::CreateNode(BNode& parent, const char* name /*= "None"*/)
 	{
 		m_nodes.push_back(std::make_shared<BNode>(&parent, name));
 		BNode* rawPtr = m_nodes.back().get();

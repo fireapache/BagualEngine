@@ -18,6 +18,7 @@ namespace bgl
 
 	void BEngineTest_BaseRendering::Init()
 	{
+		// Creating application window
 		windowSettings.Title = "Bagual Engine Test #1 Window #1";
 		windowSettings.width = 1280;
 		windowSettings.height = 720;
@@ -26,38 +27,32 @@ namespace bgl
 
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 
+		// Setting up ImGui
 		auto guiTick = []()
 		{
 			ImGui::ShowDemoWindow();
 		};
 
-		// Gui update procedure
 		window->SetGuiTickMethod(guiTick);
 
+		// Setting viewport and camera
 		auto& canvas = window->GetCanvas();
+		auto viewport = BEngine::GraphicsPlatform().CreateViewport(canvas);
+		BCameraManager::Create(viewport);
 
-		{
-			auto viewport = BEngine::GraphicsPlatform().CreateViewport(canvas);
-			//auto viewport = graphicsDriver->CreateViewport(canvas, 10, 250, 400, 100);
+		// Creating scene nodes
+		auto roomNode = BEngine::Scene().CreateNode("Room");
+		auto objectsNode = BEngine::Scene().CreateNode("Objects");
+		auto charNode = BEngine::Scene().CreateNode("Character");
 
-			//BBox<BVector2<float>> normalizedSize;
-			//normalizedSize.p1.x = 0.005f;
-			//normalizedSize.p1.y = 0.005f;
-			//normalizedSize.p2.x = 0.995f;
-			//normalizedSize.p2.y = 0.995f;
-			//auto viewport = graphicsDriver->CreateViewport(canvas, normalizedSize);
+		// Creating mesh components and loading geometry from disk
+		roomNode->CreateComponent<BMeshComponent>("RoomMesh", "./assets/basemap/basemap.obj");
+		objectsNode->CreateComponent<BMeshComponent>("ObjectsMesh", "./assets/basemap/basemap_objects.obj");
+		charNode->CreateComponent<BMeshComponent>("ObjectsMesh", "./assets/basemesh/basemesh.obj");
 
-			BCameraManager::Create(viewport);
-		}
-
-		auto roomNode = BEngine::Scene().AddNode("Room");
-		auto objectsNode = BEngine::Scene().AddNode("Objects");
-		auto charNode = BEngine::Scene().AddNode("Character");
-
+		// Ways to access scene nodes
 		auto rootNode = BEngine::Scene().GetRootNode();
 		auto sceneNodes = BEngine::Scene().GetNodes();
-
-		window->SetGuiTickMethod(guiTick);
 
 	}
 

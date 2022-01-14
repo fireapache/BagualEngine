@@ -12,6 +12,7 @@
 #include "PlatformGeneric.h"
 #include "BagualEngine.h"
 #include "ThreadPool.h"
+#include "Scene.h"
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
@@ -198,34 +199,6 @@ namespace bgl
 			//continue;
 #pragma endregion
 
-#pragma region Rendering simple triangles
-			//const uint32 tn = 2;
-			//BTriangle<float> tris[tn];
-			//tris[0].v0 = BVec3f(-1.f, -1.f, -5.f);
-			//tris[0].v1 = BVec3f(1.f, -1.f, -5.f);
-			//tris[0].v2 = BVec3f(0.f, 1.f, -5.f);
-			//tris[1].v0 = BVec3f(-4.f, -1.f, -6.f);
-			//tris[1].v1 = BVec3f(-2.f, -1.f, -5.f);
-			//tris[1].v2 = BVec3f(-3.f, 1.f, -5.f);
-#pragma endregion
-
-#pragma region Loading triangles
-			static BArray<BTriangle<float>> charTris;
-			static BArray<BTriangle<float>> mapTris;
-			static BArray<BTriangle<float>> objTris;
-
-			if (charTris.Size() <= 0) loadTris("./assets/basemesh/basemesh.obj", charTris);
-			if (mapTris.Size() <= 0) loadTris("./assets/basemap/basemap.obj", mapTris);
-			if (objTris.Size() <= 0) loadTris("./assets/basemap/basemap_objects.obj", objTris);
-
-			BArray<BTriangle<float>> sceneTris;
-
-			sceneTris.Add(mapTris);
-			if (sceneSetup > BESceneSetup::Empty) sceneTris.Add(objTris);
-			if (sceneSetup > BESceneSetup::WithObjects) sceneTris.Add(charTris);
-
-#pragma endregion
-
 			auto& viewport = camera->GetViewport();
 
 			viewport.ResetPixelDepth();
@@ -238,7 +211,7 @@ namespace bgl
 
 			for (uint32 t = 0; t < processorCount; t++)
 			{
-				renderThreadPool.push_task(RenderLines, camera.get(), &sceneTris, t);
+				renderThreadPool.push_task(RenderLines, camera.get(), t);
 			}
 
 			renderThreadPool.wait_for_tasks();
@@ -249,7 +222,7 @@ namespace bgl
 
 	}
 
-	void BGraphicsDriverGeneric::RenderLines(BCamera* camera, BArray<BTriangle<float>>* sceneTris, const uint32 renderThreadIndex)
+	void BGraphicsDriverGeneric::RenderLines(BCamera* camera, const uint32 renderThreadIndex)
 	{
 		auto viewport = camera->GetViewport();
 
@@ -285,68 +258,73 @@ namespace bgl
 				dir = BQuaternion<float>::RotateAroundAxis(camRot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
 				dir = BQuaternion<float>::RotateAroundAxis(camRot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
 
-				for (auto tri : *sceneTris)
+				auto meshComponentTris = BEngine::Scene().GetMeshComponentTriangles();
+
+				for (auto objTris : meshComponentTris)
 				{
-					if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
+					for (auto tri : *objTris)
 					{
-						char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
-						char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
-						char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
-
-						BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
-						const double depthZ = (camOrig | surfacePoint) * 100.0;
-						const double currentDepthZ = viewport.GetPixelDepth(i, j);
-
-						rgb = 0x000000;
-
-						if (depthZ < currentDepthZ)
+						if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
-							viewport.SetPixelDepth(i, j, depthZ);
+							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
+							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
+							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
-							const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
-							const double calcB = 1 - calcA / zRange;
+							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
+							const double depthZ = (camOrig | surfacePoint) * 100.0;
+							const double currentDepthZ = viewport.GetPixelDepth(i, j);
 
-							const uint32 gray = static_cast<uint32>(255.0 * calcB);
+							rgb = 0x000000;
 
-							rgb = gray;
-							rgb = (rgb << 8) + gray;
-							rgb = (rgb << 8) + gray;
-
-							viewport(i, j) = rgb;
-
-							if (renderSpeed > BERenderSpeed::Normal)
+							if (depthZ < currentDepthZ)
 							{
-								viewport(i + 1, j) = rgb;
-								viewport(i, j + 1) = rgb;
-								viewport(i + 1, j + 1) = rgb;
-							}
+								viewport.SetPixelDepth(i, j, depthZ);
 
-							if (renderSpeed > BERenderSpeed::Fast)
+								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
+								const double calcB = 1 - calcA / zRange;
+
+								const uint32 gray = static_cast<uint32>(255.0 * calcB);
+
+								rgb = gray;
+								rgb = (rgb << 8) + gray;
+								rgb = (rgb << 8) + gray;
+
+								viewport(i, j) = rgb;
+
+								if (renderSpeed > BERenderSpeed::Normal)
+								{
+									viewport(i + 1, j) = rgb;
+									viewport(i, j + 1) = rgb;
+									viewport(i + 1, j + 1) = rgb;
+								}
+
+								if (renderSpeed > BERenderSpeed::Fast)
+								{
+									viewport(i + 2, j) = rgb;
+									viewport(i + 3, j) = rgb;
+									viewport(i + 2, j + 1) = rgb;
+									viewport(i + 3, j + 1) = rgb;
+
+									viewport(i, j + 2) = rgb;
+									viewport(i, j + 3) = rgb;
+									viewport(i + 1, j + 2) = rgb;
+									viewport(i + 1, j + 3) = rgb;
+
+									viewport(i + 2, j + 2) = rgb;
+									viewport(i + 2, j + 3) = rgb;
+									viewport(i + 3, j + 2) = rgb;
+									viewport(i + 3, j + 3) = rgb;
+								}
+							}
+							/*else
 							{
-								viewport(i + 2, j) = rgb;
-								viewport(i + 3, j) = rgb;
-								viewport(i + 2, j + 1) = rgb;
-								viewport(i + 3, j + 1) = rgb;
+								rgb = r;
+								rgb = (rgb << 8) + g;
+								rgb = (rgb << 8) + b;
+							}*/
 
-								viewport(i, j + 2) = rgb;
-								viewport(i, j + 3) = rgb;
-								viewport(i + 1, j + 2) = rgb;
-								viewport(i + 1, j + 3) = rgb;
 
-								viewport(i + 2, j + 2) = rgb;
-								viewport(i + 2, j + 3) = rgb;
-								viewport(i + 3, j + 2) = rgb;
-								viewport(i + 3, j + 3) = rgb;
-							}
 						}
-						/*else
-						{
-							rgb = r;
-							rgb = (rgb << 8) + g;
-							rgb = (rgb << 8) + b;
-						}*/
-
-
 					}
 				}
 			}

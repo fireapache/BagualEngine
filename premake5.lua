@@ -199,6 +199,8 @@ project "BagualEngine"
 	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
 	defines { "BGL_UNITY_BUILD=0" }
+	
+	-- define OBJL_CONSOLE_OUTPUT for loading geometry information
 
 	includedirs
 	{

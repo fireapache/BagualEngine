@@ -44,9 +44,11 @@ namespace bgl
 
 	};
 
-	class MeshComponent : public BComponent
+	class BMeshComponent : public BComponent
 	{
+		friend class BScene;
 
+		static BArray<BArray<BTriangle<float>>*> g_meshComponentTriangles;
 
 	protected:
 
@@ -54,7 +56,8 @@ namespace bgl
 
 	public:
 
-		MeshComponent(const char* assetPath, BObject* owner = nullptr, const char* name = "None");
+		BMeshComponent(BObject* owner = nullptr, const char* name = "None", const char* assetPath = nullptr);
+		~BMeshComponent();
 
 		void LoadMesh(const char* assetPath);
 
@@ -81,6 +84,14 @@ namespace bgl
 		BArray<BNode*>& GetChilds();
 		BArray<std::shared_ptr<BComponent>>& GetComponents();
 
+		template<class T, typename... P>
+		void CreateComponent(P... args)
+		{
+			static_assert(std::is_base_of<BComponent, T>::value, 
+				"Type should inherit from BComponent");
+			m_components.push_back(std::make_shared<T>(this, args...));
+		}
+
 		BTransform<float> GetTransform();
 		BVec3f GetLocation();
 		BVec3f GetRotation();
@@ -106,8 +117,13 @@ namespace bgl
 
 		BScene();
 
-		BNode* AddNode(const char* name = "None");
-		BNode* AddNode(BNode& parent, const char* name = "None");
+		BArray<BArray<BTriangle<float>>*>& GetMeshComponentTriangles()
+		{
+			return BMeshComponent::g_meshComponentTriangles;
+		}
+
+		BNode* CreateNode(const char* name = "None");
+		BNode* CreateNode(BNode& parent, const char* name = "None");
 
 		BNode* GetRootNode()
 		{
