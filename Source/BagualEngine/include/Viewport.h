@@ -61,11 +61,6 @@ namespace bgl
 		void SetPixelDepth(size_t x, size_t y, DepthDataType value);
 		void ResetPixelDepth();
 
-#ifdef TRIANGLE_SOURCE
-		uint32 GetMeshSource(size_t x, size_t y);
-		void SetMeshSource(size_t x, size_t y, uint32 meshID);
-#endif
-
 	};
 
 }

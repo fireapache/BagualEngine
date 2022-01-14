@@ -55,9 +55,9 @@ namespace bgl
 	public:
 
 		MeshComponent() = default;
-		MeshComponent(const char* assetPath, uint32 meshID = 0);
+		MeshComponent(const char* assetPath);
 
-		void LoadMesh(const char* assetPath, uint32 meshID = 0);
+		void LoadMesh(const char* assetPath);
 
 		BArray<BTriangle<float>>& GetTriangles();
 

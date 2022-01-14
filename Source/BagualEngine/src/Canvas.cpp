@@ -67,17 +67,11 @@ namespace bgl
 	void BCanvas::AllocateZBuffer()
 	{
 		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(static_cast<size_t>(width) * height, DepthDataType(9999999999999));
-#ifdef TRIANGLE_SOURCE
-		this->sourceMesh = std::make_shared<BBuffer<uint32>>(static_cast<size_t>(width) * height);
-#endif
 	}
 
 	void BCanvas::ResetZBuffer()
 	{
 		this->zBuffer.get()->SetBufferValue((DepthDataType)999999999999);
-#ifdef TRIANGLE_SOURCE
-		this->sourceMesh.get()->SetBufferValue(0);
-#endif
 	}
 
 	const BLine<BPixelPos>* BCanvas::GetEdges() const

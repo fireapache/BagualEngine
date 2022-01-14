@@ -149,25 +149,6 @@ namespace bgl
 		canvasPtr->ResetZBuffer();
 	}
 
-#ifdef TRIANGLE_SOURCE
-	uint32 BViewport::GetMeshSource(size_t x, size_t y)
-	{
-		auto canvasPtr = canvas.lock();
-		auto width = canvasPtr->GetWidth();
-		auto sourceMesh = *canvasPtr->sourceMesh.get();
-		auto meshID = sourceMesh[(bounds.p1.x + x) + width * (bounds.p1.y + y)];
-		return meshID;
-	}
-
-	void BViewport::SetMeshSource(size_t x, size_t y, uint32 meshID)
-	{
-		auto canvasPtr = canvas.lock();
-		auto width = canvasPtr->GetWidth();
-		auto sourceMesh = *canvasPtr->sourceMesh.get();
-		sourceMesh[(bounds.p1.x + x) + width * (bounds.p1.y + y)] = meshID;
-	}
-#endif
-
 	void BViewport::SetBounds(const BBox<BPixelPos>& newBounds)
 	{
 		bounds = newBounds;

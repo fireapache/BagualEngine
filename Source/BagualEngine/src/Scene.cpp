@@ -95,12 +95,12 @@ namespace bgl
 		m_transform.scale = scale;
 	}
 
-	MeshComponent::MeshComponent(const char* assetPath, uint32 meshID /*= 0*/)
+	MeshComponent::MeshComponent(const char* assetPath)
 	{
-		LoadMesh(assetPath, meshID);
+		LoadMesh(assetPath);
 	}
 
-	void MeshComponent::LoadMesh(const char* assetPath, uint32 meshID /*= 0*/)
+	void MeshComponent::LoadMesh(const char* assetPath)
 	{
 		BTriangle<float> triCache;
 		objl::Vertex vert0, vert1, vert2;
@@ -127,10 +127,6 @@ namespace bgl
 			triCache.v2.x = vert2.Position.X;
 			triCache.v2.y = vert2.Position.Y;
 			triCache.v2.z = vert2.Position.Z;
-
-#ifdef TRIANGLE_SOURCE
-			triCache.meshID = meshID;
-#endif
 
 			m_triangles.Add(triCache);
 		}

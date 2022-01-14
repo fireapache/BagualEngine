@@ -301,18 +301,6 @@ namespace bgl
 
 						if (depthZ < currentDepthZ)
 						{
-#ifdef TRIANGLE_SOURCE
-							uint32 currentMeshID = viewport.GetMeshSource(i, j);
-							uint32 triMeshID = tri.meshID;
-
-							if (currentMeshID == 2 && triMeshID == 1)
-							{
-								printf("%d <- %d | %f <- %f\n", currentMeshID, triMeshID, currentDepthZ, depthZ);
-							}
-
-							viewport.SetMeshSource(i, j, tri.meshID);
-#endif
-
 							viewport.SetPixelDepth(i, j, depthZ);
 
 							const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
@@ -513,10 +501,6 @@ namespace bgl
 			triCache.v2.x = vert2.Position.X;
 			triCache.v2.y = vert2.Position.Y;
 			triCache.v2.z = vert2.Position.Z;
-
-#ifdef TRIANGLE_SOURCE
-			triCache.meshID = meshID;
-#endif
 
 			triBuffer.Add(triCache);
 		}
