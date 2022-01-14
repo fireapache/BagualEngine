@@ -54,8 +54,7 @@ namespace bgl
 
 	public:
 
-		MeshComponent() = default;
-		MeshComponent(const char* assetPath);
+		MeshComponent(const char* assetPath, BObject* owner = nullptr, const char* name = "None");
 
 		void LoadMesh(const char* assetPath);
 

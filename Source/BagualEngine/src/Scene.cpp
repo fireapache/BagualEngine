@@ -95,8 +95,10 @@ namespace bgl
 		m_transform.scale = scale;
 	}
 
-	MeshComponent::MeshComponent(const char* assetPath)
+	MeshComponent::MeshComponent(const char* assetPath, BObject* owner, const char* name)
 	{
+		SetOwner(owner);
+		m_name = std::string(name);
 		LoadMesh(assetPath);
 	}
 
