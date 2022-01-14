@@ -14,7 +14,7 @@ namespace bgl
 
 		if (name)
 		{
-			this->m_name = std::string(m_name);
+			this->m_name = std::string(name);
 		}
 
 	}
