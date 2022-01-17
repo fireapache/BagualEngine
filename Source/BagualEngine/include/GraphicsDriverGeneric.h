@@ -45,6 +45,7 @@ namespace bgl
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines(BCamera* camera, const uint32 renderThreadIndex);
+		static void DrawLine(BCamera* camera, BLine<BPixelPos> line);
 		static void PaintPixel(class BViewport* viewportPtr, uint32 i, uint32 j, uint32 rgb);
 
 		void SwapFrames() override;

@@ -165,31 +165,7 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region Rendering queued 2D lines
-			//auto lines = camera->GetLine2DBuffer();
-
-			//std::vector<std::thread> DrawLineThreads;
-
-			//for (auto& line : lines)
-			//{
-			//	DrawLineThreads.push_back(std::thread(
-			//	[&]()
-			//	{
-			//		DrawLine(*camera.get(), line);
-			//	}));
-			//}
-
-			//for (auto& thread : DrawLineThreads)
-			//{
-			//	thread.join();
-			//}
-
-			//DrawLineThreads.clear();
-
-			//camera->ClearLine2DBuffer();
-
-			//continue;
-#pragma endregion
+#pragma region Rendering Geometry Tasks
 
 			auto& viewport = camera->GetViewport();
 
@@ -206,10 +182,30 @@ namespace bgl
 				renderThreadPool.push_task(RenderLines, camera.get(), t);
 			}
 
+#pragma endregion
+
+#pragma region Rendering 2D Line Tasks
+
+			auto& lines = camera->GetLine2DBuffer();
+
+			for (auto& line : lines)
+			{
+				renderThreadPool.push_task(DrawLine, camera.get(), line);
+			}
+
+			camera->ClearLine2DBuffer();
+
+#pragma endregion
+
 			renderThreadPool.wait_for_tasks();
 
 		}
 
+	}
+
+	void BGraphicsDriverGeneric::DrawLine(BCamera* camera, BLine<BPixelPos> line)
+	{
+		BDraw::DrawLine(camera, line);
 	}
 
 	void BGraphicsDriverGeneric::RenderLines(BCamera* camera, const uint32 renderThreadIndex)
@@ -267,7 +263,7 @@ namespace bgl
 				{
 					for (auto tri : *objTris)
 					{
-						if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
+						if (BDraw::RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
 							const double depthZ = (camOrig | surfacePoint) * 100.0;

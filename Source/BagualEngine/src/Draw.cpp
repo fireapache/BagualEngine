@@ -9,9 +9,11 @@
 namespace bgl
 {
 	
-	bool IsLineOnScreen(BCamera& camera, BLine<BPixelPos>& line)
+	bool BDraw::IsLineOnScreen(BCamera* camera, BLine<BPixelPos>& line)
 	{
-		auto& viewport = camera.GetViewport();
+		if (camera == nullptr) return false;
+
+		auto& viewport = camera->GetViewport();
 		auto& canvas = viewport.GetCanvas().lock();
 
 		const BBox<BPixelPos>& viewportBounds = viewport.GetBounds();
@@ -71,9 +73,11 @@ namespace bgl
 		return isValid;
 	}
 
-	void DrawLineLow(BCamera& camera, const BLine<BPixelPos>& line)
+	void DrawLineLow(BCamera* camera, const BLine<BPixelPos>& line)
 	{
-		auto& canvas = camera.GetViewport().GetCanvas().lock();
+		if (camera == nullptr) return;
+
+		auto& canvas = camera->GetViewport().GetCanvas().lock();
 
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineLow!");
 
@@ -105,10 +109,12 @@ namespace bgl
 			D = D + 2 * dy;
 		}
 	}
-
-	void DrawLineHigh(BCamera& camera, const BLine<BPixelPos>& line)
+	
+	void DrawLineHigh(BCamera* camera, const BLine<BPixelPos>& line)
 	{
-		auto& canvas = camera.GetViewport().GetCanvas().lock();
+		if (camera == nullptr) return;
+
+		auto& canvas = camera->GetViewport().GetCanvas().lock();
 
 		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineHigh!");
 
@@ -141,8 +147,10 @@ namespace bgl
 		}
 	}
 
-	void DrawLine(BCamera& camera, const BLine<BPixelPos>& line)
+	void BDraw::DrawLine(BCamera* camera, const BLine<BPixelPos> line)
 	{
+		if (camera == nullptr) return;
+
 		// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
 
 		// Getting a copy so we can change its values
@@ -180,12 +188,12 @@ namespace bgl
 
 	}
 
-	void DrawLine(BCamera& camera, const BPixelPos& p1, const BPixelPos& p2)
+	void BDraw::DrawLine(BCamera* camera, const BPixelPos& p1, const BPixelPos& p2)
 	{
 		DrawLine(camera, BLine<BPixelPos>(p1, p2));
 	}
 
-	bool RayTriangleIntersect(
+	bool BDraw::RayTriangleIntersect(
 		const BVec3f orig, const BVec3f dir, 
 		const BVec3f v0, const BVec3f v1, const BVec3f v2, 
 		float& t, float& u, float& v)
