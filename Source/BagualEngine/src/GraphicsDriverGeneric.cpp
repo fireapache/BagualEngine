@@ -30,7 +30,7 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
-	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 1.640f, -4.f);
+	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 0.f, 0.f);
 	BVector3<float> BGraphicsDriverGeneric::camRot = BVec3f(0.f, 0.f, 0.f);
 	double BGraphicsDriverGeneric::minZ = 200.0;
 	double BGraphicsDriverGeneric::maxZ = 900.0;
@@ -210,8 +210,6 @@ namespace bgl
 
 		}
 
-		bGameFrameReady = true;
-
 	}
 
 	void BGraphicsDriverGeneric::RenderLines(BCamera* camera, const uint32 renderThreadIndex)
@@ -307,6 +305,8 @@ namespace bgl
 									rgb = r;
 									rgb = (rgb << 8) + g;
 									rgb = (rgb << 8) + b;
+
+									PaintPixel(&viewport, i, j, rgb);
 								}
 #pragma endregion
 							}

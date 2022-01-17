@@ -37,9 +37,10 @@ namespace bgl
 		
 	protected:
 
-		bool bGameFrameReady = false;
+		bool m_bGameFrameReady = false;
 		std::thread m_renderGameFrameThread;
-		bool bEnabled = false;
+		bool m_bEnabled = false;
+		bool m_bStopRenderThread = false;
 
 	public:
 

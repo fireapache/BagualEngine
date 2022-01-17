@@ -45,13 +45,13 @@ namespace bgl
 		BArray<BTriangle<float>> tris;
 
 		tris.Add(BTriangle<float>(
-			BVec3f(-1.f, -1.f, -5.f),
-			BVec3f(1.f, -1.f, -5.f),
-			BVec3f(0.f, 1.f, -5.f)));
+			BVec3f(-1.f, 1.f, -5.f),
+			BVec3f(1.f, 1.f, -5.f),
+			BVec3f(0.f, -1.f, -5.f)));
 		tris.Add(BTriangle<float>(
-			BVec3f(-4.f, -1.f, -6.f),
-			BVec3f(-2.f, -1.f, -5.f),
-			BVec3f(-3.f, 1.f, -5.f)));
+			BVec3f(4.f, 1.f, -6.f),
+			BVec3f(2.f, 1.f, -5.f),
+			BVec3f(3.f, -1.f, -5.f)));
 
 		auto trisNode = BEngine::Scene().CreateNode("SimpleTriangles");
 		auto meshComp = trisNode->CreateComponent<BMeshComponent>("Triangles");

@@ -20,11 +20,9 @@ namespace bgl
 	
 	void BGraphicsDriverBase::SetEnabled(const bool bValue)
 	{
-		if (bValue == bEnabled) return;
+		if (bValue == m_bEnabled) return;
 
-		bEnabled = bValue;
-
-		if (bEnabled)
+		if (bValue)
 		{
 			StartGameFrameRenderingThread();
 		}
@@ -36,23 +34,27 @@ namespace bgl
 
 	bool BGraphicsDriverBase::IsEnabled() const
 	{
-		return bEnabled;
+		return m_bEnabled;
 	}
 
 	void BGraphicsDriverBase::StartGameFrameRenderingThread()
 	{
+		m_bStopRenderThread = false;
 		m_renderGameFrameThread = std::thread([this]()
 			{
-				while (true)
+				m_bEnabled = true;
+				while (!m_bStopRenderThread)
 				{
 					RenderGameFrame();
+					m_bGameFrameReady = true;
 				}
+				m_bEnabled = false;
 			});
 	}
 
 	void BGraphicsDriverBase::StopGameFrameRenderingThread()
 	{
-		m_renderGameFrameThread.~thread();
+		m_bStopRenderThread = true;
 	}
 
 	void BGraphicsDriverBase::SwapFrames()
@@ -60,7 +62,7 @@ namespace bgl
 		if (true)
 		{
 			SwapGameFrame();
-			bGameFrameReady = false;
+			m_bGameFrameReady = false;
 		}
 
 		SwapUIFrame();
@@ -75,7 +77,6 @@ namespace bgl
 			RenderCamera(*camera.get());
 		}
 
-		bGameFrameReady = true;
 	}
 
 	void BGraphicsDriverBase::SwapUIFrame()
