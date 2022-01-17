@@ -17,6 +17,8 @@ namespace bgl
 
 	public:
 
+		virtual void SetEnabled(const bool bValue) = 0;
+		virtual bool IsEnabled() const = 0;
 		virtual void SwapFrames() = 0;
 		virtual void RenderCamera(const BCamera& camera) = 0;
 		virtual void Delay(const uint32&& ms) = 0;
@@ -24,17 +26,30 @@ namespace bgl
 
 	};
 
+	enum class BERenderOutputType
+	{
+		Depth,
+		UvColor
+	};
+
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
-
+		
 	protected:
 
 		bool bGameFrameReady = false;
-		std::thread RenderGameFrameThread;
+		std::thread m_renderGameFrameThread;
+		bool bEnabled = false;
 
 	public:
 
+		BGraphicsDriverBase();
+		~BGraphicsDriverBase();
+
+		virtual void SetEnabled(const bool bValue);
+		virtual bool IsEnabled() const;
 		void StartGameFrameRenderingThread();
+		void StopGameFrameRenderingThread();
 		virtual void SwapFrames();
 		virtual void RenderGameFrame();
 		virtual void SwapUIFrame();

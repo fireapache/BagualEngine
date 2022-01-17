@@ -3,6 +3,7 @@
 #include "Common.h"
 
 #include "Canvas.h"
+#include <functional>
 
 namespace bgl
 {
@@ -22,7 +23,7 @@ namespace bgl
 
 	public:
 
-		typedef void(*GuiTickMethod)();
+		typedef std::function<void()> GuiTickFuncType;
 
 	protected:
 
@@ -36,7 +37,7 @@ namespace bgl
 
 		virtual void Destroy();
 
-		GuiTickMethod GuiTickPtr = nullptr;
+		GuiTickFuncType GuiTickFunc;
 
 	public:
 
@@ -51,9 +52,8 @@ namespace bgl
 
 		virtual const std::shared_ptr<BCanvas>& GetCanvas();
 
-		void SetGuiTickMethod(GuiTickMethod ptr);
-
-		GuiTickMethod GetGuiTickMethod();
+		void SetGuiTickFunc(GuiTickFuncType func);
+		GuiTickFuncType GetGuiTickFunc();
 
 	};
 
@@ -67,8 +67,8 @@ namespace bgl
 
 	public:
 
-		virtual std::shared_ptr<BPlatformWindow> CreateWindow() = 0;
-		virtual std::shared_ptr<BPlatformWindow> CreateWindow(const FWindowSettings& settings) = 0;
+		virtual BPlatformWindow* CreateWindow() = 0;
+		virtual BPlatformWindow* CreateWindow(const FWindowSettings& settings) = 0;
 
 		BArray<std::shared_ptr<BPlatformWindow>>& GetWindows();
 

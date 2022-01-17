@@ -13,6 +13,7 @@
 #include "BagualEngine.h"
 #include "ThreadPool.h"
 #include "Scene.h"
+#include "GraphicsPlatform.h"
 
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
@@ -38,26 +39,17 @@ namespace bgl
 	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
 	BERenderSpeed BGraphicsDriverGeneric::renderSpeed = BERenderSpeed::VeryFast;
 	BESceneSetup BGraphicsDriverGeneric::sceneSetup = BESceneSetup::Empty;
-	BERenderMode BGraphicsDriverGeneric::renderMode = BERenderMode::MultiThread;
+	BERenderThreadMode BGraphicsDriverGeneric::renderThreadMode = BERenderThreadMode::MultiThread;
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
 		BGL_ASSERT(glfwInit() && "Could not start GLFW!");
-
 		glfwSetErrorCallback(ErrorCallback);
-
-		RenderGameFrameThread = std::thread([this]()
-			{
-				while (true)
-				{
-					RenderGameFrame();
-				}
-			});
-
 	}
 
 	BGraphicsDriverGeneric::~BGraphicsDriverGeneric()
 	{
+		StopGameFrameRenderingThread();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
@@ -71,11 +63,11 @@ namespace bgl
 
 		for (auto& window : windows)
 		{
-			CachedPlatformWindowPtr = static_cast<BGenericPlatformWindow*>(window.get());
+			m_cachedPlatformWindowPtr = static_cast<BGenericPlatformWindow*>(window.get());
 
-			if (CachedPlatformWindowPtr)
+			if (m_cachedPlatformWindowPtr)
 			{
-				auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+				auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 				glfwMakeContextCurrent(glfwWindow);
 				glClear(GL_COLOR_BUFFER_BIT);
 				BGraphicsDriverBase::SwapFrames();
@@ -143,7 +135,7 @@ namespace bgl
 				}
 
 				const char* renderModeOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
-				ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
+				ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderThreadMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
 				const float positionRange = 10.f;
 				ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camOrig), -positionRange, positionRange);
 				const float rotRange = 20.f;
@@ -169,7 +161,7 @@ namespace bgl
 			};
 
 			// Gui update procedure
-			window->SetGuiTickMethod(guiTick);
+			//window->SetGuiTickMethod(guiTick);
 
 #pragma endregion
 
@@ -205,8 +197,8 @@ namespace bgl
 			cachedViewport = &viewport;
 			cachedCamera = camera.get();
 
-			const auto processorCount = std::thread::hardware_concurrency() * (renderMode == BERenderMode::HyperThread ? 2 : 1);
-			uint32 renderThreadCount = renderMode == BERenderMode::SingleThread ? 1 : processorCount;
+			const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
+			uint32 renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
 			thread_pool renderThreadPool(renderThreadCount);
 
 			for (uint32 t = 0; t < processorCount; t++)
@@ -226,6 +218,8 @@ namespace bgl
 	{
 		auto viewport = camera->GetViewport();
 
+		// Calculating camera sensor settings
+
 		const uint32 width = viewport.GetSize().width;
 		const uint32 height = viewport.GetSize().height;
 
@@ -234,15 +228,22 @@ namespace bgl
 		float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
 		double zRange = maxZ - minZ;
 
+		// Keeping some variables stacked
+
 		float t, u, v;
 		uint32 rgb = 0x000000;
+		auto renderType = BEngine::GraphicsPlatform().GetRenderOutputType();
 
-		const auto processorCount = std::thread::hardware_concurrency() * (renderMode == BERenderMode::HyperThread ? 2 : 1);
+		// Getting render lines of interest
+
+		const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
 		int32 threadCount = processorCount <= 0 ? 1 : processorCount;
 
 		const uint32 lineRange = height / threadCount;
 		const uint32 lineStart = renderThreadIndex * lineRange;
 		const uint32 lineEnd = (renderThreadIndex + 1 == threadCount) ? height : (renderThreadIndex + 1) * lineRange;
+
+		// Starting line rendering
 
 		const uint32 renderSpeedStep = (renderSpeed == BERenderSpeed::Normal ? 1 : (uint32)renderSpeed * 2);
 
@@ -250,6 +251,8 @@ namespace bgl
 		{
 			for (uint32 i = 0; i < width; i += renderSpeedStep)
 			{
+				// Getting ray rotation
+
 				float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
 				float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
 				BVector3<float> dir(x, y, sensorDistance);
@@ -257,6 +260,8 @@ namespace bgl
 				dir = BQuaternion<float>::RotateAroundAxis(camRot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
 				dir = BQuaternion<float>::RotateAroundAxis(camRot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
 				dir = BQuaternion<float>::RotateAroundAxis(camRot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
+
+				// Getting scene triangles
 
 				auto meshComponentTris = BEngine::Scene().GetMeshComponentTriangles();
 
@@ -266,10 +271,6 @@ namespace bgl
 					{
 						if (RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
-							char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
-							char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
-							char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
-
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
 							const double depthZ = (camOrig | surfacePoint) * 100.0;
 							const double currentDepthZ = viewport.GetPixelDepth(i, j);
@@ -280,49 +281,35 @@ namespace bgl
 							{
 								viewport.SetPixelDepth(i, j, depthZ);
 
-								const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
-								const double calcB = 1 - calcA / zRange;
-
-								const uint32 gray = static_cast<uint32>(255.0 * calcB);
-
-								rgb = gray;
-								rgb = (rgb << 8) + gray;
-								rgb = (rgb << 8) + gray;
-
-								viewport(i, j) = rgb;
-
-								if (renderSpeed > BERenderSpeed::Normal)
+#pragma region Depth Shader
+								if (renderType == BERenderOutputType::Depth)
 								{
-									viewport(i + 1, j) = rgb;
-									viewport(i, j + 1) = rgb;
-									viewport(i + 1, j + 1) = rgb;
-								}
+									const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
+									const double calcB = 1 - calcA / zRange;
 
-								if (renderSpeed > BERenderSpeed::Fast)
+									const uint32 gray = static_cast<uint32>(255.0 * calcB);
+
+									rgb = gray;
+									rgb = (rgb << 8) + gray;
+									rgb = (rgb << 8) + gray;
+
+									PaintPixel(&viewport, i, j, rgb);
+								}
+#pragma endregion
+
+#pragma region UV Coloring Shader
+								else if (renderType == BERenderOutputType::UvColor)
 								{
-									viewport(i + 2, j) = rgb;
-									viewport(i + 3, j) = rgb;
-									viewport(i + 2, j + 1) = rgb;
-									viewport(i + 3, j + 1) = rgb;
+									char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
+									char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
+									char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
-									viewport(i, j + 2) = rgb;
-									viewport(i, j + 3) = rgb;
-									viewport(i + 1, j + 2) = rgb;
-									viewport(i + 1, j + 3) = rgb;
-
-									viewport(i + 2, j + 2) = rgb;
-									viewport(i + 2, j + 3) = rgb;
-									viewport(i + 3, j + 2) = rgb;
-									viewport(i + 3, j + 3) = rgb;
+									rgb = r;
+									rgb = (rgb << 8) + g;
+									rgb = (rgb << 8) + b;
 								}
+#pragma endregion
 							}
-							/*else
-							{
-								rgb = r;
-								rgb = (rgb << 8) + g;
-								rgb = (rgb << 8) + b;
-							}*/
-
 
 						}
 					}
@@ -333,18 +320,18 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::SwapUIFrame()
 	{
-		if (CachedPlatformWindowPtr)
+		if (m_cachedPlatformWindowPtr)
 		{
 
 #pragma region Rendering ImGui
 
-			auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+			auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 
-			// Executing GUI tick method if assigned
+			// Executing GUI tick func if assigned
 			{
-				auto GuiTickPtr = CachedPlatformWindowPtr->GetGuiTickMethod();
+				auto guiTickFunc = m_cachedPlatformWindowPtr->GetGuiTickFunc();
 
-				if (GuiTickPtr)
+				if (guiTickFunc)
 				{
 					// Start the Dear ImGui frame
 					ImGui_ImplOpenGL3_NewFrame();
@@ -352,7 +339,8 @@ namespace bgl
 					ImGui::NewFrame();
 
 					// User code
-					GuiTickPtr();
+					//GuiTickPtr();
+					guiTickFunc();
 
 					ImGui::Render();
 					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -384,19 +372,19 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::SwapGameFrame()
 	{
-		if (CachedPlatformWindowPtr)
+		if (m_cachedPlatformWindowPtr)
 		{
 
 #pragma region Rendering Window Canvas to OpenGL
 
-			auto glfwWindow = CachedPlatformWindowPtr->GetGLFW_Window();
+			auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 			glfwMakeContextCurrent(glfwWindow);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			GLfloat windowWidth = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetWidth());
-			GLfloat windowHeight = static_cast<GLfloat>(CachedPlatformWindowPtr->GetCanvas()->GetHeight());
+			GLfloat windowWidth = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetWidth());
+			GLfloat windowHeight = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetHeight());
 
-			GLuint& tex = CachedPlatformWindowPtr->GetglTex();
+			GLuint& tex = m_cachedPlatformWindowPtr->GetglTex();
 
 			if (tex == -1)
 			{
@@ -408,7 +396,7 @@ namespace bgl
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 				static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight),
-				0, GL_RGBA, GL_UNSIGNED_BYTE, CachedPlatformWindowPtr->GetCanvas()->GetColorBuffer().GetData());
+				0, GL_RGBA, GL_UNSIGNED_BYTE, m_cachedPlatformWindowPtr->GetCanvas()->GetColorBuffer().GetData());
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			// Match projection to window resolution
@@ -452,35 +440,36 @@ namespace bgl
 		//SDL_Delay(ms);
 	}
 
-	inline void BGraphicsDriverGeneric::loadTris(const char* filePath, BArray<BTriangle<float>>& triBuffer, uint32 meshID)
+	void BGraphicsDriverGeneric::PaintPixel(BViewport* viewportPtr, uint32 i, uint32 j, uint32 rgb)
 	{
-		BTriangle<float> triCache;
-		objl::Vertex vert0, vert1, vert2;
-		uint32 index0, index1, index2;
+		if (viewportPtr == nullptr) return;
 
-		objl::Loader triLoader(filePath);
+		BViewport& viewport = *viewportPtr;
+		viewport(i, j) = rgb;
 
-		for (size_t i = 0; i < triLoader.LoadedIndices.size(); i += 3)
+		if (renderSpeed > BERenderSpeed::Normal)
 		{
-			index0 = triLoader.LoadedIndices[i];
-			index1 = triLoader.LoadedIndices[i + 1];
-			index2 = triLoader.LoadedIndices[i + 2];
+			viewport(i + 1, j) = rgb;
+			viewport(i, j + 1) = rgb;
+			viewport(i + 1, j + 1) = rgb;
+		}
 
-			vert0 = triLoader.LoadedVertices[index0];
-			vert1 = triLoader.LoadedVertices[index1];
-			vert2 = triLoader.LoadedVertices[index2];
+		if (renderSpeed > BERenderSpeed::Fast)
+		{
+			viewport(i + 2, j) = rgb;
+			viewport(i + 3, j) = rgb;
+			viewport(i + 2, j + 1) = rgb;
+			viewport(i + 3, j + 1) = rgb;
 
-			triCache.v0.x = vert0.Position.X;
-			triCache.v0.y = vert0.Position.Y;
-			triCache.v0.z = vert0.Position.Z;
-			triCache.v1.x = vert1.Position.X;
-			triCache.v1.y = vert1.Position.Y;
-			triCache.v1.z = vert1.Position.Z;
-			triCache.v2.x = vert2.Position.X;
-			triCache.v2.y = vert2.Position.Y;
-			triCache.v2.z = vert2.Position.Z;
+			viewport(i, j + 2) = rgb;
+			viewport(i, j + 3) = rgb;
+			viewport(i + 1, j + 2) = rgb;
+			viewport(i + 1, j + 3) = rgb;
 
-			triBuffer.Add(triCache);
+			viewport(i + 2, j + 2) = rgb;
+			viewport(i + 2, j + 3) = rgb;
+			viewport(i + 3, j + 2) = rgb;
+			viewport(i + 3, j + 3) = rgb;
 		}
 	}
 

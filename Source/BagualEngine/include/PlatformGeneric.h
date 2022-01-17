@@ -19,9 +19,10 @@ namespace bgl
 	public:
 
 		BPlatformGeneric();
+		~BPlatformGeneric();
 
-		virtual std::shared_ptr<BPlatformWindow> CreateWindow() override;
-		virtual std::shared_ptr<BPlatformWindow> CreateWindow(const FWindowSettings& settings) override;
+		virtual BPlatformWindow* CreateWindow() override;
+		virtual BPlatformWindow* CreateWindow(const FWindowSettings& settings) override;
 
 		ImGuiIO* GetImguiConfig();
 	};

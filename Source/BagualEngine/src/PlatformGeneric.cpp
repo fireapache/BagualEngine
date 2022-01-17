@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_node_editor.h>
 
 #include <glad/glad.h>
 
@@ -39,20 +40,25 @@ namespace bgl
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
+		
+
 	}
 
-	std::shared_ptr<BPlatformWindow> BPlatformGeneric::CreateWindow(const FWindowSettings& settings)
+	BPlatformGeneric::~BPlatformGeneric()
 	{
-		auto window = std::make_shared<BGenericPlatformWindow>(settings);
-		windows.Add(window);
-		return window;
+		
 	}
 
-	std::shared_ptr<bgl::BPlatformWindow> BPlatformGeneric::CreateWindow()
+	BPlatformWindow* BPlatformGeneric::CreateWindow(const FWindowSettings& settings)
 	{
-		auto window = std::make_shared<BGenericPlatformWindow>(FWindowSettings());
-		windows.Add(window);
-		return window;
+		windows.Add(std::make_shared<BGenericPlatformWindow>(settings));
+		return windows.back().get();
+	}
+
+	BPlatformWindow* BPlatformGeneric::CreateWindow()
+	{
+		windows.Add(std::make_shared<BGenericPlatformWindow>(FWindowSettings()));
+		return windows.back().get();
 	}
 
 	ImGuiIO* BPlatformGeneric::GetImguiConfig()

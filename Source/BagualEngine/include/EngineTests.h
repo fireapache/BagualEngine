@@ -9,23 +9,49 @@ namespace bgl
 {
 	class BEngineTestBase : public BModuleBase
 	{
+
+	protected:
+
+		FWindowSettings windowSettings;
 		
+		class BPlatformWindow* window;
+
 	public:
+
+		void CreateStandardWindow(const char* windowTitle = nullptr);
 
 	};
 
-	class BEngineTest_BaseRendering : public BEngineTestBase
+	class BEngineTest_FundamentalRendering : public BEngineTestBase
 	{
-		FWindowSettings windowSettings;
 
+		void DrawCameraLine(class BCamera* camera);
 
 	public:
 
 		void Init() override;
 		void Tick() override;
+		void Term() override;
 
-		void DrawCameraLine(std::shared_ptr<BCamera>& camera);
+	};
 
+	class BEngineTest_RoomRendering : public BEngineTestBase
+	{
+		
+	public:
+
+		void Init() override;
+		void Term() override;
+
+	};
+
+	class BEngineTest_NodeEditor : public BEngineTestBase
+	{
+		void* nodeEditorContext;
+
+	public:
+
+		void Init() override;
 		void Term() override;
 
 	};

@@ -7,3 +7,6 @@
 [submodule "Source/OBJ-Loader"]
 	path = Source/OBJ-Loader
 	url = https://github.com/fireapache/OBJ-Loader.git
+[submodule "Source/IMGUI-NE"]
+	path = Source/IMGUI-NE
+	url = https://github.com/fireapache/imgui-node-editor.git

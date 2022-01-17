@@ -63,6 +63,8 @@ namespace bgl
 
 		BArray<BTriangle<float>>& GetTriangles();
 
+		void AddTriangles(BArray<BTriangle<float>>& triangles);
+
 	};
 
 	class BNode : public BObject
@@ -85,11 +87,12 @@ namespace bgl
 		BArray<std::shared_ptr<BComponent>>& GetComponents();
 
 		template<class T, typename... P>
-		void CreateComponent(P... args)
+		T* CreateComponent(P... args)
 		{
 			static_assert(std::is_base_of<BComponent, T>::value, 
 				"Type should inherit from BComponent");
 			m_components.push_back(std::make_shared<T>(this, args...));
+			return static_cast<T*>(m_components.back().get());
 		}
 
 		BTransform<float> GetTransform();

@@ -6,6 +6,8 @@ Intermediate/
 
 imgui.ini
 
+Source/BagualGame/NodeEditor.json
+
 *.lib
 
 *.sln

@@ -386,6 +386,12 @@ namespace bgl
 		BVector3<T> v0, v1, v2;
 
 		BTriangle() = default;
+		BTriangle(const BVector3<T>&& v0, const BVector3<T>&& v1, const BVector3<T>&& v2)
+		{
+			this->v0 = v0;
+			this->v1 = v1;
+			this->v2 = v2;
+		}
 		BTriangle(const BVector3<T>& v0, const BVector3<T>& v1, const BVector3<T>& v2)
 		{
 			this->v0 = v0;

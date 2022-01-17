@@ -189,6 +189,64 @@ project "IMGUI"
 		optimize "On"
 		runtime "Release"
 
+project "IMGUI-NE"
+	
+	location "Source/IMGUI-NE/"
+	kind "StaticLib"
+	language "C"
+	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
+	objdir ("Intermediate/%{prj.name}-" .. outputdir)
+	
+	defines {  }
+
+	libdirs
+	{
+		("Intermediate/GLAD-" .. outputdir),
+		("Intermediate/GLFW-" .. outputdir),
+		("Intermediate/IMGUI-" .. outputdir)
+	}
+
+	dependson { "GLAD", "GLFW", "IMGUI" }
+
+	includedirs
+	{
+		"%{prj.location}/",
+		"%{prj.location}/examples",
+		"Source/GLAD/include/",
+		"Source/GLFW/include/",
+		"Source/IMGUI/"
+	}
+
+	files
+	{
+		"%{prj.location}/crude_json.h",
+		"%{prj.location}/crude_json.cpp",
+		"%{prj.location}/imgui_bezier_math.h",
+		"%{prj.location}/imgui_bezier_math.inl",
+		"%{prj.location}/imgui_canvas.cpp",
+		"%{prj.location}/imgui_canvas.h",
+		"%{prj.location}/imgui_extra_math.h",
+		"%{prj.location}/imgui_extra_math.inl",
+		"%{prj.location}/imgui_node_editor.h",
+		"%{prj.location}/imgui_node_editor.cpp",
+		"%{prj.location}/imgui_node_editor_api.cpp",
+		"%{prj.location}/imgui_node_editor_internal.h",
+		"%{prj.location}/imgui_node_editor_internal.inl"
+	}
+
+	filter "system:windows"
+		staticruntime "On"
+		systemversion "latest"
+		defines {  }
+
+	filter "configurations:Debug"
+		symbols "On"
+		runtime "Debug"
+
+	filter "configurations:Release"
+		optimize "On"
+		runtime "Release"
+
 group ""
 
 project "BagualEngine"
@@ -209,17 +267,19 @@ project "BagualEngine"
 		"Source/GLFW/include/",
 		"Source/IMGUI/",
 		"Source/IMGUI/examples/",
+		"Source/IMGUI-NE/",
 		"Source/OBJ-Loader/"
 	}
 
-	dependson { "GLAD", "GLFW", "IMGUI" }
-	links { "GLAD.lib", "GLFW.lib", "IMGUI.lib", "opengl32.lib" }
+	dependson { "GLAD", "GLFW", "IMGUI", "IMGUI-NE" }
+	links { "GLAD.lib", "GLFW.lib", "IMGUI.lib", "IMGUI-NE.lib", "opengl32.lib" }
 
 	libdirs
 	{
 		("Intermediate/GLAD-" .. outputdir),
 		("Intermediate/GLFW-" .. outputdir),
-		("Intermediate/IMGUI-" .. outputdir)
+		("Intermediate/IMGUI-" .. outputdir),
+		("Intermediate/IMGUI-NE-" .. outputdir)
 	}
 
 	files

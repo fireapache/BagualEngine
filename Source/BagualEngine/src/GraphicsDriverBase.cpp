@@ -8,10 +8,51 @@
 
 namespace bgl
 {
+	BGraphicsDriverBase::BGraphicsDriverBase()
+	{
+
+	}
+
+	BGraphicsDriverBase::~BGraphicsDriverBase()
+	{
+		StopGameFrameRenderingThread();
+	}
+	
+	void BGraphicsDriverBase::SetEnabled(const bool bValue)
+	{
+		if (bValue == bEnabled) return;
+
+		bEnabled = bValue;
+
+		if (bEnabled)
+		{
+			StartGameFrameRenderingThread();
+		}
+		else
+		{
+			StopGameFrameRenderingThread();
+		}
+	}
+
+	bool BGraphicsDriverBase::IsEnabled() const
+	{
+		return bEnabled;
+	}
 
 	void BGraphicsDriverBase::StartGameFrameRenderingThread()
 	{
-		
+		m_renderGameFrameThread = std::thread([this]()
+			{
+				while (true)
+				{
+					RenderGameFrame();
+				}
+			});
+	}
+
+	void BGraphicsDriverBase::StopGameFrameRenderingThread()
+	{
+		m_renderGameFrameThread.~thread();
 	}
 
 	void BGraphicsDriverBase::SwapFrames()

@@ -15,20 +15,35 @@ namespace bgl
 	
 	BGraphicsPlatform::BGraphicsPlatform()
 	{
-		driverInstance = std::make_unique<
-
-			BGraphicsDriverGeneric
-
-			>();
-
+		m_driverInstance = std::make_unique<BGraphicsDriverGeneric>();
 		viewports = std::make_unique<BArray<std::shared_ptr<BViewport>>>();
+	}
+
+	BERenderOutputType BGraphicsPlatform::GetRenderOutputType() const
+	{
+		return m_renderOutputType;
+	}
+
+	void BGraphicsPlatform::SetRenderOutputType(BERenderOutputType type)
+	{
+		m_renderOutputType = type;
+	}
+
+	void BGraphicsPlatform::SetEnabled(const bool bValue)
+	{
+		m_driverInstance->SetEnabled(bValue);
+	}
+
+	bool BGraphicsPlatform::IsEnabled() const
+	{
+		return m_driverInstance->IsEnabled();
 	}
 
 	void BGraphicsPlatform::SwapFrames()
 	{
-		if (driverInstance)
+		if (m_driverInstance)
 		{
-			driverInstance->SwapFrames();
+			m_driverInstance->SwapFrames();
 		}
 	}
 
@@ -78,25 +93,25 @@ namespace bgl
 
 	void BGraphicsPlatform::Delay(const uint32&& ms)
 	{
-		if (driverInstance)
+		if (m_driverInstance)
 		{
-			driverInstance->Delay(ms);
+			m_driverInstance->Delay(ms);
 		}
 	}
 
 	void BGraphicsPlatform::Delay(const uint32& ms)
 	{
-		if (driverInstance)
+		if (m_driverInstance)
 		{
-			driverInstance->Delay(ms);
+			m_driverInstance->Delay(ms);
 		}
 	}
 
 	void BGraphicsPlatform::RenderCamera(const BCamera& camera)
 	{
-		if (driverInstance)
+		if (m_driverInstance)
 		{
-			driverInstance->RenderCamera(camera);
+			m_driverInstance->RenderCamera(camera);
 		}
 	}
 

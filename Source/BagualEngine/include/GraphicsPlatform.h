@@ -12,13 +12,20 @@ namespace bgl
 		friend std::unique_ptr<BArray<std::shared_ptr<BCanvas>>> std::make_unique<BArray<std::shared_ptr<BCanvas>>>();
 		friend std::unique_ptr<BArray<std::shared_ptr<BViewport>>> std::make_unique<BArray<std::shared_ptr<BViewport>>>();
 
-		std::unique_ptr<BGraphicsDriverInterface> driverInstance;
+		std::unique_ptr<BGraphicsDriverInterface> m_driverInstance;
 		std::unique_ptr<BArray<std::shared_ptr<BViewport>>> viewports;
+
+		BERenderOutputType m_renderOutputType = BERenderOutputType::Depth;
 
 	public:
 
 		BGraphicsPlatform();
 
+		BERenderOutputType GetRenderOutputType() const;
+		void SetRenderOutputType(BERenderOutputType type);
+
+		virtual void SetEnabled(const bool bValue);
+		virtual bool IsEnabled() const;
 		virtual void SwapFrames() override;
 		virtual void RenderCamera(const BCamera& camera) override;
 		virtual void Delay(const uint32&& ms) override;

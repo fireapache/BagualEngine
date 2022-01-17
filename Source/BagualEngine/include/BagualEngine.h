@@ -20,8 +20,12 @@ namespace bgl
 		{
 			None,
 			Initializing,
+			RegisteringModules,
+			BeginPlaying,
 			Ticking,
 			Paused,
+			EndPlaying,
+			EndingModules,
 			Quitting
 		};
 #pragma endregion
@@ -45,6 +49,8 @@ namespace bgl
 		void Init();
 		void LoadData();
 		void RegisterModules();
+		void BeginPlay();
+		void EndPlay();
 		void Term();
 		void ProcessInput();
 		void MainLoop();

@@ -102,7 +102,7 @@ namespace bgl
 		SetOwner(owner);
 		m_name = std::string(name);
 		g_meshComponentTriangles.Add(&m_triangles);
-		LoadMesh(assetPath);
+		if (assetPath) LoadMesh(assetPath);
 	}
 
 	BMeshComponent::~BMeshComponent()
@@ -151,6 +151,11 @@ namespace bgl
 	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
 	{
 		return m_triangles;
+	}
+
+	void BMeshComponent::AddTriangles(BArray<BTriangle<float>>& triangles)
+	{
+		m_triangles.Add(triangles);
 	}
 
 	BScene::BScene()

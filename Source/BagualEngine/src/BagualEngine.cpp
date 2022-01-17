@@ -18,11 +18,15 @@ namespace bgl
 
 	void BEngine::Init()
 	{
-		m_graphicsPlatform = std::make_unique<BGraphicsPlatform>();
-		m_platform = std::make_unique<BPlatformGeneric>();
+		// Initializing stuff
 		m_engineState = EBEngineState::Initializing;
+
+		m_platform = std::make_unique<BPlatformGeneric>();
+		m_graphicsPlatform = std::make_unique<BGraphicsPlatform>();
 		m_modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
 		m_scene = std::make_unique<BScene>();
+
+		RegisterModules();
 	}
 
 	void BEngine::LoadData()
@@ -32,20 +36,40 @@ namespace bgl
 
 	void BEngine::RegisterModules()
 	{
-		
+		m_engineState = EBEngineState::RegisteringModules;
+
 		if (m_modules)
 		{
-			m_modules->Add(std::make_shared<BEngineTest_BaseRendering>());
+			//m_modules->Add(std::make_shared<BEngineTest_FundamentalRendering>());
+			m_modules->Add(std::make_shared<BEngineTest_RoomRendering>());
 
-			BArray<std::shared_ptr<BIModule>>* moduleArray = m_modules.get();
-			std::shared_ptr<BIModule> mod = (*moduleArray)[0];
-			mod->Init();
+			for (auto& module : *m_modules.get())
+			{
+				module->Init();
+			}
 		}
+
+	}
+
+	void BEngine::BeginPlay()
+	{
+		m_engineState = EBEngineState::BeginPlaying;
+
+		// Starting rendering thread
+		m_graphicsPlatform->SetEnabled(true);
+	}
+
+	void BEngine::EndPlay()
+	{
+		m_engineState = EBEngineState::EndPlaying;
+
+		// Stopping rendering thread
+		m_graphicsPlatform->SetEnabled(false);
 	}
 
 	void BEngine::Term()
 	{
-		
+		m_engineState = EBEngineState::Quitting;
 	}
 
 	void BEngine::ProcessInput()
@@ -71,6 +95,8 @@ namespace bgl
 
 	void BEngine::MainLoop()
 	{
+		m_engineState = EBEngineState::Ticking;
+
 		while (m_engineState != EBEngineState::Quitting)
 		{
 			ProcessInput();
@@ -145,8 +171,9 @@ namespace bgl
 	{
 		Init();
 		LoadData();
-		RegisterModules();
+		BeginPlay();
 		MainLoop();
+		EndPlay();
 		Term();
 	}
 

@@ -18,7 +18,7 @@ namespace bgl
 		ObjectsCharacter
 	};
 
-	enum class BERenderMode
+	enum class BERenderThreadMode
 	{
 		SingleThread,
 		MultiThread,
@@ -27,9 +27,7 @@ namespace bgl
 
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
-		class BGenericPlatformWindow* CachedPlatformWindowPtr = nullptr;
-
-		void loadTris(const char* filePath, BArray<BTriangle<float>>& triBuffer, uint32 meshID = 0);
+		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
 	public:
 
@@ -41,12 +39,13 @@ namespace bgl
 		static BCamera* cachedCamera;
 		static BERenderSpeed renderSpeed;
 		static BESceneSetup sceneSetup;
-		static BERenderMode renderMode;
+		static BERenderThreadMode renderThreadMode;
 
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines(BCamera* camera, const uint32 renderThreadIndex);
+		static void PaintPixel(class BViewport* viewportPtr, uint32 i, uint32 j, uint32 rgb);
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;
