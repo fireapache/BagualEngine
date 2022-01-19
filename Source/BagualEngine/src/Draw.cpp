@@ -208,7 +208,7 @@ namespace bgl
 	{
 
 #define MOLLER_TRUMBORE 1
-#define CULLING 0
+#define CULLING 1
 
 #if MOLLER_TRUMBORE
 		BVec3f v0v1 = v1 - v0;

@@ -19,21 +19,6 @@ namespace bgl
 		m_viewports = BArray<std::shared_ptr<BViewport>>();
 	}
 
-	BERenderOutputType BGraphicsPlatform::GetRenderOutputType() const
-	{
-		return m_renderOutputType;
-	}
-
-	BERenderOutputType& BGraphicsPlatform::GetRenderOutputType_Mutable()
-	{
-		return m_renderOutputType;
-	}
-
-	void BGraphicsPlatform::SetRenderOutputType(BERenderOutputType type)
-	{
-		m_renderOutputType = type;
-	}
-
 	void BGraphicsPlatform::SetEnabled(const bool bValue)
 	{
 		m_driverInstance->SetEnabled(bValue);

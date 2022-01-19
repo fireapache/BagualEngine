@@ -26,6 +26,7 @@ namespace bgl
 		BPlatformWindow* window;
 		BViewport* viewport;
 		BCanvas* canvas;
+		float defaultDepthDist;
 
 	public:
 

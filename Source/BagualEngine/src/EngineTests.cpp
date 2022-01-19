@@ -59,7 +59,8 @@ namespace bgl
 		auto meshComp = trisNode->CreateComponent<BMeshComponent>("Triangles");
 		meshComp->AddTriangles(tris);
 
-		BEngine::GraphicsPlatform().SetRenderOutputType(BERenderOutputType::UvColor);
+		auto cameraNode = BEngine::Scene().CreateNode("Camera");
+		auto cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
 
 	}
 
@@ -123,8 +124,10 @@ namespace bgl
 		charNode->CreateComponent<BMeshComponent>("CharMesh", "./assets/basemesh/basemesh.obj");
 
 		auto cameraNode = BEngine::Scene().CreateNode("Camera");
-		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
 		cameraNode->SetLocation(BVec3f(0.f, 1.640f, -4.f));
+		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
+
+		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
 
 		// Ways to access scene nodes
 		auto rootNode = BEngine::Scene().GetRootNode();
@@ -162,18 +165,24 @@ namespace bgl
 				}
 			}
 
-			auto& renderThreadMode = BEngine::GraphicsPlatform().GetRenderOutputType_Mutable();
+			auto camera = cameraComp->GetCamera();
+			auto& renderThreadMode = camera->GetRenderOutputType_Mutable();
 
 			const char* renderModeOptions[] = { "Pixel Depth", "UV Color" };
 			ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderThreadMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
+
 			const float positionRange = 10.f;
 			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
 			ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camPos), -positionRange, positionRange);
+
 			const float rotRange = 20.f;
 			BVec3f& camRot = cameraComp->GetTransform_Mutable().rotation;
 			ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
-			//ImGui::InputDouble("MinZ", &minZ);
-			//ImGui::InputDouble("MaxZ", &maxZ);
+
+			auto& depthDist = camera->GetDepthDistance_Mutable();
+			const float depthDistRange = 500.f;
+			ImGui::SliderFloat("Scene Depth", &depthDist, defaultDepthDist - depthDistRange, defaultDepthDist + depthDistRange);
+
 			//ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
 
 			//const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };

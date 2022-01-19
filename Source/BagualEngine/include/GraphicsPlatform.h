@@ -15,13 +15,10 @@ namespace bgl
 		std::unique_ptr<BGraphicsDriverInterface> m_driverInstance;
 		BArray<std::shared_ptr<BViewport>> m_viewports;
 
-		BERenderOutputType m_renderOutputType = BERenderOutputType::Depth;
-
 	public:
 
 		BGraphicsPlatform();
 
-		BERenderOutputType GetRenderOutputType() const;
 		BERenderOutputType& GetRenderOutputType_Mutable();
 		void SetRenderOutputType(BERenderOutputType type);
 

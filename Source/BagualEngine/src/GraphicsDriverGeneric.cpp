@@ -217,18 +217,18 @@ namespace bgl
 		const uint32 width = viewport->GetSize().width;
 		const uint32 height = viewport->GetSize().height;
 
-		BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
-		float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
-		float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
-		double zRange = maxZ - minZ;
+		const BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
+		const float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
+		const float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
 
 		// Keeping some variables stacked
 
 		float t, u, v;
 		uint32 rgb = 0x000000;
-		auto renderType = BEngine::GraphicsPlatform().GetRenderOutputType();
-		BVec3f orig = camera->GetLocation();
-		BVec3f rot = camera->GetRotation();                     
+		const auto renderType = camera->GetRenderOutputType();
+		const BVec3f orig = camera->GetLocation();
+		const BVec3f rot = camera->GetRotation();         
+		const double depthDist = camera->GetDepthDistance();
 
 		// Getting render lines of interest
 
@@ -280,10 +280,11 @@ namespace bgl
 #pragma region Depth Shader
 								if (renderType == BERenderOutputType::Depth)
 								{
-									const double calcA = std::clamp(depthZ - minZ, 0.0, zRange);
-									const double calcB = 1 - calcA / zRange;
+									const double calcA = depthDist - depthZ;
+									const double calcB = std::fmax(calcA, 0.0);
+									const double calcC = calcB / depthDist;
 
-									const uint32 gray = static_cast<uint32>(255.0 * calcB);
+									const uint32 gray = static_cast<uint32>(255.0 * calcC);
 
 									rgb = gray;
 									rgb = (rgb << 8) + gray;

@@ -292,4 +292,9 @@ namespace bgl
 		}
 	}
 
+	BCamera* BCameraComponent::GetCamera() const
+	{
+		return m_camera.get();
+	}
+
 }

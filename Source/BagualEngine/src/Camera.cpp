@@ -23,9 +23,54 @@ namespace bgl
 		m_owner = owner;
 	}
 
-	void BCamera::SetFOV(const float& newFov)
+	BVec2f& BCamera::GetSensorSize_Mutable()
 	{
-		m_fov = newFov;
+		return m_sensorSize;
+	}
+
+	const BVec2f BCamera::GetSensorSize()
+	{
+		return m_sensorSize;
+	}
+
+	void BCamera::SetSensorSize(const BVec2f sensorSize)
+	{
+		m_sensorSize = sensorSize;
+	}
+
+	const BERenderOutputType BCamera::GetRenderOutputType() const
+	{
+		return m_renderOutputType;
+	}
+
+	BERenderOutputType& BCamera::GetRenderOutputType_Mutable()
+	{
+		return m_renderOutputType;
+	}
+
+	void BCamera::SetRenderOutputType(const BERenderOutputType type)
+	{
+		m_renderOutputType = type;
+	}
+
+	const float BCamera::GetDepthDistance() const
+	{
+		return m_depthDist;
+	}
+
+	float& BCamera::GetDepthDistance_Mutable()
+	{
+		return m_depthDist;
+	}
+
+	void BCamera::SetDepthDistance(const float depth)
+	{
+		m_depthDist = depth;
+	}
+
+	void BCamera::SetFOV(const float fov)
+	{
+		m_fov = fov;
 	}
 
 	void BCamera::AddLine2DBuffer(const BLine<BPixelPos>& line)

@@ -94,6 +94,8 @@ namespace bgl
 		BViewport* GetViewport() const;
 		void SetViewport(BViewport* viewport);
 
+		BCamera* GetCamera() const;
+
 	};
 
 	class BNode : public BObject
