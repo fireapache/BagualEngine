@@ -16,10 +16,15 @@ namespace bgl
 	BGraphicsPlatform::BGraphicsPlatform()
 	{
 		m_driverInstance = std::make_unique<BGraphicsDriverGeneric>();
-		viewports = std::make_unique<BArray<std::shared_ptr<BViewport>>>();
+		m_viewports = BArray<std::shared_ptr<BViewport>>();
 	}
 
 	BERenderOutputType BGraphicsPlatform::GetRenderOutputType() const
+	{
+		return m_renderOutputType;
+	}
+
+	BERenderOutputType& BGraphicsPlatform::GetRenderOutputType_Mutable()
 	{
 		return m_renderOutputType;
 	}
@@ -47,47 +52,35 @@ namespace bgl
 		}
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas)
 	{
-		auto viewport = std::make_shared<BViewport>(canvas);
-
+		m_viewports.Add(std::make_shared<BViewport>(canvas));
+		auto viewport = m_viewports.back().get();
 		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-
-		viewports->Add(viewport);
-
 		return viewport;
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const BBox<BVector2<float>>& normalizedSize)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const BBox<BVector2<float>>& normalizedSize)
 	{
-		auto viewport = std::make_shared<BViewport>(canvas, normalizedSize);
-
+		m_viewports.Add(std::make_shared<BViewport>(canvas, normalizedSize));
+		auto viewport = m_viewports.back().get();
 		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-
-		viewports->Add(viewport);
-
 		return viewport;
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32& width, const uint32& height)
 	{
-		auto viewport = std::make_shared<BViewport>(canvas, width, height);
-
+		m_viewports.Add(std::make_shared<BViewport>(canvas, width, height));
+		auto viewport = m_viewports.back().get();
 		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-
-		viewports->Add(viewport);
-
 		return viewport;
 	}
 
-	std::shared_ptr<BViewport> BGraphicsPlatform::CreateViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
 	{
-		auto viewport = std::make_shared<BViewport>(canvas, x, y, width, height);
-
+		m_viewports.Add(std::make_shared<BViewport>(canvas, x, y, width, height));
+		auto viewport = m_viewports.back().get();
 		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-
-		viewports->Add(viewport);
-
 		return viewport;
 	}
 

@@ -13,10 +13,10 @@ namespace bgl
 	{
 		if (camera == nullptr) return false;
 
-		auto& viewport = camera->GetViewport();
-		auto& canvas = viewport.GetCanvas().lock();
+		auto viewport = camera->GetViewport();
+		auto canvas = viewport->GetCanvas();
 
-		const BBox<BPixelPos>& viewportBounds = viewport.GetBounds();
+		const BBox<BPixelPos>& viewportBounds = viewport->GetBounds();
 
 		bool p1In = viewportBounds.IsIn(line.p1);
 		bool p2In = viewportBounds.IsIn(line.p2);
@@ -32,7 +32,7 @@ namespace bgl
 		BPixelPos* newP1 = nullptr;
 		BPixelPos* newP2 = nullptr;
 
-		auto& viewEdges = viewport.GetLimits();
+		auto viewEdges = viewport->GetLimits();
 
 		for (int32 i = 0; i < 4; i++)
 		{
@@ -76,10 +76,14 @@ namespace bgl
 	void DrawLineLow(BCamera* camera, const BLine<BPixelPos>& line)
 	{
 		if (camera == nullptr) return;
+		
+		auto viewport = camera->GetViewport();
 
-		auto& canvas = camera->GetViewport().GetCanvas().lock();
+		if (viewport == nullptr) return;
 
-		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineLow!");
+		auto canvas = viewport->GetCanvas();
+
+		if (canvas == nullptr) return;
 
 		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();
@@ -114,9 +118,13 @@ namespace bgl
 	{
 		if (camera == nullptr) return;
 
-		auto& canvas = camera->GetViewport().GetCanvas().lock();
+		auto viewport = camera->GetViewport();
 
-		if (canvas == nullptr) BGL_ASSERT(false && "Got null canvas @ DrawLineHigh!");
+		if (viewport == nullptr) return;
+
+		auto canvas = viewport->GetCanvas();
+
+		if (canvas == nullptr) return;
 
 		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();

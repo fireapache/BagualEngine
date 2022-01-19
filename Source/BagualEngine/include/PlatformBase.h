@@ -27,7 +27,7 @@ namespace bgl
 
 	protected:
 
-		std::shared_ptr<BCanvas> canvas;
+		std::unique_ptr<BCanvas> m_canvas;
 
 		FWindowSettings settings;
 
@@ -37,7 +37,7 @@ namespace bgl
 
 		virtual void Destroy();
 
-		GuiTickFuncType GuiTickFunc;
+		GuiTickFuncType m_guiTickFunc;
 
 	public:
 
@@ -50,7 +50,7 @@ namespace bgl
 
 		virtual void SetWindow(const FWindowSettings& newSettings);
 
-		virtual const std::shared_ptr<BCanvas>& GetCanvas();
+		virtual BCanvas* GetCanvas();
 
 		void SetGuiTickFunc(GuiTickFuncType func);
 		GuiTickFuncType GetGuiTickFunc();

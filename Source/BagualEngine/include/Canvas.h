@@ -5,6 +5,7 @@
 namespace bgl
 {
 	class BPlatformWindow;
+	class BViewport;
 }
 
 namespace bgl
@@ -21,8 +22,8 @@ namespace bgl
 
 		inline void UpdateEdges();
 
-		// TODO: Use smart pointer instead
 		BPlatformWindow* window;
+		BArray<BViewport*> m_viewports;
 
 	public:
 
@@ -43,6 +44,7 @@ namespace bgl
 		BBuffer<DepthDataType>& GetZBuffer();
 
 		BPlatformWindow* GetWindow();
+		BArray<BViewport*> GetViewports();
 
 		void SetSize(uint16 newWidth, uint16 newHeight);
 

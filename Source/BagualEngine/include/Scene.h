@@ -6,6 +6,13 @@
 
 namespace bgl
 {
+	class BNode;
+	class BViewport;
+	class BCamera;
+}
+
+namespace bgl
+{
 	class BObject
 	{
 
@@ -24,23 +31,29 @@ namespace bgl
 
 	class BComponent : public BObject
 	{
+		BTransform<float> m_dummyTransform;
 
 	protected:
 
-		BObject* m_owner;
+		BNode* m_owner;
 
 	public:
 
-		BComponent(BObject* owner = nullptr, const char* name = "None")
-		{
-			SetOwner(owner);
-			m_name = std::string(name);
-		}
+		BComponent(BNode* owner = nullptr, const char* name = "None");
+		~BComponent();
 
-		void SetOwner(BObject* owner)
-		{
-			m_owner = owner;
-		}
+		void SetOwner(BNode* owner);
+
+		BTransform<float>& GetTransform_Mutable();
+		const BTransform<float> GetTransform() const;
+		const BVec3f GetLocation() const;
+		const BVec3f GetRotation() const;
+		const BVec3f GetScale() const;
+
+		void SetTransform(const BTransform<float>& transform);
+		void SetLocation(const BVec3f& translation);
+		void SetRotation(const BVec3f& rotation);
+		void SetScale(const BVec3f& scale);
 
 	};
 
@@ -56,7 +69,7 @@ namespace bgl
 
 	public:
 
-		BMeshComponent(BObject* owner = nullptr, const char* name = "None", const char* assetPath = nullptr);
+		BMeshComponent(BNode* owner = nullptr, const char* name = "None", const char* assetPath = nullptr);
 		~BMeshComponent();
 
 		void LoadMesh(const char* assetPath);
@@ -64,6 +77,22 @@ namespace bgl
 		BArray<BTriangle<float>>& GetTriangles();
 
 		void AddTriangles(BArray<BTriangle<float>>& triangles);
+
+	};
+
+	class BCameraComponent : public BComponent
+	{
+		friend std::unique_ptr<BCamera> std::make_unique<BCamera>();
+
+		std::unique_ptr<BCamera> m_camera;
+
+	public:
+
+		BCameraComponent(BNode* owner = nullptr, const char* name = "None", BViewport* viewport = nullptr);
+		~BCameraComponent();
+
+		BViewport* GetViewport() const;
+		void SetViewport(BViewport* viewport);
 
 	};
 
@@ -95,19 +124,20 @@ namespace bgl
 			return static_cast<T*>(m_components.back().get());
 		}
 
-		BTransform<float> GetTransform();
-		BVec3f GetLocation();
-		BVec3f GetRotation();
-		BVec3f GetScale();
-
-		void SetParent(BNode* node);
-		void AddChild(BNode* node);
-		void RemoveChild(BNode* node);
+		BTransform<float>& GetTransform_Mutable();
+		const BTransform<float> GetTransform() const;
+		const BVec3f GetLocation() const;
+		const BVec3f GetRotation() const;
+		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
 		void SetLocation(const BVec3f& translation);
 		void SetRotation(const BVec3f& rotation);
 		void SetScale(const BVec3f& scale);
+
+		void SetParent(BNode* node);
+		void AddChild(BNode* node);
+		void RemoveChild(BNode* node);
 
 	};
 

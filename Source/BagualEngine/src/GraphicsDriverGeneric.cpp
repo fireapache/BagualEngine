@@ -90,7 +90,7 @@ namespace bgl
 			if (camera == nullptr) continue;
 			BGL_ASSERT(camera != nullptr && "Got null camera during render!");
 
-			auto canvas = camera->GetViewport().GetCanvas().lock();
+			auto canvas = camera->GetViewport()->GetCanvas();
 
 			BGL_ASSERT(canvas != nullptr && "Got null canvas during render!");
 
@@ -130,7 +130,7 @@ namespace bgl
 					if (cachedViewport)
 					{
 						cachedViewport->ResetPixelDepth();
-						cachedViewport->GetCanvas().lock()->GetColorBuffer().SetBufferValue(0);
+						cachedViewport->GetCanvas()->GetColorBuffer().SetBufferValue(0);
 					}
 				}
 
@@ -167,11 +167,11 @@ namespace bgl
 
 #pragma region Rendering Geometry Tasks
 
-			auto& viewport = camera->GetViewport();
+			auto viewport = camera->GetViewport();
 
-			viewport.ResetPixelDepth();
-			cachedViewport = &viewport;
-			cachedCamera = camera.get();
+			viewport->ResetPixelDepth();
+			cachedViewport = viewport;
+			cachedCamera = camera;
 
 			const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
 			uint32 renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
@@ -179,7 +179,7 @@ namespace bgl
 
 			for (uint32 t = 0; t < processorCount; t++)
 			{
-				renderThreadPool.push_task(RenderLines, camera.get(), t);
+				renderThreadPool.push_task(RenderLines, camera, t);
 			}
 
 #pragma endregion
@@ -190,7 +190,7 @@ namespace bgl
 
 			for (auto& line : lines)
 			{
-				renderThreadPool.push_task(DrawLine, camera.get(), line);
+				renderThreadPool.push_task(DrawLine, camera, line);
 			}
 
 			camera->ClearLine2DBuffer();
@@ -214,8 +214,8 @@ namespace bgl
 
 		// Calculating camera sensor settings
 
-		const uint32 width = viewport.GetSize().width;
-		const uint32 height = viewport.GetSize().height;
+		const uint32 width = viewport->GetSize().width;
+		const uint32 height = viewport->GetSize().height;
 
 		BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
 		float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
@@ -227,6 +227,8 @@ namespace bgl
 		float t, u, v;
 		uint32 rgb = 0x000000;
 		auto renderType = BEngine::GraphicsPlatform().GetRenderOutputType();
+		BVec3f orig = camera->GetLocation();
+		BVec3f rot = camera->GetRotation();                     
 
 		// Getting render lines of interest
 
@@ -251,9 +253,9 @@ namespace bgl
 				float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
 				BVector3<float> dir(x, y, sensorDistance);
 				dir.Normalize();
-				dir = BQuaternion<float>::RotateAroundAxis(camRot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
-				dir = BQuaternion<float>::RotateAroundAxis(camRot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
-				dir = BQuaternion<float>::RotateAroundAxis(camRot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
+				dir = BQuaternion<float>::RotateAroundAxis(rot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
+				dir = BQuaternion<float>::RotateAroundAxis(rot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
+				dir = BQuaternion<float>::RotateAroundAxis(rot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
 
 				// Getting scene triangles
 
@@ -263,17 +265,17 @@ namespace bgl
 				{
 					for (auto tri : *objTris)
 					{
-						if (BDraw::RayTriangleIntersect(camOrig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
+						if (BDraw::RayTriangleIntersect(orig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
 							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
-							const double depthZ = (camOrig | surfacePoint) * 100.0;
-							const double currentDepthZ = viewport.GetPixelDepth(i, j);
+							const double depthZ = (orig | surfacePoint) * 100.0;
+							const double currentDepthZ = viewport->GetPixelDepth(i, j);
 
 							rgb = 0x000000;
 
 							if (depthZ < currentDepthZ)
 							{
-								viewport.SetPixelDepth(i, j, depthZ);
+								viewport->SetPixelDepth(i, j, depthZ);
 
 #pragma region Depth Shader
 								if (renderType == BERenderOutputType::Depth)
@@ -287,7 +289,7 @@ namespace bgl
 									rgb = (rgb << 8) + gray;
 									rgb = (rgb << 8) + gray;
 
-									PaintPixel(&viewport, i, j, rgb);
+									PaintPixel(viewport, i, j, rgb);
 								}
 #pragma endregion
 
@@ -302,7 +304,7 @@ namespace bgl
 									rgb = (rgb << 8) + g;
 									rgb = (rgb << 8) + b;
 
-									PaintPixel(&viewport, i, j, rgb);
+									PaintPixel(viewport, i, j, rgb);
 								}
 #pragma endregion
 							}

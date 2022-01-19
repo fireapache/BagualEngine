@@ -24,19 +24,19 @@ namespace bgl
 		ApplySettings();
 	}
 
-	const std::shared_ptr<BCanvas>& BPlatformWindow::GetCanvas()
+	BCanvas* BPlatformWindow::GetCanvas()
 	{
-		return canvas;
+		return m_canvas.get();
 	}
 
 	void BPlatformWindow::SetGuiTickFunc(GuiTickFuncType func)
 	{
-		GuiTickFunc = func;
+		m_guiTickFunc = func;
 	}
 
 	BPlatformWindow::GuiTickFuncType BPlatformWindow::GetGuiTickFunc()
 	{
-		return GuiTickFunc;
+		return m_guiTickFunc;
 	}
 
 	void BPlatformWindow::ApplySettings()

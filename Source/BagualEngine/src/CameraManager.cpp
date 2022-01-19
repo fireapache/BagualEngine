@@ -8,25 +8,21 @@
 
 namespace bgl
 {
-	BArray < std::shared_ptr<BCamera> > BCameraManager::cameras = BArray < std::shared_ptr<BCamera> >();
+	BArray<BCamera*> BCameraManager::m_cameras = BArray<BCamera*>();
 
-	std::shared_ptr<BCamera> BCameraManager::Create(const std::shared_ptr<BViewport>& viewport)
+	void BCameraManager::AddCamera(BCamera* camera)
 	{
-		auto camera = std::make_shared<BCamera>(viewport);
-		cameras.Add(camera);
-		return camera;
+		m_cameras.Add(camera);
 	}
 
-	void BCameraManager::RemoveCamera(std::shared_ptr<BCamera> camera)
+	void BCameraManager::RemoveCamera(BCamera* camera)
 	{
-		cameras.Remove(camera);
+		m_cameras.Remove(camera);
 	}
 
-	BArray < std::shared_ptr<BCamera> > BCameraManagers = {};
-
-	BArray<std::shared_ptr<BCamera>>& BCameraManager::GetCameras()
+	BArray<BCamera*>& BCameraManager::GetCameras()
 	{
-		return cameras;
+		return m_cameras;
 	}
 
 }

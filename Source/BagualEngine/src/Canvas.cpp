@@ -31,7 +31,7 @@ namespace bgl
 		UpdateEdges();
 	}
 
-	void BCanvas::UpdateEdges()
+	inline void BCanvas::UpdateEdges()
 	{
 		const BPixelPos edge0_0(0, 0);
 		const BPixelPos edge0_1(width - 1, 0);
@@ -97,6 +97,11 @@ namespace bgl
 	BPlatformWindow* BCanvas::GetWindow()
 	{
 		return window;
+	}
+
+	inline BArray<BViewport*> BCanvas::GetViewports()
+	{
+		return m_viewports;
 	}
 
 	void BCanvas::SetSize(uint16 newWidth, uint16 newHeight)

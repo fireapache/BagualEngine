@@ -7,6 +7,15 @@
 
 namespace bgl
 {
+	class BPlatformWindow;
+	class BViewport;
+	class BCanvas;
+	class BNode;
+	class BCameraComponent;
+}
+
+namespace bgl
+{
 	class BEngineTestBase : public BModuleBase
 	{
 
@@ -14,7 +23,9 @@ namespace bgl
 
 		FWindowSettings windowSettings;
 		
-		class BPlatformWindow* window;
+		BPlatformWindow* window;
+		BViewport* viewport;
+		BCanvas* canvas;
 
 	public:
 
@@ -39,6 +50,8 @@ namespace bgl
 	{
 		
 	public:
+
+		BCameraComponent* cameraComp;
 
 		void Init() override;
 		void Term() override;

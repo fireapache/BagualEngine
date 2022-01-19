@@ -12,22 +12,22 @@ namespace bgl
 	
 	class BViewport
 	{
-		BBox<BPixelPos> bounds;
-
-		BBox<BVector2<float>> normalSize;
-
-		std::weak_ptr<BCanvas> canvas;
-
-		BBoxEdges Limits;
+		BBox<BPixelPos> m_bounds;
+		BBox<BVector2<float>> m_normalSize;
+		BCanvas* m_canvas;
+		BBoxEdges m_limits;
 
 		void UpdateLimits();
 
+		CanvasDataType m_dummyData;
+
 	public:
 
-		BViewport(const std::shared_ptr<BCanvas>& canvas);
-		BViewport(const std::shared_ptr<BCanvas>& canvas, const BBox<BVector2<float>>& normalizedSize);
-		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& width, const uint32& height);
-		BViewport(const std::shared_ptr<BCanvas>& canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height);
+		BViewport(BCanvas* canvas);
+		BViewport(BCanvas* canvas, const BBox<BVector2<float>>& normalizedSize);
+		BViewport(BCanvas* canvas, const uint32& width, const uint32& height);
+		BViewport(BCanvas* canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height);
+		~BViewport();
 
 		/*	Calculates viewport's position in the canvas based on its
 		 *	normalized size if set.
@@ -49,7 +49,7 @@ namespace bgl
 
 		const BBox<BPixelPos>& GetBounds() const;
 
-		std::weak_ptr<BCanvas>& GetCanvas();
+		BCanvas* GetCanvas();
 
 		const BPixelPos GetPosition() const;
 

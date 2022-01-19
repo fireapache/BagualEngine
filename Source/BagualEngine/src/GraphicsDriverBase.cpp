@@ -72,9 +72,9 @@ namespace bgl
 	{
 		auto cameras = BCameraManager::GetCameras();
 
-		for (auto& camera : cameras)
+		for (auto camera : cameras)
 		{
-			RenderCamera(*camera.get());
+			RenderCamera(*camera);
 		}
 
 	}

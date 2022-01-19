@@ -120,7 +120,7 @@ namespace bgl
 		}
 
 		// Creating canvas
-		canvas = std::make_shared<BCanvas>(this, settings.width, settings.height);
+		m_canvas = std::make_unique<BCanvas>(this, settings.width, settings.height);
 
 		// Need context to load GLAD
 		glfwMakeContextCurrent(glfwWindow);
@@ -172,7 +172,7 @@ namespace bgl
 				BGL_LOG("Resizing window");
 				settings.width = width;
 				settings.height = height;
-				canvas->SetSize(width, height);
+				m_canvas->SetSize(width, height);
 			}
 		}
 

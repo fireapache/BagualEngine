@@ -20,6 +20,9 @@ namespace bgl
 
 	void BEngineTestBase::CreateStandardWindow(const char* windowTitle)
 	{
+		// Keeping the same window if already created by another standard test module
+		if (window) return;
+
 		// Creating application window
 		windowSettings.Title = windowTitle ? windowTitle : "Bagual Engine Test";
 		windowSettings.width = 1280;
@@ -30,9 +33,8 @@ namespace bgl
 		BGL_ASSERT(window != nullptr && "Could not create window!");
 
 		// Setting viewport and camera
-		auto& canvas = window->GetCanvas();
-		auto viewport = BEngine::GraphicsPlatform().CreateViewport(canvas);
-		BCameraManager::Create(viewport);
+		canvas = window->GetCanvas();
+		viewport = BEngine::GraphicsPlatform().CreateViewport(canvas);
 	}
 
 #pragma region Fundamental Rendering
@@ -70,20 +72,18 @@ namespace bgl
 	{
 		auto& cameras = BCameraManager::GetCameras();
 
-		for (auto& camera : cameras)
+		for (auto camera : cameras)
 		{
-			auto cameraPtr = camera.get();
-
-			if (cameraPtr)
+			if (camera)
 			{
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
-				DrawCameraLine(cameraPtr);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
+				DrawCameraLine(camera);
 			}
 		}
 	}
@@ -122,9 +122,78 @@ namespace bgl
 		objectsNode->CreateComponent<BMeshComponent>("ObjectsMesh", "./assets/basemap/basemap_objects.obj");
 		charNode->CreateComponent<BMeshComponent>("CharMesh", "./assets/basemesh/basemesh.obj");
 
+		auto cameraNode = BEngine::Scene().CreateNode("Camera");
+		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
+		cameraNode->SetLocation(BVec3f(0.f, 1.640f, -4.f));
+
 		// Ways to access scene nodes
 		auto rootNode = BEngine::Scene().GetRootNode();
 		auto sceneNodes = BEngine::Scene().GetNodes();
+
+		// Setting a ImGui window
+		auto guiTick = [this]()
+		{
+			IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
+
+			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(ImVec2(main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+
+			ImGuiWindowFlags window_flags = 0;
+			if (!ImGui::Begin("Bagual Engine Test #2 Settings", nullptr, window_flags))
+			{
+				ImGui::End();
+				return;
+			}
+
+			ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
+
+			if (ImGui::Button("Restart Rendering"))
+			{
+				if (viewport)
+				{
+					viewport->ResetPixelDepth();
+					BCanvas* canvas = viewport->GetCanvas();
+
+					if (canvas)
+					{
+						canvas->GetColorBuffer().SetBufferValue(0);
+					}
+				}
+			}
+
+			auto& renderThreadMode = BEngine::GraphicsPlatform().GetRenderOutputType_Mutable();
+
+			const char* renderModeOptions[] = { "Pixel Depth", "UV Color" };
+			ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderThreadMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
+			const float positionRange = 10.f;
+			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camPos), -positionRange, positionRange);
+			const float rotRange = 20.f;
+			BVec3f& camRot = cameraComp->GetTransform_Mutable().rotation;
+			ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
+			//ImGui::InputDouble("MinZ", &minZ);
+			//ImGui::InputDouble("MaxZ", &maxZ);
+			//ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
+
+			//const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
+			//ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), renderSpeedOptions, IM_ARRAYSIZE(renderSpeedOptions));
+
+			//const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
+			//ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions));
+
+			//if (cachedCamera)
+			//{
+			//	const float fovRange = 60.f;
+			//	const float fovCenter = 90.f;
+			//	ImGui::SliderFloat("Camera FOV", &cachedCamera->GetFOV_Mutable(), fovCenter - fovRange, fovCenter + fovRange);
+			//}
+
+			ImGui::End();
+		};
+
+		// Gui update procedure
+		window->SetGuiTickFunc(guiTick);
 
 	}
 

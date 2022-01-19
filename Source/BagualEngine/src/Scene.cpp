@@ -2,6 +2,10 @@
 #include "Bagual.pch.h"
 
 #include "Scene.h"
+#include "Camera.h"
+#include "BagualEngine.h"
+#include "CameraManager.h"
+#include "Viewport.h"
 
 #include <obj_parse.h>
 
@@ -36,24 +40,49 @@ namespace bgl
 		return m_components;
 	}
 
-	bgl::BTransform<float> BNode::GetTransform()
+	BTransform<float>& BNode::GetTransform_Mutable()
 	{
 		return m_transform;
 	}
 
-	bgl::BVec3f BNode::GetLocation()
+	const BTransform<float> BNode::GetTransform() const
+	{
+		return m_transform;
+	}
+
+	const BVec3f BNode::GetLocation() const
 	{
 		return m_transform.translation;
 	}
 
-	bgl::BVec3f BNode::GetRotation()
+	const BVec3f BNode::GetRotation() const
 	{
 		return m_transform.rotation;
 	}
 
-	bgl::BVec3f BNode::GetScale()
+	const BVec3f BNode::GetScale() const
 	{
 		return m_transform.scale;
+	}
+
+	void BNode::SetTransform(const BTransform<float>& transform)
+	{
+		m_transform = transform;
+	}
+
+	void BNode::SetLocation(const BVec3f& translation)
+	{
+		m_transform.translation = translation;
+	}
+
+	void BNode::SetRotation(const BVec3f& rotation)
+	{
+		m_transform.rotation = rotation;
+	}
+
+	void BNode::SetScale(const BVec3f& scale)
+	{
+		m_transform.scale = scale;
 	}
 
 	void BNode::SetParent(BNode* node)
@@ -77,30 +106,9 @@ namespace bgl
 		m_childs.Remove(node);
 	}
 
-	void BNode::SetTransform(const BTransform<float>& transform)
+	BMeshComponent::BMeshComponent(class BNode* owner /*= nullptr*/, const char* name /*= "None"*/, const char* assetPath /*= nullptr*/)
+		: BComponent(owner, name)
 	{
-		m_transform = transform;
-	}
-
-	void BNode::SetLocation(const BVec3f& translation)
-	{
-		m_transform.translation = translation;
-	}
-
-	void BNode::SetRotation(const BVec3f& rotation)
-	{
-		m_transform.rotation = rotation;
-	}
-
-	void BNode::SetScale(const BVec3f& scale)
-	{
-		m_transform.scale = scale;
-	}
-
-	BMeshComponent::BMeshComponent(BObject* owner /*= nullptr*/, const char* name /*= "None"*/, const char* assetPath /*= nullptr*/)
-	{
-		SetOwner(owner);
-		m_name = std::string(name);
 		g_meshComponentTriangles.Add(&m_triangles);
 		if (assetPath) LoadMesh(assetPath);
 	}
@@ -177,6 +185,111 @@ namespace bgl
 		BNode* rawPtr = m_nodes.back().get();
 		m_sceneRoot->AddChild(rawPtr);
 		return rawPtr;
+	}
+
+	BComponent::BComponent(BNode* owner, const char* name)
+	{
+		SetOwner(owner);
+		m_name = std::string(name);
+	}
+
+	BComponent::~BComponent()
+	{
+
+	}
+
+	void BComponent::SetOwner(BNode* owner)
+	{
+		m_owner = owner;
+	}
+
+	BTransform<float>& BComponent::GetTransform_Mutable()
+	{
+		if (m_owner)
+		{
+			return m_owner->GetTransform_Mutable();
+		}
+		else
+		{
+			BGL_LOG("Got null owner when returning mutable transform!");
+		}
+
+		return m_dummyTransform;
+	}
+
+	const BTransform<float> BComponent::GetTransform() const
+	{
+		if (m_owner)
+		{
+			return m_owner->GetTransform();
+		}
+
+		return BTransform<float>();
+	}
+
+	const BVec3f BComponent::GetLocation() const
+	{
+		return GetTransform().translation;
+	}
+
+	const BVec3f BComponent::GetRotation() const
+	{
+		return GetTransform().rotation;
+	}
+
+	const BVec3f BComponent::GetScale() const
+	{
+		return GetTransform().scale;
+	}
+
+	void BComponent::SetTransform(const BTransform<float>& transform)
+	{
+		GetTransform_Mutable() = transform;
+	}
+
+	void BComponent::SetLocation(const BVec3f& translation)
+	{
+		GetTransform_Mutable().translation = translation;
+	}
+
+	void BComponent::SetRotation(const BVec3f& rotation)
+	{
+		GetTransform_Mutable().rotation = rotation;
+	}
+
+	void BComponent::SetScale(const BVec3f& scale)
+	{
+		GetTransform_Mutable().scale = scale;
+	}
+
+	BCameraComponent::BCameraComponent(BNode* owner, const char* name, BViewport* viewport)
+		: BComponent(owner, name)
+	{
+		m_camera = std::make_unique<BCamera>(viewport, this);
+		BCameraManager::AddCamera(m_camera.get());
+	}
+
+	BCameraComponent::~BCameraComponent()
+	{
+		BCameraManager::RemoveCamera(m_camera.get());
+	}
+
+	BViewport* BCameraComponent::GetViewport() const
+	{
+		if (m_camera)
+		{
+			return m_camera->GetViewport();
+		}
+
+		return nullptr;
+	}
+
+	void BCameraComponent::SetViewport(BViewport* viewport)
+	{
+		if (m_camera)
+		{
+			m_camera->SetViewport(viewport);
+		}
 	}
 
 }
