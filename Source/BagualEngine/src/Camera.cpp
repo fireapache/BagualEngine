@@ -23,6 +23,36 @@ namespace bgl
 		m_owner = owner;
 	}
 
+	BERenderSpeed& BCamera::GetRenderSpeed_Mutable()
+	{
+		return m_renderSpeed;
+	}
+
+	const BERenderSpeed BCamera::GetRenderSpeed()
+	{
+		return m_renderSpeed;
+	}
+
+	void BCamera::SetRenderSpeed(const BERenderSpeed renderSpeed)
+	{
+		m_renderSpeed = renderSpeed;
+	}
+
+	BERenderThreadMode& BCamera::GetRenderThreadMode_Mutable()
+	{
+		return m_renderThreadMode;
+	}
+
+	const BERenderThreadMode BCamera::GetRenderThreadMode()
+	{
+		return m_renderThreadMode;
+	}
+
+	void BCamera::SetRenderThreadMode(const BERenderThreadMode renderThreadMode)
+	{
+		m_renderThreadMode = renderThreadMode;
+	}
+
 	BVec2f& BCamera::GetSensorSize_Mutable()
 	{
 		return m_sensorSize;

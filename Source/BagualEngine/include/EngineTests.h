@@ -52,7 +52,8 @@ namespace bgl
 		
 	public:
 
-		BCameraComponent* cameraComp;
+		BCameraComponent* cameraComp = nullptr;
+		BESceneSetup sceneSetup = BESceneSetup::ObjectsCharacter;
 
 		void Init() override;
 		void Term() override;

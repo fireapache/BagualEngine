@@ -32,6 +32,14 @@ namespace bgl
 		BCamera();
 		BCamera(BViewport* viewport, BCameraComponent* owner = nullptr);
 
+		BERenderSpeed& GetRenderSpeed_Mutable();
+		const BERenderSpeed GetRenderSpeed();
+		void SetRenderSpeed(const BERenderSpeed renderSpeed);
+
+		BERenderThreadMode& GetRenderThreadMode_Mutable();
+		const BERenderThreadMode GetRenderThreadMode();
+		void SetRenderThreadMode(const BERenderThreadMode renderThreadMode);
+
 		BVec2f& GetSensorSize_Mutable();
 		const BVec2f GetSensorSize();
 		void SetSensorSize(const BVec2f sensorSize);

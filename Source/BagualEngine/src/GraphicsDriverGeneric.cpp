@@ -30,17 +30,6 @@ namespace bgl
 		BGL_LOG(description);
 	}
 
-	BVector3<float> BGraphicsDriverGeneric::camOrig = BVec3f(0.f, 0.f, 0.f);
-	BVector3<float> BGraphicsDriverGeneric::camRot = BVec3f(0.f, 0.f, 0.f);
-	double BGraphicsDriverGeneric::minZ = 200.0;
-	double BGraphicsDriverGeneric::maxZ = 900.0;
-	BViewport* BGraphicsDriverGeneric::cachedViewport = nullptr;
-	BVector2<float> BGraphicsDriverGeneric::sensorSize = BVec3f(24.f, 36.f);
-	BCamera* BGraphicsDriverGeneric::cachedCamera = nullptr;
-	BERenderSpeed BGraphicsDriverGeneric::renderSpeed = BERenderSpeed::VeryFast;
-	BESceneSetup BGraphicsDriverGeneric::sceneSetup = BESceneSetup::Empty;
-	BERenderThreadMode BGraphicsDriverGeneric::renderThreadMode = BERenderThreadMode::MultiThread;
-
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
 	{
 		BGL_ASSERT(glfwInit() && "Could not start GLFW!");
@@ -106,72 +95,12 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region Rendering ImGui
-
-			auto guiTick = []()
-			{
-				IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
-
-				ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-				ImGui::SetNextWindowPos(ImVec2(main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20), ImGuiCond_FirstUseEver);
-				ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
-
-				ImGuiWindowFlags window_flags = 0;
-				if (!ImGui::Begin("Bagual Engine Test Settings", nullptr, window_flags))
-				{
-					ImGui::End();
-					return;
-				}
-
-				ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
-
-				if (ImGui::Button("Restart Rendering"))
-				{
-					if (cachedViewport)
-					{
-						cachedViewport->ResetPixelDepth();
-						cachedViewport->GetCanvas()->GetColorBuffer().SetBufferValue(0);
-					}
-				}
-
-				const char* renderModeOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
-				ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderThreadMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
-				const float positionRange = 10.f;
-				ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camOrig), -positionRange, positionRange);
-				const float rotRange = 20.f;
-				ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
-				ImGui::InputDouble("MinZ", &minZ);
-				ImGui::InputDouble("MaxZ", &maxZ);
-				ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
-
-				const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
-				ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), renderSpeedOptions, IM_ARRAYSIZE(renderSpeedOptions));
-
-				const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
-				ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions));
-
-				if (cachedCamera)
-				{
-					const float fovRange = 60.f;
-					const float fovCenter = 90.f;
-					ImGui::SliderFloat("Camera FOV", &cachedCamera->GetFOV_Mutable(), fovCenter - fovRange, fovCenter + fovRange);
-				}
-
-				ImGui::End();
-			};
-
-			// Gui update procedure
-			//window->SetGuiTickMethod(guiTick);
-
-#pragma endregion
-
 #pragma region Rendering Geometry Tasks
 
 			auto viewport = camera->GetViewport();
 
 			viewport->ResetPixelDepth();
-			cachedViewport = viewport;
-			cachedCamera = camera;
+			auto renderThreadMode = camera->GetRenderThreadMode();
 
 			const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
 			uint32 renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
@@ -217,6 +146,7 @@ namespace bgl
 		const uint32 width = viewport->GetSize().width;
 		const uint32 height = viewport->GetSize().height;
 
+		const auto sensorSize = camera->GetSensorSize();
 		const BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
 		const float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
 		const float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
@@ -229,11 +159,13 @@ namespace bgl
 		const BVec3f orig = camera->GetLocation();
 		const BVec3f rot = camera->GetRotation();         
 		const double depthDist = camera->GetDepthDistance();
+		const auto renderThreadMode = camera->GetRenderThreadMode();
+		const auto renderSpeed = camera->GetRenderSpeed();
 
 		// Getting render lines of interest
 
 		const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
-		int32 threadCount = processorCount <= 0 ? 1 : processorCount;
+		const int32 threadCount = processorCount <= 0 ? 1 : processorCount;
 
 		const uint32 lineRange = height / threadCount;
 		const uint32 lineStart = renderThreadIndex * lineRange;
@@ -249,8 +181,8 @@ namespace bgl
 			{
 				// Getting ray rotation
 
-				float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
-				float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
+				const float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
+				const float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
 				BVector3<float> dir(x, y, sensorDistance);
 				dir.Normalize();
 				dir = BQuaternion<float>::RotateAroundAxis(rot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
@@ -290,22 +222,22 @@ namespace bgl
 									rgb = (rgb << 8) + gray;
 									rgb = (rgb << 8) + gray;
 
-									PaintPixel(viewport, i, j, rgb);
+									PaintPixel(viewport, renderSpeed, i, j, rgb);
 								}
 #pragma endregion
 
 #pragma region UV Coloring Shader
 								else if (renderType == BERenderOutputType::UvColor)
 								{
-									char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
-									char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
-									char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
+									const char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
+									const char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
+									const char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
 
 									rgb = r;
 									rgb = (rgb << 8) + g;
 									rgb = (rgb << 8) + b;
 
-									PaintPixel(viewport, i, j, rgb);
+									PaintPixel(viewport, renderSpeed, i, j, rgb);
 								}
 #pragma endregion
 							}
@@ -439,7 +371,7 @@ namespace bgl
 		//SDL_Delay(ms);
 	}
 
-	void BGraphicsDriverGeneric::PaintPixel(BViewport* viewportPtr, uint32 i, uint32 j, uint32 rgb)
+	void BGraphicsDriverGeneric::PaintPixel(BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb)
 	{
 		if (viewportPtr == nullptr) return;
 

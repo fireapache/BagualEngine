@@ -61,6 +61,9 @@ namespace bgl
 
 		auto cameraNode = BEngine::Scene().CreateNode("Camera");
 		auto cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
+		auto camera = cameraComp->GetCamera();
+		camera->SetRenderOutputType(BERenderOutputType::UvColor);
+		camera->SetRenderSpeed(BERenderSpeed::Normal);
 
 	}
 
@@ -124,8 +127,14 @@ namespace bgl
 		charNode->CreateComponent<BMeshComponent>("CharMesh", "./assets/basemesh/basemesh.obj");
 
 		auto cameraNode = BEngine::Scene().CreateNode("Camera");
-		cameraNode->SetLocation(BVec3f(0.f, 1.640f, -4.f));
 		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
+		auto camera = cameraComp->GetCamera();
+		camera->SetLocation(BVec3f(-1.33f, 2.f, -4.f));
+		camera->SetRotation(BVec3f(8.19f, 20.f, 0.f));
+		camera->SetDepthDistance(800.f);
+		camera->SetFOV(30.f);
+		camera->SetRenderSpeed(BERenderSpeed::Fast);
+		camera->SetRenderOutputType(BERenderOutputType::UvColor);
 
 		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
 
@@ -183,20 +192,19 @@ namespace bgl
 			const float depthDistRange = 500.f;
 			ImGui::SliderFloat("Scene Depth", &depthDist, defaultDepthDist - depthDistRange, defaultDepthDist + depthDistRange);
 
-			//ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
+			auto& sensorSize = camera->GetSensorSize_Mutable();
+			ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
 
-			//const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
-			//ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), renderSpeedOptions, IM_ARRAYSIZE(renderSpeedOptions));
+			auto& renderSpeed = camera->GetRenderSpeed_Mutable();
+			const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
+			ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), renderSpeedOptions, IM_ARRAYSIZE(renderSpeedOptions));
 
-			//const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
-			//ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions));
+			const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
+			ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions));
 
-			//if (cachedCamera)
-			//{
-			//	const float fovRange = 60.f;
-			//	const float fovCenter = 90.f;
-			//	ImGui::SliderFloat("Camera FOV", &cachedCamera->GetFOV_Mutable(), fovCenter - fovRange, fovCenter + fovRange);
-			//}
+			const float fovRange = 60.f;
+			const float fovCenter = 90.f;
+			ImGui::SliderFloat("Camera FOV", &camera->GetFOV_Mutable(), fovCenter - fovRange, fovCenter + fovRange);
 
 			ImGui::End();
 		};

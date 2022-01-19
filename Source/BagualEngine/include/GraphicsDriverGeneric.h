@@ -31,22 +31,12 @@ namespace bgl
 
 	public:
 
-		static double maxZ, minZ;
-		static BVector3<float> camOrig;
-		static BVector3<float> camRot;
-		static BViewport* cachedViewport;
-		static BVector2<float> sensorSize;
-		static BCamera* cachedCamera;
-		static BERenderSpeed renderSpeed;
-		static BESceneSetup sceneSetup;
-		static BERenderThreadMode renderThreadMode;
-
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines(BCamera* camera, const uint32 renderThreadIndex);
 		static void DrawLine(BCamera* camera, BLine<BPixelPos> line);
-		static void PaintPixel(class BViewport* viewportPtr, uint32 i, uint32 j, uint32 rgb);
+		static void PaintPixel(class BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb);
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;
