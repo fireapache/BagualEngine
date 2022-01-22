@@ -13,6 +13,7 @@ namespace bgl
 {
 
 	BArray<BArray<BTriangle<float>>*> BMeshComponent::g_meshComponentTriangles;
+	BArray<BMeshComponent*> BMeshComponent::g_meshComponents;
 
 	BNode::BNode(BNode* parent, const char* name)
 	{
@@ -38,6 +39,21 @@ namespace bgl
 	BArray<std::shared_ptr<BComponent>>& BNode::GetComponents()
 	{
 		return m_components;
+	}
+
+	const bool BNode::IsVisible() const
+	{
+		if (m_parent)
+		{
+			return m_parent->IsVisible() && !m_bHidden;
+		}
+
+		return !m_bHidden;
+	}
+
+	void BNode::SetHidden(const bool bHidden)
+	{
+		m_bHidden = bHidden;
 	}
 
 	BTransform<float>& BNode::GetTransform_Mutable()
@@ -110,12 +126,14 @@ namespace bgl
 		: BComponent(owner, name)
 	{
 		g_meshComponentTriangles.Add(&m_triangles);
+		g_meshComponents.Add(this);
 		if (assetPath) LoadMesh(assetPath);
 	}
 
 	BMeshComponent::~BMeshComponent()
 	{
 		g_meshComponentTriangles.Remove(&m_triangles);
+		g_meshComponents.Remove(this);
 	}
 
 	void BMeshComponent::LoadMesh(const char* assetPath)
@@ -196,6 +214,16 @@ namespace bgl
 	BComponent::~BComponent()
 	{
 
+	}
+
+	const bool BComponent::IsVisible() const
+	{
+		if (m_owner)
+		{
+			return m_owner->IsVisible() && !m_bHidden;
+		}
+
+		return !m_bHidden;
 	}
 
 	void BComponent::SetOwner(BNode* owner)

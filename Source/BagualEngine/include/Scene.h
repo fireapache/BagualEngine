@@ -27,11 +27,31 @@ namespace bgl
 			m_name = std::string(name);
 		}
 
+		const std::string& GetName() const
+		{
+			return m_name;
+		}
+
+		void SetName(const std::string& name)
+		{
+			m_name = name;
+		}
+
+		void SetName(const char* name)
+		{
+			if (name)
+			{
+				m_name = std::string(name);
+			}
+		}
+
 	};
 
 	class BComponent : public BObject
 	{
 		BTransform<float> m_dummyTransform;
+
+		bool m_bHidden = false;
 
 	protected:
 
@@ -42,6 +62,7 @@ namespace bgl
 		BComponent(BNode* owner = nullptr, const char* name = "None");
 		~BComponent();
 
+		const bool IsVisible() const;
 		void SetOwner(BNode* owner);
 
 		BTransform<float>& GetTransform_Mutable();
@@ -62,6 +83,7 @@ namespace bgl
 		friend class BScene;
 
 		static BArray<BArray<BTriangle<float>>*> g_meshComponentTriangles;
+		static BArray<BMeshComponent*> g_meshComponents;
 
 	protected:
 
@@ -109,6 +131,8 @@ namespace bgl
 
 		BTransform<float> m_transform;
 
+		bool m_bHidden = false;
+
 	public:
 
 		BNode(BNode* parent = nullptr, const char* name = "None");
@@ -116,6 +140,9 @@ namespace bgl
 		BNode* GetParent();
 		BArray<BNode*>& GetChilds();
 		BArray<std::shared_ptr<BComponent>>& GetComponents();
+
+		const bool IsVisible() const;
+		void SetHidden(const bool bVisible);
 
 		template<class T, typename... P>
 		T* CreateComponent(P... args)
@@ -155,6 +182,11 @@ namespace bgl
 		BArray<BArray<BTriangle<float>>*>& GetMeshComponentTriangles()
 		{
 			return BMeshComponent::g_meshComponentTriangles;
+		}
+
+		BArray<BMeshComponent*>& GetMeshComponents()
+		{
+			return BMeshComponent::g_meshComponents;
 		}
 
 		BNode* CreateNode(const char* name = "None");

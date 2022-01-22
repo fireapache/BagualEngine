@@ -205,7 +205,23 @@ namespace bgl
 			ImGui::Combo("Render Speed", reinterpret_cast<int*>(&renderSpeed), renderSpeedOptions, IM_ARRAYSIZE(renderSpeedOptions));
 
 			const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
-			ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions));
+			if (ImGui::Combo("Scene Setup", reinterpret_cast<int*>(&sceneSetup), sceneSetupOptions, IM_ARRAYSIZE(sceneSetupOptions)))
+			{
+				auto& sceneNodes = BEngine::Scene().GetNodes();
+
+				for (auto& node : sceneNodes)
+				{
+					if (node->GetName() == "Objects")
+					{
+						node->SetHidden(sceneSetup < BESceneSetup::WithObjects);
+					}
+					else if (node->GetName() == "Character")
+					{
+						node->SetHidden(sceneSetup < BESceneSetup::ObjectsCharacter);
+					}
+				}
+
+			}
 
 			const float fovRange = 60.f;
 			const float fovCenter = 90.f;

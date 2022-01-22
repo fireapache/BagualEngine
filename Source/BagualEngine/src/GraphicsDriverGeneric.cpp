@@ -212,11 +212,19 @@ namespace bgl
 
 				// Getting scene triangles
 
-				auto meshComponentTris = BEngine::Scene().GetMeshComponentTriangles();
+				auto meshComponents = BEngine::Scene().GetMeshComponents();
 
-				for (auto objTris : meshComponentTris)
+				for (auto meshComp : meshComponents)
 				{
-					for (auto tri : *objTris)
+					// Skipping not visible components
+					if (meshComp->IsVisible() == false)
+					{
+						continue;
+					}
+
+					auto& compTris = meshComp->GetTriangles();
+
+					for (auto tri : compTris)
 					{
 						if (BDraw::RayTriangleIntersect(orig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
 						{
