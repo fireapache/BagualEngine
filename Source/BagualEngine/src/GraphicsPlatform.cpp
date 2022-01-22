@@ -19,6 +19,11 @@ namespace bgl
 		m_viewports = BArray<std::shared_ptr<BViewport>>();
 	}
 
+	const BArray<BViewport*> BGraphicsPlatform::GetViewports() const
+	{
+		return m_viewportsRaw;
+	}
+
 	void BGraphicsPlatform::SetEnabled(const bool bValue)
 	{
 		m_driverInstance->SetEnabled(bValue);
@@ -39,34 +44,22 @@ namespace bgl
 
 	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas)
 	{
-		m_viewports.Add(std::make_shared<BViewport>(canvas));
-		auto viewport = m_viewports.back().get();
-		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-		return viewport;
+		return RegisterViewport(canvas);
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const BBox<BVector2<float>>& normalizedSize)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const BBox<BVector2<float>> normalizedSize)
 	{
-		m_viewports.Add(std::make_shared<BViewport>(canvas, normalizedSize));
-		auto viewport = m_viewports.back().get();
-		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-		return viewport;
+		return RegisterViewport(canvas, normalizedSize);
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32& width, const uint32& height)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32 width, const uint32 height)
 	{
-		m_viewports.Add(std::make_shared<BViewport>(canvas, width, height));
-		auto viewport = m_viewports.back().get();
-		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-		return viewport;
+		return RegisterViewport(canvas, width, height);
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
+	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height)
 	{
-		m_viewports.Add(std::make_shared<BViewport>(canvas, x, y, width, height));
-		auto viewport = m_viewports.back().get();
-		BGL_ASSERT(viewport != nullptr && "Failed creating viewport!");
-		return viewport;
+		return RegisterViewport(canvas, x, y, width, height);
 	}
 
 	void BGraphicsPlatform::Delay(const uint32&& ms)

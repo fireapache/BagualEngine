@@ -5,6 +5,7 @@
 namespace bgl
 {
 	class BCanvas;
+	class BCamera;
 }
 
 namespace bgl
@@ -16,6 +17,7 @@ namespace bgl
 		BBox<BVector2<float>> m_normalSize;
 		BCanvas* m_canvas;
 		BBoxEdges m_limits;
+		BCamera* m_camera;
 
 		void UpdateLimits();
 
@@ -24,9 +26,9 @@ namespace bgl
 	public:
 
 		BViewport(BCanvas* canvas);
-		BViewport(BCanvas* canvas, const BBox<BVector2<float>>& normalizedSize);
-		BViewport(BCanvas* canvas, const uint32& width, const uint32& height);
-		BViewport(BCanvas* canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height);
+		BViewport(BCanvas* canvas, const BBox<BVector2<float>> normalizedSize);
+		BViewport(BCanvas* canvas, const uint32 width, const uint32 height);
+		BViewport(BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height);
 		~BViewport();
 
 		/*	Calculates viewport's position in the canvas based on its
@@ -41,7 +43,7 @@ namespace bgl
 		 *
 		 *		Viewport Position in Canvas = (160, 120) (320 - 1, 240 - 1)
 		 */
-		void SetNormalizedSize(const BBox<BVector2<float>>& normalizedSize);
+		void SetNormalizedSize(const BBox<BVector2<float>> normalizedSize);
 
 		const BBoxEdges& GetLimits() const;
 
@@ -50,6 +52,9 @@ namespace bgl
 		const BBox<BPixelPos>& GetBounds() const;
 
 		BCanvas* GetCanvas();
+
+		BCamera* GetCamera() const;
+		void SetCamera(BCamera* camera);
 
 		const BPixelPos GetPosition() const;
 

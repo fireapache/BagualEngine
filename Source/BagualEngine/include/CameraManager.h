@@ -24,7 +24,7 @@ namespace bgl
 		static void AddCamera(BCamera* camera);
 		static void RemoveCamera(BCamera* camera);
 
-		static BArray<BCamera*>& GetCameras();
+		static BArray<BCamera*> GetCameras();
 
 	};
 }

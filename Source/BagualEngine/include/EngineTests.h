@@ -23,9 +23,9 @@ namespace bgl
 
 		FWindowSettings windowSettings;
 		
-		BPlatformWindow* window;
-		BViewport* viewport;
-		BCanvas* canvas;
+		static BPlatformWindow* window;
+		static BViewport* viewport;
+		static BCanvas* canvas;
 		float defaultDepthDist;
 
 	public:

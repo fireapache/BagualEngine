@@ -18,6 +18,10 @@
 namespace bgl
 {
 
+	BPlatformWindow* BEngineTestBase::window = nullptr;
+	BViewport* BEngineTestBase::viewport = nullptr;
+	BCanvas* BEngineTestBase::canvas = nullptr;
+
 	void BEngineTestBase::CreateStandardWindow(const char* windowTitle)
 	{
 		// Keeping the same window if already created by another standard test module
@@ -74,12 +78,13 @@ namespace bgl
 
 	void BEngineTest_FundamentalRendering::Tick()
 	{
-		auto& cameras = BCameraManager::GetCameras();
+		auto cameras = BCameraManager::GetCameras();
 
 		for (auto camera : cameras)
 		{
 			if (camera)
 			{
+				camera->ClearLine2DBuffer();
 				DrawCameraLine(camera);
 				DrawCameraLine(camera);
 				DrawCameraLine(camera);

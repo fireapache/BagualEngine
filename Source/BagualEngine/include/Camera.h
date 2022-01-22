@@ -16,7 +16,6 @@ namespace bgl
 {
 	class BCamera
 	{
-		BViewport* m_viewport = nullptr;
 		BArray<BLine<BPixelPos>> m_line2DBuffer;
 		float m_fov = 90.f;
 		BCameraComponent* m_owner = nullptr;
@@ -26,6 +25,7 @@ namespace bgl
 		BVec2f m_sensorSize = BVec3f(24.f, 36.f);
 		BERenderSpeed m_renderSpeed = BERenderSpeed::VeryFast;
 		BERenderThreadMode m_renderThreadMode = BERenderThreadMode::MultiThread;
+
 
 	public:
 

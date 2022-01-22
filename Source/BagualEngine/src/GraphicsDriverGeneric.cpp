@@ -69,17 +69,28 @@ namespace bgl
 	{
 		BGraphicsDriverBase::RenderGameFrame();
 
-		auto cameras = BCameraManager::GetCameras();
+		auto viewports = BEngine::GraphicsPlatform().GetViewports();
 
-		// Rendering each camera
-		for (auto& camera : cameras)
+		// Rendering each viewport
+		for (auto viewport : viewports)
 		{
 #pragma region Asserts
 
-			if (camera == nullptr) continue;
-			BGL_ASSERT(camera != nullptr && "Got null camera during render!");
+			if (viewport == nullptr)
+			{
+				BGL_LOG("Got null viewport during render!");
+				continue;
+			}
 
-			auto canvas = camera->GetViewport()->GetCanvas();
+			auto camera = viewport->GetCamera();
+
+			if (camera == nullptr)
+			{
+				BGL_LOG("Got null camera during render!");
+				continue;
+			}
+
+			auto canvas = viewport->GetCanvas();
 
 			BGL_ASSERT(canvas != nullptr && "Got null canvas during render!");
 
@@ -97,8 +108,6 @@ namespace bgl
 
 #pragma region Rendering Geometry Tasks
 
-			auto viewport = camera->GetViewport();
-
 			viewport->ResetPixelDepth();
 			auto renderThreadMode = camera->GetRenderThreadMode();
 
@@ -108,7 +117,7 @@ namespace bgl
 
 			for (uint32 t = 0; t < processorCount; t++)
 			{
-				renderThreadPool.push_task(RenderLines, camera, t);
+				renderThreadPool.push_task(RenderLines, viewport, t);
 			}
 
 #pragma endregion
@@ -119,7 +128,7 @@ namespace bgl
 
 			for (auto& line : lines)
 			{
-				renderThreadPool.push_task(DrawLine, camera, line);
+				renderThreadPool.push_task(DrawLine, viewport, line);
 			}
 
 			camera->ClearLine2DBuffer();
@@ -132,14 +141,26 @@ namespace bgl
 
 	}
 
-	void BGraphicsDriverGeneric::DrawLine(BCamera* camera, BLine<BPixelPos> line)
+	void BGraphicsDriverGeneric::DrawLine(BViewport* viewport, BLine<BPixelPos> line)
 	{
-		BDraw::DrawLine(camera, line);
+		BDraw::DrawLine(viewport, line);
 	}
 
-	void BGraphicsDriverGeneric::RenderLines(BCamera* camera, const uint32 renderThreadIndex)
+	void BGraphicsDriverGeneric::RenderLines(BViewport* viewport, const uint32 renderThreadIndex)
 	{
-		auto viewport = camera->GetViewport();
+		if (viewport == nullptr)
+		{
+			BGL_LOG("Got null viewport when rendering lines!");
+			return;
+		}
+
+		const auto camera = viewport->GetCamera();
+
+		if (camera == nullptr)
+		{
+			BGL_LOG("Got null camera when rendering lines!");
+			return;
+		}
 
 		// Calculating camera sensor settings
 

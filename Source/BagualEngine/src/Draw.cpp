@@ -9,12 +9,21 @@
 namespace bgl
 {
 	
-	bool BDraw::IsLineOnScreen(BCamera* camera, BLine<BPixelPos>& line)
+	bool BDraw::ClampViewportLine(BViewport* viewport, BLine<BPixelPos>& line)
 	{
-		if (camera == nullptr) return false;
+		if (viewport == nullptr)
+		{
+			BGL_LOG("Got null viewport when clamping viewport line!");
+			return false;
+		}
 
-		auto viewport = camera->GetViewport();
 		auto canvas = viewport->GetCanvas();
+
+		if (canvas == nullptr)
+		{
+			BGL_LOG("Got null canvas when clamping viewport line!");
+			return false;
+		}
 
 		const BBox<BPixelPos>& viewportBounds = viewport->GetBounds();
 
@@ -73,17 +82,21 @@ namespace bgl
 		return isValid;
 	}
 
-	void DrawLineLow(BCamera* camera, const BLine<BPixelPos>& line)
+	void DrawLineLow(BViewport* viewport, const BLine<BPixelPos>& line)
 	{
-		if (camera == nullptr) return;
-		
-		auto viewport = camera->GetViewport();
-
-		if (viewport == nullptr) return;
+		if (viewport == nullptr)
+		{
+			BGL_LOG("Got null viewport when drawing line low!");
+			return;
+		}
 
 		auto canvas = viewport->GetCanvas();
 
-		if (canvas == nullptr) return;
+		if (canvas == nullptr)
+		{
+			BGL_LOG("Got null canvas when drawing line low!");
+			return;
+		}
 
 		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();
@@ -114,17 +127,21 @@ namespace bgl
 		}
 	}
 	
-	void DrawLineHigh(BCamera* camera, const BLine<BPixelPos>& line)
+	void DrawLineHigh(BViewport* viewport, const BLine<BPixelPos>& line)
 	{
-		if (camera == nullptr) return;
-
-		auto viewport = camera->GetViewport();
-
-		if (viewport == nullptr) return;
+		if (viewport == nullptr)
+		{
+			BGL_LOG("Got null viewport when drawing line high!");
+			return;
+		}
 
 		auto canvas = viewport->GetCanvas();
 
-		if (canvas == nullptr) return;
+		if (canvas == nullptr)
+		{
+			BGL_LOG("Got null canvas when drawing line high!");
+			return;
+		}
 
 		auto& screen = canvas->GetColorBuffer();
 		const int32 width = canvas->GetWidth();
@@ -155,9 +172,13 @@ namespace bgl
 		}
 	}
 
-	void BDraw::DrawLine(BCamera* camera, const BLine<BPixelPos> line)
+	void BDraw::DrawLine(BViewport* viewport, const BLine<BPixelPos> line)
 	{
-		if (camera == nullptr) return;
+		if (viewport == nullptr)
+		{
+			BGL_LOG("Got null viewport when drawing viewport line!");
+			return;
+		}
 
 		// Implementing Bresenham's algorithm (https://en.wikipedia.org/wiki/Bresenham)
 
@@ -167,7 +188,7 @@ namespace bgl
 		//std::cout << "P1: (" << line.p1.x << "," << line.p1.y << ") P2: (" << line.p2.x << "," << line.p2.y << ")" << std::endl;
 
 		// Checks if line is on screen and clamps it
-		if (IsLineOnScreen(camera, l) == false) return;
+		if (ClampViewportLine(viewport, l) == false) return;
 
 		//std::cout << "P1: (" << l.p1.x << "," << l.p1.y << ") P2: (" << l.p2.x << "," << l.p2.y << ")" << std::endl;
 
@@ -175,30 +196,30 @@ namespace bgl
 		{
 			if (line.p1.x > line.p2.x)
 			{
-				DrawLineLow(camera, -l);
+				DrawLineLow(viewport, -l);
 			}
 			else
 			{
-				DrawLineLow(camera, l);
+				DrawLineLow(viewport, l);
 			}
 		}
 		else
 		{
 			if (line.p1.y > line.p2.y)
 			{
-				DrawLineHigh(camera, -l);
+				DrawLineHigh(viewport, -l);
 			}
 			else
 			{
-				DrawLineHigh(camera, l);
+				DrawLineHigh(viewport, l);
 			}
 		}
 
 	}
 
-	void BDraw::DrawLine(BCamera* camera, const BPixelPos& p1, const BPixelPos& p2)
+	void BDraw::DrawLine(BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2)
 	{
-		DrawLine(camera, BLine<BPixelPos>(p1, p2));
+		DrawLine(viewport, BLine<BPixelPos>(p1, p2));
 	}
 
 	bool BDraw::RayTriangleIntersect(

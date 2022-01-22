@@ -4,6 +4,11 @@
 
 namespace bgl
 {
+	class BViewport;
+}
+
+namespace bgl
+{
 	enum class BERenderSpeed
 	{
 		Normal,
@@ -34,9 +39,9 @@ namespace bgl
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
-		static void RenderLines(BCamera* camera, const uint32 renderThreadIndex);
-		static void DrawLine(BCamera* camera, BLine<BPixelPos> line);
-		static void PaintPixel(class BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb);
+		static void RenderLines(BViewport* viewport, const uint32 renderThreadIndex);
+		static void DrawLine(BViewport* viewport, BLine<BPixelPos> line);
+		static void PaintPixel(BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb);
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;

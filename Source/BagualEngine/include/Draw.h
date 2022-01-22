@@ -18,13 +18,13 @@ namespace bgl
 		 *	It returns false in case the line completely misses the visible
 		 *	area of the camera's viewport.
 		 */
-		static bool IsLineOnScreen(BCamera* camera, BLine<BPixelPos>& line);
+		static bool ClampViewportLine(BViewport* viewport, BLine<BPixelPos>& line);
 
-		/*	Draw a line on the camera's viewport. */
-		static void DrawLine(BCamera* camera, const BLine<BPixelPos> line);
+		/*	Draw a line on viewport. */
+		static void DrawLine(BViewport* viewport, const BLine<BPixelPos> line);
 
-		/*	Draw a line between pixel positions on the camera's viewport */
-		static void DrawLine(BCamera* camera, const BPixelPos& p1, const BPixelPos& p2);
+		/*	Draw a line between pixel positions on viewport */
+		static void DrawLine(BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2);
 
 		// [comment]
 		// The main ray-triangle intersection routine.

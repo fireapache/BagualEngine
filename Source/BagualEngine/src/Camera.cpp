@@ -8,10 +8,12 @@
 #include "PlatformBase.h"
 #include "Canvas.h"
 #include "Scene.h"
+#include "CameraManager.h"
+#include "GraphicsPlatform.h"
 
 namespace bgl
 {
-
+	
 	BCamera::BCamera()
 	{
 		BGL_ASSERT(false && "Trying to build an empty camera!");
@@ -19,7 +21,7 @@ namespace bgl
 	
 	BCamera::BCamera(BViewport* viewport, BCameraComponent* owner)
 	{
-		m_viewport = viewport;
+		SetViewport(viewport);
 		m_owner = owner;
 	}
 
@@ -110,12 +112,29 @@ namespace bgl
 
 	BViewport* BCamera::GetViewport()
 	{
-		return m_viewport;
+		BViewport* result = nullptr;
+
+		auto viewports = BEngine::GraphicsPlatform().GetViewports();
+
+		// Checking if any viewport points to this camera
+		for (auto viewport : viewports)
+		{
+			if (viewport->GetCamera() == this)
+			{
+				result = viewport;
+				break;
+			}
+		}
+
+		return result;
 	}
 
 	void BCamera::SetViewport(BViewport* viewport)
 	{
-		m_viewport = viewport;
+		if (viewport)
+		{
+			viewport->SetCamera(this);
+		}
 	}
 
 	BArray<BLine<BPixelPos>>& BCamera::GetLine2DBuffer()

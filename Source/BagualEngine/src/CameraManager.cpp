@@ -20,7 +20,7 @@ namespace bgl
 		m_cameras.Remove(camera);
 	}
 
-	BArray<BCamera*>& BCameraManager::GetCameras()
+	BArray<BCamera*> BCameraManager::GetCameras()
 	{
 		return m_cameras;
 	}

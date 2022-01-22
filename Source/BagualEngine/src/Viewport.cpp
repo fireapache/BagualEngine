@@ -42,13 +42,13 @@ namespace bgl
 		UpdateLimits();
 	}
 
-	BViewport::BViewport(BCanvas* canvas, const BBox<BVector2<float>>& normalizedSize)
+	BViewport::BViewport(BCanvas* canvas, const BBox<BVector2<float>> normalizedSize)
 	{
 		m_canvas = canvas;
 		SetNormalizedSize(normalizedSize);
 	}
 
-	BViewport::BViewport(BCanvas* canvas, const uint32& width, const uint32& height)
+	BViewport::BViewport(BCanvas* canvas, const uint32 width, const uint32 height)
 	{
 		m_canvas = canvas;
 
@@ -60,7 +60,7 @@ namespace bgl
 		UpdateLimits();
 	}
 
-	BViewport::BViewport(BCanvas* canvas, const uint32& x, const uint32& y, const uint32& width, const uint32& height)
+	BViewport::BViewport(BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height)
 	{
 		m_canvas = canvas;
 
@@ -77,7 +77,7 @@ namespace bgl
 
 	}
 
-	void BViewport::SetNormalizedSize(const BBox<BVector2<float>>& normalizedSize)
+	void BViewport::SetNormalizedSize(const BBox<BVector2<float>> normalizedSize)
 	{
 		BGL_ASSERT(m_canvas != nullptr && "Got null canvas pointer when setting new normalized size to viewport!");
 
@@ -101,6 +101,16 @@ namespace bgl
 	BCanvas* BViewport::GetCanvas()
 	{
 		return m_canvas;
+	}
+
+	BCamera* BViewport::GetCamera() const
+	{
+		return m_camera;
+	}
+
+	void BViewport::SetCamera(BCamera* camera)
+	{
+		m_camera = camera;
 	}
 
 	const bgl::BPixelPos BViewport::GetPosition() const
