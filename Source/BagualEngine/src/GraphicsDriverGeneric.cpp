@@ -174,18 +174,21 @@ namespace bgl
 
 		// Keeping some variables stacked
 
-		float t, u, v;
-		uint32 rgb = 0x000000;
-		const auto renderType = camera->GetRenderOutputType();
-		const BVec3f orig = camera->GetLocation();
-		const BVec3f rot = camera->GetRotation();         
-		const double depthDist = camera->GetDepthDistance();
+		BFTriangleScanParams triangleScanParams;
+		triangleScanParams.renderType = camera->GetRenderOutputType();
+		triangleScanParams.orig = camera->GetLocation();    
+		triangleScanParams.depthDist = camera->GetDepthDistance();
+		triangleScanParams.renderSpeed = camera->GetRenderSpeed();
+		triangleScanParams.viewport = viewport;
+
 		const auto renderThreadMode = camera->GetRenderThreadMode();
-		const auto renderSpeed = camera->GetRenderSpeed();
+		const BVec3f rot = camera->GetRotation();
+		const auto intrinsicsMode = camera->GetIntrinsicsMode();
 
 		// Getting render lines of interest
 
-		const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
+		const auto processorCount = 
+			std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
 		const int32 threadCount = processorCount <= 0 ? 1 : processorCount;
 
 		const uint32 lineRange = height / threadCount;
@@ -194,17 +197,22 @@ namespace bgl
 
 		// Starting line rendering
 
-		const uint32 renderSpeedStep = (renderSpeed == BERenderSpeed::Normal ? 1 : (uint32)renderSpeed * 2);
+		const uint32 renderSpeedStep = 
+			(triangleScanParams.renderSpeed == BERenderSpeed::Normal ? 1 : (uint32)triangleScanParams.renderSpeed * 2);
 
 		for (uint32 j = lineStart; j < lineEnd; j += renderSpeedStep)
 		{
 			for (uint32 i = 0; i < width; i += renderSpeedStep)
 			{
+				triangleScanParams.px = i;
+				triangleScanParams.py = j;
+
 				// Getting ray rotation
 
 				const float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
 				const float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
-				BVector3<float> dir(x, y, sensorDistance);
+				BVec3f& dir = triangleScanParams.dir;
+				dir = BVec3f(x, y, sensorDistance);
 				dir.Normalize();
 				dir = BQuaternion<float>::RotateAroundAxis(rot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
 				dir = BQuaternion<float>::RotateAroundAxis(rot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
@@ -224,56 +232,67 @@ namespace bgl
 
 					auto& compTris = meshComp->GetTriangles();
 
-					for (auto tri : compTris)
+					if (intrinsicsMode == BEIntrinsicsMode::Off)
 					{
-						if (BDraw::RayTriangleIntersect(orig, dir, tri.v0, tri.v1, tri.v2, t, u, v))
-						{
-							BVec3f surfacePoint = tri.GetPointOnSurface(u, v);
-							const double depthZ = (orig | surfacePoint) * 100.0;
-							const double currentDepthZ = viewport->GetPixelDepth(i, j);
+						ScanTriangles_Sequential(compTris, triangleScanParams);
+					}
+					else if (intrinsicsMode == BEIntrinsicsMode::AVX2)
+					{
 
-							rgb = 0x000000;
+					}
+				}
+			}
+		}
+	}
 
-							if (depthZ < currentDepthZ)
-							{
-								viewport->SetPixelDepth(i, j, depthZ);
+	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p)
+	{
+		for (auto tri : compTris)
+		{
+			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri.v0, tri.v1, tri.v2, p.t, p.u, p.v))
+			{
+				const double depthZ = p.t * 100.0;
+				const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
+
+				p.rgb = 0x000000;
+
+				if (depthZ < currentDepthZ)
+				{
+					p.viewport->SetPixelDepth(p.px, p.py, depthZ);
 
 #pragma region Depth Shader
-								if (renderType == BERenderOutputType::Depth)
-								{
-									const double calcA = depthDist - depthZ;
-									const double calcB = std::fmax(calcA, 0.0);
-									const double calcC = calcB / depthDist;
+					if (p.renderType == BERenderOutputType::Depth)
+					{
+						const double calcA = p.depthDist - depthZ;
+						const double calcB = std::fmax(calcA, 0.0);
+						const double calcC = calcB / p.depthDist;
 
-									const uint32 gray = static_cast<uint32>(255.0 * calcC);
+						const uint32 gray = static_cast<uint32>(255.0 * calcC);
 
-									rgb = gray;
-									rgb = (rgb << 8) + gray;
-									rgb = (rgb << 8) + gray;
+						p.rgb = gray;
+						p.rgb = (p.rgb << 8) + gray;
+						p.rgb = (p.rgb << 8) + gray;
 
-									PaintPixel(viewport, renderSpeed, i, j, rgb);
-								}
+						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
+					}
 #pragma endregion
 
 #pragma region UV Coloring Shader
-								else if (renderType == BERenderOutputType::UvColor)
-								{
-									const char r = static_cast<char>(255 * std::clamp(u, 0.f, 1.f));
-									const char g = static_cast<char>(255 * std::clamp(v, 0.f, 1.f));
-									const char b = static_cast<char>(255 * std::clamp(1 - u - v, 0.f, 1.f));
+					else if (p.renderType == BERenderOutputType::UvColor)
+					{
+						const char r = static_cast<char>(255 * std::clamp(p.u, 0.f, 1.f));
+						const char g = static_cast<char>(255 * std::clamp(p.v, 0.f, 1.f));
+						const char b = static_cast<char>(255 * std::clamp(1 - p.u - p.v, 0.f, 1.f));
 
-									rgb = r;
-									rgb = (rgb << 8) + g;
-									rgb = (rgb << 8) + b;
+						p.rgb = r;
+						p.rgb = (p.rgb << 8) + g;
+						p.rgb = (p.rgb << 8) + b;
 
-									PaintPixel(viewport, renderSpeed, i, j, rgb);
-								}
-#pragma endregion
-							}
-
-						}
+						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
 					}
+#pragma endregion
 				}
+
 			}
 		}
 	}

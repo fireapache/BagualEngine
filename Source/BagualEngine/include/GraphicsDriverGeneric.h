@@ -30,9 +30,35 @@ namespace bgl
 		HyperThread
 	};
 
+	enum class BEIntrinsicsMode
+	{
+		Off,
+		AVX2
+	};
+
+	struct BFTriangleScanParams
+	{
+		// Ray direction
+		BVec3f orig, dir;
+		// Triangle intersection
+		float t, u, v;
+		// Viewport to render
+		BViewport* viewport;
+		// Pixel location and final color
+		uint32 px, py, rgb;
+		// Type of render output
+		BERenderOutputType renderType;
+		// Max distance to render on pixel depth output mode
+		double depthDist;
+		// Resolution scale to render
+		BERenderSpeed renderSpeed;
+	};
+
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
+
+		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
 
 	public:
 

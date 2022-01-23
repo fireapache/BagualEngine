@@ -25,12 +25,27 @@ namespace bgl
 		m_owner = owner;
 	}
 
+	BEIntrinsicsMode& BCamera::GetIntrinsicsMode_Mutable()
+	{
+		return m_intrinsicsMode;
+	}
+
+	const BEIntrinsicsMode BCamera::GetIntrinsicsMode() const
+	{
+		return m_intrinsicsMode;
+	}
+
+	void BCamera::SetIntrinsicsMode(const BEIntrinsicsMode intrinsicsMode)
+	{
+		m_intrinsicsMode = intrinsicsMode;
+	}
+
 	BERenderSpeed& BCamera::GetRenderSpeed_Mutable()
 	{
 		return m_renderSpeed;
 	}
 
-	const BERenderSpeed BCamera::GetRenderSpeed()
+	const BERenderSpeed BCamera::GetRenderSpeed() const
 	{
 		return m_renderSpeed;
 	}
@@ -45,7 +60,7 @@ namespace bgl
 		return m_renderThreadMode;
 	}
 
-	const BERenderThreadMode BCamera::GetRenderThreadMode()
+	const BERenderThreadMode BCamera::GetRenderThreadMode() const
 	{
 		return m_renderThreadMode;
 	}
