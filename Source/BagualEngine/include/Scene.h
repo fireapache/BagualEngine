@@ -72,7 +72,7 @@ namespace bgl
 		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
-		void SetLocation(const BVec3f& translation);
+		void SetLocation(const BVec3f& locations);
 		void SetRotation(const BVec3f& rotation);
 		void SetScale(const BVec3f& scale);
 
@@ -142,7 +142,7 @@ namespace bgl
 		BArray<std::shared_ptr<BComponent>>& GetComponents();
 
 		const bool IsVisible() const;
-		void SetHidden(const bool bVisible);
+		void SetHidden(const bool bHidden);
 
 		template<class T, typename... P>
 		T* CreateComponent(P... args)
@@ -160,7 +160,7 @@ namespace bgl
 		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
-		void SetLocation(const BVec3f& translation);
+		void SetLocation(const BVec3f& location);
 		void SetRotation(const BVec3f& rotation);
 		void SetScale(const BVec3f& scale);
 
