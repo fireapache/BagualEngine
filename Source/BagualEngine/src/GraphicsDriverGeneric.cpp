@@ -236,7 +236,7 @@ namespace bgl
 					{
 						ScanTriangles_Sequential(compTris, triangleScanParams);
 					}
-					else if (intrinsicsMode == BEIntrinsicsMode::AVX2)
+					else if (intrinsicsMode == BEIntrinsicsMode::AVX)
 					{
 
 					}
@@ -249,7 +249,7 @@ namespace bgl
 	{
 		for (auto tri : compTris)
 		{
-			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri.v0, tri.v1, tri.v2, p.t, p.u, p.v))
+			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri, p.t, p.u, p.v))
 			{
 				const double depthZ = p.t * 100.0;
 				const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
@@ -295,6 +295,11 @@ namespace bgl
 
 			}
 		}
+	}
+
+	inline void BGraphicsDriverGeneric::ScanTriangles_AVX(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p)
+	{
+		//const uint8 fillUpTrisCount = compTris.Size();
 	}
 
 	void BGraphicsDriverGeneric::SwapUIFrame()

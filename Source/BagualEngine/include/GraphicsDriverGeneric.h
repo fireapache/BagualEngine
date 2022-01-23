@@ -33,7 +33,7 @@ namespace bgl
 	enum class BEIntrinsicsMode
 	{
 		Off,
-		AVX2
+		AVX
 	};
 
 	struct BFTriangleScanParams
@@ -59,6 +59,7 @@ namespace bgl
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
 		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
+		static void ScanTriangles_AVX(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
 
 	public:
 
