@@ -86,9 +86,9 @@ namespace bgl
 		m_transform = transform;
 	}
 
-	void BNode::SetLocation(const BVec3f& translation)
+	void BNode::SetLocation(const BVec3f& location)
 	{
-		m_transform.translation = translation;
+		m_transform.translation = location;
 	}
 
 	void BNode::SetRotation(const BVec3f& rotation)
@@ -171,12 +171,27 @@ namespace bgl
 			triCache.v2.z = vert2.Position.Z;
 
 			m_triangles.Add(triCache);
+
+			m_triangles_SIMD.v0.x.Add(triCache.v0.x);
+			m_triangles_SIMD.v0.y.Add(triCache.v0.y);
+			m_triangles_SIMD.v0.z.Add(triCache.v0.z);
+			m_triangles_SIMD.v1.x.Add(triCache.v1.x);
+			m_triangles_SIMD.v1.y.Add(triCache.v1.y);
+			m_triangles_SIMD.v1.z.Add(triCache.v1.z);
+			m_triangles_SIMD.v2.x.Add(triCache.v2.x);
+			m_triangles_SIMD.v2.y.Add(triCache.v2.y);
+			m_triangles_SIMD.v2.z.Add(triCache.v2.z);
 		}
 	}
 
 	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
 	{
 		return m_triangles;
+	}
+
+	BTriangle<BArray<float>>& BMeshComponent::GetTriangles_SIMD()
+	{
+		return m_triangles_SIMD;
 	}
 
 	void BMeshComponent::AddTriangles(BArray<BTriangle<float>>& triangles)
@@ -275,9 +290,9 @@ namespace bgl
 		GetTransform_Mutable() = transform;
 	}
 
-	void BComponent::SetLocation(const BVec3f& translation)
+	void BComponent::SetLocation(const BVec3f& location)
 	{
-		GetTransform_Mutable().translation = translation;
+		GetTransform_Mutable().translation = location;
 	}
 
 	void BComponent::SetRotation(const BVec3f& rotation)

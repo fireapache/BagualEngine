@@ -59,7 +59,7 @@ namespace bgl
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
 		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
-		static void ScanTriangles_AVX(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
+		static void ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p);
 
 	public:
 

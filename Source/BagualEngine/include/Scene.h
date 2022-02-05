@@ -88,6 +88,7 @@ namespace bgl
 	protected:
 
 		BArray<BTriangle<float>> m_triangles;
+		BTriangle<BArray<float>> m_triangles_SIMD;
 
 	public:
 
@@ -97,6 +98,7 @@ namespace bgl
 		void LoadMesh(const char* assetPath);
 
 		BArray<BTriangle<float>>& GetTriangles();
+		BTriangle<BArray<float>>& GetTriangles_SIMD();
 
 		void AddTriangles(BArray<BTriangle<float>>& triangles);
 
