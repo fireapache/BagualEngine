@@ -12,10 +12,10 @@
 
 namespace bgl
 {
-	template <typename T>
-	class BArray : public std::vector<T>
+	template <class T, class aloc = std::allocator<T>>
+	class BArray : public std::vector<T, aloc>
 	{
-		std::vector<T> stdContainer;
+		//std::vector<T, aloc> stdContainer;
 
 	public:
 
@@ -75,6 +75,76 @@ namespace bgl
 		{
 			clear();
 		}
+
+	};
+
+	// Based on the implementation from the following link,
+	// and with fixes mentioned in the same thread:
+	// https://codereview.stackexchange.com/questions/164675/c-class-for-aligning-objects-on-the-stack
+	template<size_t Align, typename T>
+	class BStackAligned
+	{
+	public:
+		using value_type = T;
+		using aligned_type = BStackAligned<Align, T>;
+
+		BStackAligned()
+		{
+			ptr_ = aligned_position();
+		}
+
+		BStackAligned(const aligned_type& other)
+		{
+			*ptr_ = *other.ptr_;
+		}
+
+		BStackAligned(aligned_type&& other)
+		{
+			*ptr_ = std::move(*other.ptr_);
+		}
+
+		aligned_type& operator=(const aligned_type& other)
+		{
+			*ptr_ = *other.ptr_;
+			return *this;
+		}
+
+		template<typename... Args>
+		BStackAligned(Args&&... args)
+		{
+			ptr_ = aligned_position();
+			new (ptr_) T(std::forward<Args>(args)...);
+		}
+
+		~BStackAligned()
+		{
+			ptr_->~T();
+		}
+
+		T* get() const
+		{
+			return ptr_;
+		}
+
+		T* operator&() const
+		{
+			return get();
+		}
+
+		T& operator*() const
+		{
+			return ptr_;
+		}
+
+	private:
+		T* aligned_position() const noexcept
+		{
+			return reinterpret_cast<T*>(
+				(reinterpret_cast<std::uintptr_t>(&storage_) + Align - 1) & ~(Align - 1));
+		}
+
+		uint8_t storage_[Align - 1 + sizeof(T)];
+		T* ptr_;
 
 	};
 

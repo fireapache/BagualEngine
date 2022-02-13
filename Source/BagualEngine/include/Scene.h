@@ -89,7 +89,7 @@ namespace bgl
 
 		BArray<BTriangle<float>> m_triangles;
 		BTriangle<BArray<float>> m_triangles_SIMD;
-
+		
 	public:
 
 		BMeshComponent(BNode* owner = nullptr, const char* name = "None", const char* assetPath = nullptr);

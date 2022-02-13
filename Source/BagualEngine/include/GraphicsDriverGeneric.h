@@ -61,6 +61,8 @@ namespace bgl
 		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
 		static void ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p);
 
+		static void PaintPixelWithShader(BFTriangleScanParams& p);
+
 	public:
 
 		BGraphicsDriverGeneric();

@@ -251,48 +251,7 @@ namespace bgl
 		{
 			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri, p.t, p.u, p.v))
 			{
-				const double depthZ = p.t * 100.0;
-				const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
-
-				p.rgb = 0x000000;
-
-				if (depthZ < currentDepthZ)
-				{
-					p.viewport->SetPixelDepth(p.px, p.py, depthZ);
-
-#pragma region Depth Shader
-					if (p.renderType == BERenderOutputType::Depth)
-					{
-						const double calcA = p.depthDist - depthZ;
-						const double calcB = std::fmax(calcA, 0.0);
-						const double calcC = calcB / p.depthDist;
-
-						const uint32 gray = static_cast<uint32>(255.0 * calcC);
-
-						p.rgb = gray;
-						p.rgb = (p.rgb << 8) + gray;
-						p.rgb = (p.rgb << 8) + gray;
-
-						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
-					}
-#pragma endregion
-
-#pragma region UV Coloring Shader
-					else if (p.renderType == BERenderOutputType::UvColor)
-					{
-						const char r = static_cast<char>(255 * std::clamp(p.u, 0.f, 1.f));
-						const char g = static_cast<char>(255 * std::clamp(p.v, 0.f, 1.f));
-						const char b = static_cast<char>(255 * std::clamp(1 - p.u - p.v, 0.f, 1.f));
-
-						p.rgb = r;
-						p.rgb = (p.rgb << 8) + g;
-						p.rgb = (p.rgb << 8) + b;
-
-						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
-					}
-#pragma endregion
-				}
-
+				PaintPixelWithShader(p);
 			}
 		}
 	}
@@ -323,21 +282,39 @@ namespace bgl
 		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
 		__m256 fail1, fail2, uless0, ugrt1, vless0, validHit;
 
+		__m256 pixelDepth = _mm256_set1_ps(9999999999.0f);
+		__m256 validDepth;
+		__m256i canCopy;
+
+		// Getting aligned floats for efficient output of SIMD
+		constexpr size_t dataAlignment = 32;
+		constexpr size_t floatCount = 4;
+		
+		struct finalPixelInfo
+		{
+			float t[floatCount];
+			float u[floatCount];
+			float v[floatCount];
+		};
+
+		BStackAligned<dataAlignment, finalPixelInfo> finalPixel;
+
 		// Core loop
 
 		for (size_t i = 0; i < trisNum; i += 8)
 		{
-			tri.v0.x = _mm256_load_ps(triData.v0.x + i);
-			tri.v0.y = _mm256_load_ps(triData.v0.y + i);
-			tri.v0.z = _mm256_load_ps(triData.v0.z + i);
+			// @TODO: make these loads aligned!
+			tri.v0.x = _mm256_loadu_ps(triData.v0.x + i);
+			tri.v0.y = _mm256_loadu_ps(triData.v0.y + i);
+			tri.v0.z = _mm256_loadu_ps(triData.v0.z + i);
 
-			tri.v1.x = _mm256_load_ps(triData.v1.x + i);
-			tri.v1.y = _mm256_load_ps(triData.v1.y + i);
-			tri.v1.z = _mm256_load_ps(triData.v1.z + i);
+			tri.v1.x = _mm256_loadu_ps(triData.v1.x + i);
+			tri.v1.y = _mm256_loadu_ps(triData.v1.y + i);
+			tri.v1.z = _mm256_loadu_ps(triData.v1.z + i);
 
-			tri.v2.x = _mm256_load_ps(triData.v2.x + i);
-			tri.v2.y = _mm256_load_ps(triData.v2.y + i);
-			tri.v2.z = _mm256_load_ps(triData.v2.z + i);
+			tri.v2.x = _mm256_loadu_ps(triData.v2.x + i);
+			tri.v2.y = _mm256_loadu_ps(triData.v2.y + i);
+			tri.v2.z = _mm256_loadu_ps(triData.v2.z + i);
 
 			orig.x = _mm256_set1_ps(p.orig.x);
 			orig.y = _mm256_set1_ps(p.orig.y);
@@ -382,9 +359,80 @@ namespace bgl
 			t = DotProduct(v0v2, qvec) * invDet;
 
 			validHit = _mm256_or_ps(_mm256_or_ps(culling, fail1), fail2);
+			validDepth = _mm256_cmp_ps(t, pixelDepth, 1);
+			canCopy = _mm256_castps_si256(_mm256_and_ps(validHit, validDepth));
+
+			auto adrT = finalPixel.get()->t;
+			auto adrU = finalPixel.get()->u;
+			auto adrV = finalPixel.get()->v;
+
+			_mm256_maskstore_ps(adrT, canCopy, t);
+			_mm256_maskstore_ps(adrU, canCopy, u);
+			_mm256_maskstore_ps(adrV, canCopy, v);
 
 		}
 
+		p.t = 9999999999.0f;
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			const float currentDist = finalPixel.get()->t[i];
+
+			if (currentDist < p.t)
+			{
+				p.t = currentDist;
+				p.u = finalPixel.get()->u[i];
+				p.v = finalPixel.get()->v[i];
+			}
+		}
+
+		PaintPixelWithShader(p);
+
+	}
+
+	inline void BGraphicsDriverGeneric::PaintPixelWithShader(BFTriangleScanParams& p)
+	{
+		const double depthZ = p.t * 100.0;
+		const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
+
+		p.rgb = 0x000000;
+
+		if (depthZ < currentDepthZ)
+		{
+			p.viewport->SetPixelDepth(p.px, p.py, depthZ);
+
+#pragma region Depth Shader
+			if (p.renderType == BERenderOutputType::Depth)
+			{
+				const double calcA = p.depthDist - depthZ;
+				const double calcB = std::fmax(calcA, 0.0);
+				const double calcC = calcB / p.depthDist;
+
+				const uint32 gray = static_cast<uint32>(255.0 * calcC);
+
+				p.rgb = gray;
+				p.rgb = (p.rgb << 8) + gray;
+				p.rgb = (p.rgb << 8) + gray;
+
+				PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
+			}
+#pragma endregion
+
+#pragma region UV Coloring Shader
+			else if (p.renderType == BERenderOutputType::UvColor)
+			{
+				const char r = static_cast<char>(255 * std::clamp(p.u, 0.f, 1.f));
+				const char g = static_cast<char>(255 * std::clamp(p.v, 0.f, 1.f));
+				const char b = static_cast<char>(255 * std::clamp(1 - p.u - p.v, 0.f, 1.f));
+
+				p.rgb = r;
+				p.rgb = (p.rgb << 8) + g;
+				p.rgb = (p.rgb << 8) + b;
+
+				PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
+			}
+#pragma endregion
+		}
 	}
 
 	void BGraphicsDriverGeneric::SwapUIFrame()
