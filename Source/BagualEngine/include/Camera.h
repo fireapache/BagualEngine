@@ -22,7 +22,7 @@ namespace bgl
 		BTransform<float> m_detachedTransform;
 		BERenderOutputType m_renderOutputType = BERenderOutputType::Depth;
 		float m_depthDist = 1000.f;
-		BVec2f m_sensorSize = BVec3f(24.f, 36.f);
+		BVec2f m_sensorSize = BVec2f(24.f, 36.f);
 		BERenderSpeed m_renderSpeed = BERenderSpeed::VeryFast;
 		BERenderThreadMode m_renderThreadMode = BERenderThreadMode::MultiThread;
 		BEIntrinsicsMode m_intrinsicsMode = BEIntrinsicsMode::Off;

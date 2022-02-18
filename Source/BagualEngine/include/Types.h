@@ -244,12 +244,12 @@ namespace bgl
 	typedef BVector2<float> BVec2f;
 
 	template <typename T>
-	class BVector3 : public BVector2<T>
+	class BVector3
 	{
 
 	public:
 
-		T z;
+		T x, y, z;
 
 		inline BVector3()
 		{

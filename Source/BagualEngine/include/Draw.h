@@ -246,6 +246,7 @@ namespace bgl
 			const BTriangle<float>& tri,
 			float& t, float& u, float& v)
 		{
+			bool result = true;
 			BVec3f v0v1 = tri.v1 - tri.v0;
 			BVec3f v0v2 = tri.v2 - tri.v0;
 			BVec3f pvec = CrossProduct<float>(dir, v0v2);
@@ -253,21 +254,21 @@ namespace bgl
 
 			// if the determinant is negative the triangle is backfacing
 			// if the determinant is close to 0, the ray misses the triangle
-			if (det < kEpsilon) return false;
+			if (det < kEpsilon) result = false;
 
 			float invDet = 1 / det;
 
 			BVec3f tvec = orig - tri.v0;
 			u = DotProduct(tvec, pvec) * invDet;
-			if (u < 0 || u > 1) return false;
+			if (u < 0 || u > 1) result = false;
 
 			BVec3f qvec = CrossProduct(tvec, v0v1);
 			v = DotProduct(dir, qvec) * invDet;
-			if (v < 0 || u + v > 1) return false;
+			if (v < 0 || u + v > 1) result = false;
 
 			t = DotProduct(v0v2, qvec) * invDet;
 
-			return true;
+			return result;
 		}
 	};
 }

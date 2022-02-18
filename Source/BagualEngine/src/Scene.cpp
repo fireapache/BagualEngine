@@ -197,6 +197,22 @@ namespace bgl
 	void BMeshComponent::AddTriangles(BArray<BTriangle<float>>& triangles)
 	{
 		m_triangles.Add(triangles);
+
+		for (auto& tri : triangles)
+		{
+			m_triangles_SIMD.v0.x.Add(tri.v0.x);
+			m_triangles_SIMD.v0.y.Add(tri.v0.y);
+			m_triangles_SIMD.v0.z.Add(tri.v0.z);
+
+			m_triangles_SIMD.v1.x.Add(tri.v1.x);
+			m_triangles_SIMD.v1.y.Add(tri.v1.y);
+			m_triangles_SIMD.v1.z.Add(tri.v1.z);
+
+			m_triangles_SIMD.v2.x.Add(tri.v2.x);
+			m_triangles_SIMD.v2.y.Add(tri.v2.y);
+			m_triangles_SIMD.v2.z.Add(tri.v2.z);
+		}
+		
 	}
 
 	BScene::BScene()

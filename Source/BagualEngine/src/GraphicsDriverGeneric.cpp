@@ -258,8 +258,8 @@ namespace bgl
 
 	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p)
 	{
-		const size_t trisNum = compTris.v0.x.Size();
-		const size_t toKeep = trisNum % 8;
+		const size_t triCount = compTris.v0.x.Size();
+		const size_t notSimdTriCount = triCount % 8;
 
 		// Stacking data and variables
 
@@ -299,9 +299,11 @@ namespace bgl
 
 		BStackAligned<dataAlignment, finalPixelInfo> finalPixel;
 
+		_mm256_store_ps(finalPixel.get()->t, _mm256_set1_ps(9999999999.0f));
+
 		// Core loop
 
-		for (size_t i = 0; i < trisNum; i += 8)
+		for (size_t i = 0; i < triCount; i += 8)
 		{
 			// @TODO: make these loads aligned!
 			tri.v0.x = _mm256_loadu_ps(triData.v0.x + i);
@@ -315,6 +317,8 @@ namespace bgl
 			tri.v2.x = _mm256_loadu_ps(triData.v2.x + i);
 			tri.v2.y = _mm256_loadu_ps(triData.v2.y + i);
 			tri.v2.z = _mm256_loadu_ps(triData.v2.z + i);
+
+			pixelDepth = _mm256_load_ps(finalPixel.get()->t);
 
 			orig.x = _mm256_set1_ps(p.orig.x);
 			orig.y = _mm256_set1_ps(p.orig.y);
@@ -360,7 +364,7 @@ namespace bgl
 
 			validHit = _mm256_or_ps(_mm256_or_ps(culling, fail1), fail2);
 			validDepth = _mm256_cmp_ps(t, pixelDepth, 1);
-			canCopy = _mm256_castps_si256(_mm256_and_ps(validHit, validDepth));
+			canCopy = _mm256_castps_si256(_mm256_andnot_ps(validHit, validDepth));
 
 			auto adrT = finalPixel.get()->t;
 			auto adrU = finalPixel.get()->u;
@@ -374,7 +378,7 @@ namespace bgl
 
 		p.t = 9999999999.0f;
 
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < 8; i++)
 		{
 			const float currentDist = finalPixel.get()->t[i];
 
