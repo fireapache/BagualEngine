@@ -167,8 +167,9 @@ namespace bgl
 		camera->SetDepthDistance(800.f);
 		camera->SetFOV(30.f);
 		camera->SetRenderSpeed(BERenderSpeed::Fast);
-		camera->SetRenderOutputType(BERenderOutputType::UvColor);
+		camera->SetRenderOutputType(BERenderOutputType::Depth);
 		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
+		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
 		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
 
@@ -234,7 +235,7 @@ namespace bgl
 			ImGui::Combo("Render Thread Mode", reinterpret_cast<int*>(&renderThreadMode), renderThreadOptions, IM_ARRAYSIZE(renderThreadOptions));
 
 			auto& renderMode = camera->GetIntrinsicsMode_Mutable();
-			const char* renderModeOptions[] = { "Sequential", "AVX" };
+			const char* renderModeOptions[] = { "Off", "AVX" };
 			ImGui::Combo("Intrinsics", reinterpret_cast<int*>(&renderMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
 
 			auto& renderSpeed = camera->GetRenderSpeed_Mutable();

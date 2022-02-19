@@ -280,7 +280,7 @@ namespace bgl
 		BVector3<__m256> orig, dir, v0v1, v0v2, pvec;
 		BVector3<__m256> tvec, qvec;
 		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
-		__m256 fail1, fail2, uless0, ugrt1, vless0, validHit;
+		__m256 fail1, fail2, uless0, ugrt1, vless0, invalidHit;
 
 		__m256 pixelDepth = _mm256_set1_ps(9999999999.0f);
 		__m256 validDepth;
@@ -288,7 +288,7 @@ namespace bgl
 
 		// Getting aligned floats for efficient output of SIMD
 		constexpr size_t dataAlignment = 32;
-		constexpr size_t floatCount = 4;
+		constexpr size_t floatCount = 8;
 		
 		struct finalPixelInfo
 		{
@@ -362,9 +362,9 @@ namespace bgl
 			
 			t = DotProduct(v0v2, qvec) * invDet;
 
-			validHit = _mm256_or_ps(_mm256_or_ps(culling, fail1), fail2);
+			invalidHit = _mm256_or_ps(_mm256_or_ps(culling, fail1), fail2);
 			validDepth = _mm256_cmp_ps(t, pixelDepth, 1);
-			canCopy = _mm256_castps_si256(_mm256_andnot_ps(validHit, validDepth));
+			canCopy = _mm256_castps_si256(_mm256_andnot_ps(invalidHit, validDepth));
 
 			auto adrT = finalPixel.get()->t;
 			auto adrU = finalPixel.get()->u;
