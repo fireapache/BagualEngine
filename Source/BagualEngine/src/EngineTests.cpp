@@ -94,7 +94,7 @@ namespace bgl
 		camera->SetRenderOutputType(BERenderOutputType::UvColor);
 		camera->SetRenderSpeed(BERenderSpeed::Normal);
 		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
-		camera->SetRenderThreadMode(BERenderThreadMode::MultiThread);
+		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 
 	}
 

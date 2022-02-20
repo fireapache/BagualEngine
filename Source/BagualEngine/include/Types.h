@@ -281,6 +281,53 @@ namespace bgl
 
 		~BVector3() {}
 
+		inline BVector3<T>& Sum(const BVector3<T>& p)
+		{
+			x = x + p.x;
+			y = y + p.y;
+			z = z + p.z;
+			return *this;
+		}
+
+		inline BVector3<T>& Subtract(const BVector3<T>& p)
+		{
+			x = x - p.x;
+			y = y - p.y;
+			z = z - p.z;
+			return *this;
+		}
+
+		inline BVector3<T>& Divide(const BVector3<T>& p)
+		{
+			x = x / p.x;
+			y = y / p.y;
+			z = z / p.z;
+			return *this;
+		}
+
+		inline BVector3<T>& Multiply(const BVector3<T>& p)
+		{
+			x = x * p.x;
+			y = y * p.y;
+			z = z * p.z;
+			return *this;
+		}
+
+		inline T DotProduct(const BVector3<T>& p)
+		{
+			return x * p.x + y * p.y + z * p.z;
+		}
+
+		inline BVector3<T>& CrossProduct(const BVector3<T>& p)
+		{
+			T xTemp = y * p.z - z * p.y;
+			T yTemp = z * p.x - x * p.z;
+			z = x * p.y - y * p.x;
+			x = xTemp;
+			y = yTemp;
+			return *this;
+		}
+
 		inline const BVector3<T> operator-(const BVector3<T> &p) const
 		{
 			return BVector3<T>(this->x - p.x, this->y - p.y, this->z - p.z);

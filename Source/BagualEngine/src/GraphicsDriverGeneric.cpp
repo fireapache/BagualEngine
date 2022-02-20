@@ -277,7 +277,7 @@ namespace bgl
 		triData.v2.z = compTris.v2.z.data();
 
 		BTriangle<__m256> tri;
-		BVector3<__m256> orig, dir, v0v1, v0v2, pvec;
+		BVector3<__m256> orig, dir1, dir2, pvec;
 		BVector3<__m256> tvec, qvec;
 		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
 		__m256 fail1, fail2, uless0, ugrt1, vless0, invalidHit;
@@ -324,17 +324,20 @@ namespace bgl
 			orig.y = _mm256_set1_ps(p.orig.y);
 			orig.z = _mm256_set1_ps(p.orig.z);
 
-			dir.x = _mm256_set1_ps(p.dir.x);
-			dir.y = _mm256_set1_ps(p.dir.y);
-			dir.z = _mm256_set1_ps(p.dir.z);
+			dir1.x = _mm256_set1_ps(p.dir.x);
+			dir1.y = _mm256_set1_ps(p.dir.y);
+			dir1.z = _mm256_set1_ps(p.dir.z);
+
+			dir2 = dir1;
 
 			// ==================================================================
 			// === starting vectorization of BDraw::RayTriangleIntersect(...) ===
 			// ==================================================================
 
-			v0v1 = tri.v1 - tri.v0;
-			v0v2 = tri.v2 - tri.v0;
-			pvec = CrossProduct(dir, v0v2);
+			BVector3<__m256>& v0v1 = tri.v1.Subtract(tri.v0);
+			BVector3<__m256>& v0v2 = tri.v2.Subtract(tri.v0);
+			BVector3<__m256>& pvec = dir1.CrossProduct(v0v2);
+
 			det = DotProduct(v0v1, pvec);
 
 			// Checking if triangle is backfacing (true means it should be discarded)
@@ -343,7 +346,8 @@ namespace bgl
 			// invDet = 1 / det;
 			invDet = _mm256_div_ps(_mm256_set1_ps(1.f), det);
 
-			tvec = orig - tri.v0;
+			BVector3<__m256>& tvec = orig.Subtract(tri.v0);
+
 			u = DotProduct(tvec, pvec) * invDet;
 
 			// if (u < 0 || u > 1) return false;
@@ -351,8 +355,8 @@ namespace bgl
 			ugrt1 = _mm256_cmp_ps(u, _mm256_set1_ps(1.f), 14);
 			fail1 = _mm256_or_ps(uless0, ugrt1);
 
-			qvec = CrossProduct(tvec, v0v1);
-			v = DotProduct(dir, qvec) * invDet;
+			BVector3<__m256>& qvec = tvec.CrossProduct(v0v1);
+			v = dir2.DotProduct(qvec) * invDet;
 
 			// if (v < 0 || u + v > 1) return false;
 			vless0 = _mm256_cmp_ps(v, _mm256_set1_ps(0.f), 1);
