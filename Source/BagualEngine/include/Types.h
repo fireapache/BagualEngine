@@ -524,6 +524,34 @@ namespace bgl
 			return v0 + v0v1 * u + v0v2 * v;
 		}
 
+		inline BTriangle<T>& Sum(const BTriangle<T>& p)
+		{
+			v0.Sum(p.v0);
+			v1.Sum(p.v1);
+			v2.Sum(p.v2);
+		}
+
+		inline BTriangle<T>& Subtract(const BTriangle<T>& p)
+		{
+			v0.Subtract(p.v0);
+			v1.Subtract(p.v1);
+			v2.Subtract(p.v2);
+		}
+
+		inline BTriangle<T>& Multiply(const BTriangle<T>& p)
+		{
+			v0.Multiply(p.v0);
+			v1.Multiply(p.v1);
+			v2.Multiply(p.v2);
+		}
+
+		inline BTriangle<T>& Divide(const BTriangle<T>& p)
+		{
+			v0.Divide(p.v0);
+			v1.Divide(p.v1);
+			v2.Divide(p.v2);
+		}
+
 	};
 
 	template <typename T>
