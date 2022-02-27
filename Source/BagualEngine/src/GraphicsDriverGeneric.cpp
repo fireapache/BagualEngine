@@ -22,6 +22,7 @@
 #include <GLFW/glfw3.h>
 #include <obj_parse.h>
 #include <thread>
+#include <limits>
 
 namespace bgl
 {
@@ -206,6 +207,8 @@ namespace bgl
 			{
 				triangleScanParams.px = i;
 				triangleScanParams.py = j;
+				triangleScanParams.bHit = false;
+				triangleScanParams.t = std::numeric_limits<float>::max();
 
 				// Getting ray rotation
 
@@ -241,17 +244,34 @@ namespace bgl
 						ScanTriangles_SIMD(compTris, triangleScanParams);
 					}
 				}
+
+				if (triangleScanParams.bHit)
+				{
+					PaintPixelWithShader(triangleScanParams);
+				}
+				else
+				{
+					auto& p = triangleScanParams;
+					PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, 0x00);
+				}
 			}
 		}
 	}
 
 	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p)
 	{
+		// Local copy of ray tracing parameters
+		BFTriangleScanParams lp = p;
+
 		for (auto tri : compTris)
 		{
-			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri, p.t, p.u, p.v))
+			if (BDraw::RayTriangleIntersect(lp.orig, lp.dir, tri, lp.t, lp.u, lp.v))
 			{
-				PaintPixelWithShader(p);
+				if (lp.t < p.t)
+				{
+					p = lp;
+					p.bHit = true;
+				}
 			}
 		}
 	}
@@ -380,8 +400,6 @@ namespace bgl
 
 		}
 
-		p.t = 9999999999.0f;
-
 		for (size_t i = 0; i < 8; i++)
 		{
 			const float currentDist = finalPixel.get()->t[i];
@@ -391,10 +409,9 @@ namespace bgl
 				p.t = currentDist;
 				p.u = finalPixel.get()->u[i];
 				p.v = finalPixel.get()->v[i];
+				p.bHit = true;
 			}
 		}
-
-		PaintPixelWithShader(p);
 
 	}
 

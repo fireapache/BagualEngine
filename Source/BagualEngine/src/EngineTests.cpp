@@ -167,7 +167,7 @@ namespace bgl
 		camera->SetDepthDistance(800.f);
 		camera->SetFOV(30.f);
 		camera->SetRenderSpeed(BERenderSpeed::Fast);
-		camera->SetRenderOutputType(BERenderOutputType::Depth);
+		camera->SetRenderOutputType(BERenderOutputType::UvColor);
 		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
