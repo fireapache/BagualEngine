@@ -182,6 +182,23 @@ namespace bgl
 			m_triangles_SIMD.v2.y.Add(triCache.v2.y);
 			m_triangles_SIMD.v2.z.Add(triCache.v2.z);
 		}
+
+		const int32 simdFillerCount = (8 - m_triangles_SIMD.v0.x.Size() % 8) % 8;
+
+		for (int32 i = 0; i < simdFillerCount; i++)
+		{
+			constexpr float dummy = 0.f;
+			m_triangles_SIMD.v0.x.Add(dummy);
+			m_triangles_SIMD.v0.y.Add(dummy);
+			m_triangles_SIMD.v0.z.Add(dummy);
+			m_triangles_SIMD.v1.x.Add(dummy);
+			m_triangles_SIMD.v1.y.Add(dummy);
+			m_triangles_SIMD.v1.z.Add(dummy);
+			m_triangles_SIMD.v2.x.Add(dummy);
+			m_triangles_SIMD.v2.y.Add(dummy);
+			m_triangles_SIMD.v2.z.Add(dummy);
+		}
+
 	}
 
 	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
