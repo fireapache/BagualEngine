@@ -302,7 +302,7 @@ namespace bgl
 		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
 		__m256 fail1, fail2, uless0, ugrt1, vless0, invalidHit;
 
-		__m256 pixelDepth = _mm256_set1_ps(9999999999.0f);
+		__m256 pixelDepth = _mm256_set1_ps(std::numeric_limits<float>::max());
 		__m256 validDepth;
 		__m256i canCopy;
 
@@ -319,7 +319,7 @@ namespace bgl
 
 		BStackAligned<dataAlignment, finalPixelInfo> finalPixel;
 
-		_mm256_store_ps(finalPixel.get()->t, _mm256_set1_ps(9999999999.0f));
+		_mm256_store_ps(finalPixel.get()->t, _mm256_set1_ps(std::numeric_limits<float>::max()));
 
 		// Core loop
 
