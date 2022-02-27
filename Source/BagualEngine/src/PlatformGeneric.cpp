@@ -112,7 +112,8 @@ namespace bgl
 
 			glfwSetWindowPos(glfwWindow,
 				monitorX + (mode->width - settings.width) / 2,
-				monitorY + (mode->height - settings.height) / 2);
+				//monitorY + (mode->height - settings.height) / 2);
+				monitorY + static_cast<int32>((mode->height - settings.height) / 2) * 0.25f);
 		}
 		else
 		{
