@@ -242,34 +242,34 @@ namespace bgl
 		// method and the Moller-Trumbore algorithm
 		// [/comment]
 		inline static bool RayTriangleIntersect(
-			const BVec3f& orig, const BVec3f& dir,
-			const BTriangle<float>& tri,
+			const BVec3f& origin, const BVec3f& dir,
+			const BTriangle<float>& triangle,
 			float& t, float& u, float& v)
 		{
-			{
-				BVec3f v0v1 = tri.v1 - tri.v0;
-				BVec3f v0v2 = tri.v2 - tri.v0;
-				BVec3f pvec = CrossProduct<float>(dir, v0v2);
-				float det = DotProduct<float>(v0v1, pvec);
+			BTriangle<float> tri = triangle;
+			BVec3f dir1 = dir, dir2 = dir, orig = origin;
+			const BVec3f& v0v1 = tri.v1.Subtract(tri.v0);
+			const BVec3f& v0v2 = tri.v2.Subtract(tri.v0);
+			const BVec3f& pvec = dir1.CrossProduct(v0v2);
+			const float det = DotProduct<float>(v0v1, pvec);
 
-				// if the determinant is negative the triangle is backfacing
-				// if the determinant is close to 0, the ray misses the triangle
-				if (det < kEpsilon) return false;
+			// if the determinant is negative the triangle is backfacing
+			// if the determinant is close to 0, the ray misses the triangle
+			if (det < kEpsilon) return false;
 
-				float invDet = 1 / det;
+			const float invDet = 1.f / det;
 
-				BVec3f tvec = orig - tri.v0;
-				u = DotProduct(tvec, pvec) * invDet;
-				if (u < 0 || u > 1) return false;
+			BVec3f& tvec = orig.Subtract(tri.v0);
+			u = DotProduct(tvec, pvec) * invDet;
+			if (u < 0 || u > 1) return false;
 
-				BVec3f qvec = CrossProduct(tvec, v0v1);
-				v = DotProduct(dir, qvec) * invDet;
-				if (v < 0 || u + v > 1) return false;
+			BVec3f& qvec = tvec.CrossProduct(v0v1);
+			v = DotProduct(dir, qvec) * invDet;
+			if (v < 0 || u + v > 1) return false;
 
-				t = DotProduct(v0v2, qvec) * invDet;
+			t = DotProduct(v0v2, qvec) * invDet;
 
-				return true;
-			}
+			return true;
 		}
 	};
 }

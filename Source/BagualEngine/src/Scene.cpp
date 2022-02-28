@@ -86,9 +86,9 @@ namespace bgl
 		m_transform = transform;
 	}
 
-	void BNode::SetLocation(const BVec3f& translation)
+	void BNode::SetLocation(const BVec3f& location)
 	{
-		m_transform.translation = translation;
+		m_transform.translation = location;
 	}
 
 	void BNode::SetRotation(const BVec3f& rotation)
@@ -171,7 +171,34 @@ namespace bgl
 			triCache.v2.z = vert2.Position.Z;
 
 			m_triangles.Add(triCache);
+
+			m_triangles_SIMD.v0.x.Add(triCache.v0.x);
+			m_triangles_SIMD.v0.y.Add(triCache.v0.y);
+			m_triangles_SIMD.v0.z.Add(triCache.v0.z);
+			m_triangles_SIMD.v1.x.Add(triCache.v1.x);
+			m_triangles_SIMD.v1.y.Add(triCache.v1.y);
+			m_triangles_SIMD.v1.z.Add(triCache.v1.z);
+			m_triangles_SIMD.v2.x.Add(triCache.v2.x);
+			m_triangles_SIMD.v2.y.Add(triCache.v2.y);
+			m_triangles_SIMD.v2.z.Add(triCache.v2.z);
 		}
+
+		const int32 simdFillerCount = (8 - m_triangles_SIMD.v0.x.Size() % 8) % 8;
+
+		for (int32 i = 0; i < simdFillerCount; i++)
+		{
+			constexpr float dummy = 0.f;
+			m_triangles_SIMD.v0.x.Add(dummy);
+			m_triangles_SIMD.v0.y.Add(dummy);
+			m_triangles_SIMD.v0.z.Add(dummy);
+			m_triangles_SIMD.v1.x.Add(dummy);
+			m_triangles_SIMD.v1.y.Add(dummy);
+			m_triangles_SIMD.v1.z.Add(dummy);
+			m_triangles_SIMD.v2.x.Add(dummy);
+			m_triangles_SIMD.v2.y.Add(dummy);
+			m_triangles_SIMD.v2.z.Add(dummy);
+		}
+
 	}
 
 	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
@@ -179,9 +206,30 @@ namespace bgl
 		return m_triangles;
 	}
 
+	BTriangle<BArray<float>>& BMeshComponent::GetTriangles_SIMD()
+	{
+		return m_triangles_SIMD;
+	}
+
 	void BMeshComponent::AddTriangles(BArray<BTriangle<float>>& triangles)
 	{
 		m_triangles.Add(triangles);
+
+		for (auto& tri : triangles)
+		{
+			m_triangles_SIMD.v0.x.Add(tri.v0.x);
+			m_triangles_SIMD.v0.y.Add(tri.v0.y);
+			m_triangles_SIMD.v0.z.Add(tri.v0.z);
+
+			m_triangles_SIMD.v1.x.Add(tri.v1.x);
+			m_triangles_SIMD.v1.y.Add(tri.v1.y);
+			m_triangles_SIMD.v1.z.Add(tri.v1.z);
+
+			m_triangles_SIMD.v2.x.Add(tri.v2.x);
+			m_triangles_SIMD.v2.y.Add(tri.v2.y);
+			m_triangles_SIMD.v2.z.Add(tri.v2.z);
+		}
+		
 	}
 
 	BScene::BScene()
@@ -275,9 +323,9 @@ namespace bgl
 		GetTransform_Mutable() = transform;
 	}
 
-	void BComponent::SetLocation(const BVec3f& translation)
+	void BComponent::SetLocation(const BVec3f& location)
 	{
-		GetTransform_Mutable().translation = translation;
+		GetTransform_Mutable().translation = location;
 	}
 
 	void BComponent::SetRotation(const BVec3f& rotation)

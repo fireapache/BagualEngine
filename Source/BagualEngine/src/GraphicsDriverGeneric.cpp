@@ -22,6 +22,7 @@
 #include <GLFW/glfw3.h>
 #include <obj_parse.h>
 #include <thread>
+#include <limits>
 
 namespace bgl
 {
@@ -206,6 +207,8 @@ namespace bgl
 			{
 				triangleScanParams.px = i;
 				triangleScanParams.py = j;
+				triangleScanParams.bHit = false;
+				triangleScanParams.t = std::numeric_limits<float>::max();
 
 				// Getting ray rotation
 
@@ -230,16 +233,26 @@ namespace bgl
 						continue;
 					}
 
-					auto& compTris = meshComp->GetTriangles();
-
 					if (intrinsicsMode == BEIntrinsicsMode::Off)
 					{
+						auto& compTris = meshComp->GetTriangles();
 						ScanTriangles_Sequential(compTris, triangleScanParams);
 					}
 					else if (intrinsicsMode == BEIntrinsicsMode::AVX)
 					{
-
+						auto& compTris = meshComp->GetTriangles_SIMD();
+						ScanTriangles_SIMD(compTris, triangleScanParams);
 					}
+				}
+
+				if (triangleScanParams.bHit)
+				{
+					PaintPixelWithShader(triangleScanParams);
+				}
+				else
+				{
+					auto& p = triangleScanParams;
+					PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, 0x00);
 				}
 			}
 		}
@@ -247,59 +260,204 @@ namespace bgl
 
 	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p)
 	{
+		// Local copy of ray tracing parameters
+		BFTriangleScanParams lp = p;
+
 		for (auto tri : compTris)
 		{
-			if (BDraw::RayTriangleIntersect(p.orig, p.dir, tri, p.t, p.u, p.v))
+			if (BDraw::RayTriangleIntersect(lp.orig, lp.dir, tri, lp.t, lp.u, lp.v))
 			{
-				const double depthZ = p.t * 100.0;
-				const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
-
-				p.rgb = 0x000000;
-
-				if (depthZ < currentDepthZ)
+				if (lp.t < p.t)
 				{
-					p.viewport->SetPixelDepth(p.px, p.py, depthZ);
-
-#pragma region Depth Shader
-					if (p.renderType == BERenderOutputType::Depth)
-					{
-						const double calcA = p.depthDist - depthZ;
-						const double calcB = std::fmax(calcA, 0.0);
-						const double calcC = calcB / p.depthDist;
-
-						const uint32 gray = static_cast<uint32>(255.0 * calcC);
-
-						p.rgb = gray;
-						p.rgb = (p.rgb << 8) + gray;
-						p.rgb = (p.rgb << 8) + gray;
-
-						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
-					}
-#pragma endregion
-
-#pragma region UV Coloring Shader
-					else if (p.renderType == BERenderOutputType::UvColor)
-					{
-						const char r = static_cast<char>(255 * std::clamp(p.u, 0.f, 1.f));
-						const char g = static_cast<char>(255 * std::clamp(p.v, 0.f, 1.f));
-						const char b = static_cast<char>(255 * std::clamp(1 - p.u - p.v, 0.f, 1.f));
-
-						p.rgb = r;
-						p.rgb = (p.rgb << 8) + g;
-						p.rgb = (p.rgb << 8) + b;
-
-						PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
-					}
-#pragma endregion
+					p = lp;
+					p.bHit = true;
 				}
-
 			}
 		}
 	}
 
-	inline void BGraphicsDriverGeneric::ScanTriangles_AVX(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p)
+	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p)
 	{
-		//const uint8 fillUpTrisCount = compTris.Size();
+		const size_t triCount = compTris.v0.x.Size();
+		const size_t notSimdTriCount = triCount % 8;
+
+		// Stacking data and variables
+
+		BTriangle<float*> triData;
+		triData.v0.x = compTris.v0.x.data();
+		triData.v0.y = compTris.v0.y.data();
+		triData.v0.z = compTris.v0.z.data();
+
+		triData.v1.x = compTris.v1.x.data();
+		triData.v1.y = compTris.v1.y.data();
+		triData.v1.z = compTris.v1.z.data();
+
+		triData.v2.x = compTris.v2.x.data();
+		triData.v2.y = compTris.v2.y.data();
+		triData.v2.z = compTris.v2.z.data();
+
+		BTriangle<__m256> tri;
+		BVector3<__m256> orig, dir1, dir2, pvec;
+		BVector3<__m256> tvec, qvec;
+		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
+		__m256 fail1, fail2, uless0, ugrt1, vless0, invalidHit;
+
+		__m256 pixelDepth = _mm256_set1_ps(std::numeric_limits<float>::max());
+		__m256 validDepth;
+		__m256i canCopy;
+
+		// Getting aligned floats for efficient output of SIMD
+		constexpr size_t dataAlignment = 32;
+		constexpr size_t floatCount = 8;
+		
+		struct finalPixelInfo
+		{
+			float t[floatCount];
+			float u[floatCount];
+			float v[floatCount];
+		};
+
+		BStackAligned<dataAlignment, finalPixelInfo> finalPixel;
+
+		_mm256_store_ps(finalPixel.get()->t, _mm256_set1_ps(std::numeric_limits<float>::max()));
+
+		// Core loop
+
+		for (size_t i = 0; i < triCount; i += 8)
+		{
+			// @TODO: make these loads aligned!
+			tri.v0.x = _mm256_loadu_ps(triData.v0.x + i);
+			tri.v0.y = _mm256_loadu_ps(triData.v0.y + i);
+			tri.v0.z = _mm256_loadu_ps(triData.v0.z + i);
+
+			tri.v1.x = _mm256_loadu_ps(triData.v1.x + i);
+			tri.v1.y = _mm256_loadu_ps(triData.v1.y + i);
+			tri.v1.z = _mm256_loadu_ps(triData.v1.z + i);
+
+			tri.v2.x = _mm256_loadu_ps(triData.v2.x + i);
+			tri.v2.y = _mm256_loadu_ps(triData.v2.y + i);
+			tri.v2.z = _mm256_loadu_ps(triData.v2.z + i);
+
+			pixelDepth = _mm256_load_ps(finalPixel.get()->t);
+
+			orig.x = _mm256_set1_ps(p.orig.x);
+			orig.y = _mm256_set1_ps(p.orig.y);
+			orig.z = _mm256_set1_ps(p.orig.z);
+
+			dir1.x = _mm256_set1_ps(p.dir.x);
+			dir1.y = _mm256_set1_ps(p.dir.y);
+			dir1.z = _mm256_set1_ps(p.dir.z);
+
+			dir2 = dir1;
+
+			// ==================================================================
+			// === starting vectorization of BDraw::RayTriangleIntersect(...) ===
+			// ==================================================================
+
+			BVector3<__m256>& v0v1 = tri.v1.Subtract(tri.v0);
+			BVector3<__m256>& v0v2 = tri.v2.Subtract(tri.v0);
+			BVector3<__m256>& pvec = dir1.CrossProduct(v0v2);
+
+			det = DotProduct(v0v1, pvec);
+
+			// Checking if triangle is backfacing (true means it should be discarded)
+			culling = _mm256_cmp_ps(det, _mm256_set1_ps(kEpsilon), 1);
+
+			// invDet = 1 / det;
+			invDet = _mm256_div_ps(_mm256_set1_ps(1.f), det);
+
+			BVector3<__m256>& tvec = orig.Subtract(tri.v0);
+
+			u = DotProduct(tvec, pvec) * invDet;
+
+			// if (u < 0 || u > 1) return false;
+			uless0 = _mm256_cmp_ps(u, _mm256_set1_ps(0.f), 1);
+			ugrt1 = _mm256_cmp_ps(u, _mm256_set1_ps(1.f), 14);
+			fail1 = _mm256_or_ps(uless0, ugrt1);
+
+			BVector3<__m256>& qvec = tvec.CrossProduct(v0v1);
+			v = dir2.DotProduct(qvec) * invDet;
+
+			// if (v < 0 || u + v > 1) return false;
+			vless0 = _mm256_cmp_ps(v, _mm256_set1_ps(0.f), 1);
+			uv = u + v;
+			uvgrt1 = _mm256_cmp_ps(uv, _mm256_set1_ps(1.f), 14);
+			fail2 = _mm256_or_ps(vless0, uvgrt1);
+			
+			t = DotProduct(v0v2, qvec) * invDet;
+
+			invalidHit = _mm256_or_ps(_mm256_or_ps(culling, fail1), fail2);
+			validDepth = _mm256_cmp_ps(t, pixelDepth, 1);
+			canCopy = _mm256_castps_si256(_mm256_andnot_ps(invalidHit, validDepth));
+
+			auto adrT = finalPixel.get()->t;
+			auto adrU = finalPixel.get()->u;
+			auto adrV = finalPixel.get()->v;
+
+			_mm256_maskstore_ps(adrT, canCopy, t);
+			_mm256_maskstore_ps(adrU, canCopy, u);
+			_mm256_maskstore_ps(adrV, canCopy, v);
+
+		}
+
+		for (size_t i = 0; i < 8; i++)
+		{
+			const float currentDist = finalPixel.get()->t[i];
+
+			if (currentDist < p.t)
+			{
+				p.t = currentDist;
+				p.u = finalPixel.get()->u[i];
+				p.v = finalPixel.get()->v[i];
+				p.bHit = true;
+			}
+		}
+
+	}
+
+	inline void BGraphicsDriverGeneric::PaintPixelWithShader(BFTriangleScanParams& p)
+	{
+		const double depthZ = p.t * 100.0;
+		const double currentDepthZ = p.viewport->GetPixelDepth(p.px, p.py);
+
+		p.rgb = 0x000000;
+
+		if (depthZ < currentDepthZ)
+		{
+			p.viewport->SetPixelDepth(p.px, p.py, depthZ);
+
+#pragma region Depth Shader
+			if (p.renderType == BERenderOutputType::Depth)
+			{
+				const double calcA = p.depthDist - depthZ;
+				const double calcB = std::fmax(calcA, 0.0);
+				const double calcC = calcB / p.depthDist;
+
+				const uint32 gray = static_cast<uint32>(255.0 * calcC);
+
+				p.rgb = gray;
+				p.rgb = (p.rgb << 8) + gray;
+				p.rgb = (p.rgb << 8) + gray;
+
+				PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
+			}
+#pragma endregion
+
+#pragma region UV Coloring Shader
+			else if (p.renderType == BERenderOutputType::UvColor)
+			{
+				const char r = static_cast<char>(255 * std::clamp(p.u, 0.f, 1.f));
+				const char g = static_cast<char>(255 * std::clamp(p.v, 0.f, 1.f));
+				const char b = static_cast<char>(255 * std::clamp(1 - p.u - p.v, 0.f, 1.f));
+
+				p.rgb = r;
+				p.rgb = (p.rgb << 8) + g;
+				p.rgb = (p.rgb << 8) + b;
+
+				PaintPixel(p.viewport, p.renderSpeed, p.px, p.py, p.rgb);
+			}
+#pragma endregion
+		}
 	}
 
 	void BGraphicsDriverGeneric::SwapUIFrame()

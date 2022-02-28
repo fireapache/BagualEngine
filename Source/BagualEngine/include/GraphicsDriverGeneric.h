@@ -43,15 +43,17 @@ namespace bgl
 		// Triangle intersection
 		float t, u, v;
 		// Viewport to render
-		BViewport* viewport;
+		BViewport* viewport = nullptr;
 		// Pixel location and final color
 		uint32 px, py, rgb;
 		// Type of render output
-		BERenderOutputType renderType;
+		BERenderOutputType renderType = BERenderOutputType::UvColor;
 		// Max distance to render on pixel depth output mode
 		double depthDist;
 		// Resolution scale to render
-		BERenderSpeed renderSpeed;
+		BERenderSpeed renderSpeed = BERenderSpeed::Fast;
+		// Hit any geometry
+		bool bHit = false;
 	};
 
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
@@ -59,7 +61,9 @@ namespace bgl
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
 		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
-		static void ScanTriangles_AVX(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
+		static void ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p);
+
+		static void PaintPixelWithShader(BFTriangleScanParams& p);
 
 	public:
 

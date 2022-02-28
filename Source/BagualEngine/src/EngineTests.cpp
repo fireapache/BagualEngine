@@ -47,17 +47,42 @@ namespace bgl
 	{
 		CreateStandardWindow("Bagual Engine Test #1 (Fundamental Rendering)");
 
-		// Creating 2 simple triangles
+		// Creating 8 simple triangles
 		BArray<BTriangle<float>> tris;
 
 		tris.Add(BTriangle<float>(
-			BVec3f(-1.f, 1.f, -5.f),
-			BVec3f(1.f, 1.f, -5.f),
-			BVec3f(0.f, -1.f, -5.f)));
+			BVec3f(-1.f, -0.25f, -5.f),
+			BVec3f(1.f, -0.25f, -5.f),
+			BVec3f(0.f, -2.25f, -5.f)));
 		tris.Add(BTriangle<float>(
-			BVec3f(4.f, 1.f, -6.f),
-			BVec3f(2.f, 1.f, -5.f),
-			BVec3f(3.f, -1.f, -5.f)));
+			BVec3f(-3.f, 1.f, -5.f),
+			BVec3f(-1.f, 1.f, -5.f),
+			BVec3f(-2.f, -1.f, -5.f)));
+		tris.Add(BTriangle<float>(
+			BVec3f(1.f, 1.f, -5.f),
+			BVec3f(3.f, 1.f, -5.f),
+			BVec3f(2.f, -1.f, -5.f)));
+		tris.Add(BTriangle<float>(
+			BVec3f(-1.f, 2.25f, -5.f),
+			BVec3f(1.f, 2.25f, -5.f),
+			BVec3f(0.f, 0.25f, -5.f)));
+
+		tris.Add(BTriangle<float>(
+			BVec3f(-1.f, -0.25f, -5.f),
+			BVec3f(1.f, -0.25f, -5.f),
+			BVec3f(0.f, -2.25f, -5.f)));
+		tris.Add(BTriangle<float>(
+			BVec3f(-3.f, 1.f, -5.f),
+			BVec3f(-1.f, 1.f, -5.f),
+			BVec3f(-2.f, -1.f, -5.f)));
+		tris.Add(BTriangle<float>(
+			BVec3f(1.f, 1.f, -5.f),
+			BVec3f(3.f, 1.f, -5.f),
+			BVec3f(2.f, -1.f, -5.f)));
+		tris.Add(BTriangle<float>(
+			BVec3f(-1.f, 2.25f, -5.f),
+			BVec3f(1.f, 2.25f, -5.f),
+			BVec3f(0.f, 0.25f, -5.f)));
 
 		auto trisNode = BEngine::Scene().CreateNode("SimpleTriangles");
 		auto meshComp = trisNode->CreateComponent<BMeshComponent>("Triangles");
@@ -68,6 +93,8 @@ namespace bgl
 		auto camera = cameraComp->GetCamera();
 		camera->SetRenderOutputType(BERenderOutputType::UvColor);
 		camera->SetRenderSpeed(BERenderSpeed::Normal);
+		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
+		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 
 	}
 
@@ -78,6 +105,7 @@ namespace bgl
 
 	void BEngineTest_FundamentalRendering::Tick()
 	{
+		return;
 		auto cameras = BCameraManager::GetCameras();
 
 		for (auto camera : cameras)
@@ -140,6 +168,8 @@ namespace bgl
 		camera->SetFOV(30.f);
 		camera->SetRenderSpeed(BERenderSpeed::Fast);
 		camera->SetRenderOutputType(BERenderOutputType::UvColor);
+		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
+		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
 		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
 
@@ -180,10 +210,10 @@ namespace bgl
 			}
 
 			auto camera = cameraComp->GetCamera();
-			auto& renderThreadMode = camera->GetRenderOutputType_Mutable();
 
-			const char* renderModeOptions[] = { "Pixel Depth", "UV Color" };
-			ImGui::Combo("Render Mode", reinterpret_cast<int*>(&renderThreadMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
+			auto& renderOutputMode = camera->GetRenderOutputType_Mutable();
+			const char* renderOutputOptions[] = { "Pixel Depth", "UV Color" };
+			ImGui::Combo("Render Output", reinterpret_cast<int*>(&renderOutputMode), renderOutputOptions, IM_ARRAYSIZE(renderOutputOptions));
 
 			const float positionRange = 10.f;
 			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
@@ -199,6 +229,14 @@ namespace bgl
 
 			auto& sensorSize = camera->GetSensorSize_Mutable();
 			ImGui::InputFloat2("Sensor Size", reinterpret_cast<float*>(&sensorSize));
+
+			auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
+			const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread"};
+			ImGui::Combo("Render Thread Mode", reinterpret_cast<int*>(&renderThreadMode), renderThreadOptions, IM_ARRAYSIZE(renderThreadOptions));
+
+			auto& renderMode = camera->GetIntrinsicsMode_Mutable();
+			const char* renderModeOptions[] = { "Off", "AVX" };
+			ImGui::Combo("Intrinsics", reinterpret_cast<int*>(&renderMode), renderModeOptions, IM_ARRAYSIZE(renderModeOptions));
 
 			auto& renderSpeed = camera->GetRenderSpeed_Mutable();
 			const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
