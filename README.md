@@ -13,7 +13,7 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 <img src="https://user-images.githubusercontent.com/5270978/150307202-7acd6387-8c12-4799-b655-0141e7af5fb7.png" width="350" height="287"><img src="https://user-images.githubusercontent.com/5270978/150307209-ac3a3041-d041-4692-abbb-b6ef44b38171.png" width="350" height="287">
 
 **Windows**: Compiles and run<br>
-**Linux (arm)**: Compiles but fails to run
+**Linux (arm)**: Used to compile
 
 ## Features
 
