@@ -19,11 +19,12 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 
 * Scene with node and component structure
 * Multithread CPU renderer (GPU in the plans)
+* SIMD and non-SIMD renderer implementations
 * OBJ mesh file importer (only triangles for now, materials not supported atm)
 * Super simple to use straight in main.cpp
 * Very customizable and easy to improve uppon
 
 ## Next steps
 
-Implement SIMD version of software renderer (called Generic Graphics Driver in the engine).
+Improve rendering performance by adding a fast BVH solution to find the minimal triangle set to test intersection with.
 
