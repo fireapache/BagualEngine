@@ -14,13 +14,10 @@
 #include <imgui.h>
 #include <imgui_node_editor.h>
 #include <imgui_node_editor_internal.h>
+#include <Draw.h>
 
 namespace bgl
 {
-
-	BPlatformWindow* BEngineTestBase::window = nullptr;
-	BViewport* BEngineTestBase::viewport = nullptr;
-	BCanvas* BEngineTestBase::canvas = nullptr;
 
 	void BEngineTestBase::CreateStandardWindow(const char* windowTitle)
 	{
@@ -112,20 +109,19 @@ namespace bgl
 		{
 			if (camera)
 			{
-				camera->ClearLine2DBuffer();
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
-				DrawCameraLine(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
+				QueueCameraLineDraw(camera);
 			}
 		}
 	}
 
-	void BEngineTest_FundamentalRendering::DrawCameraLine(BCamera* camera)
+	void BEngineTest_FundamentalRendering::QueueCameraLineDraw(BCamera* camera)
 	{
 		if (camera)
 		{
@@ -161,14 +157,13 @@ namespace bgl
 
 		auto cameraNode = BEngine::Scene().CreateNode("Camera");
 		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
-		auto camera = cameraComp->GetCamera();
+		camera = cameraComp->GetCamera();
 		camera->SetLocation(BVec3f(-1.33f, 2.f, -4.f));
-		camera->SetRotation(BVec3f(8.19f, 20.f, 0.f));
+		camera->SetRotation(BRotf(8.19f, 20.f, 0.f));
 		camera->SetDepthDistance(800.f);
 		camera->SetFOV(30.f);
-		camera->SetRenderSpeed(BERenderSpeed::Fast);
+		camera->SetRenderSpeed(BERenderSpeed::Normal);
 		camera->SetRenderOutputType(BERenderOutputType::UvColor);
-		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
 		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
@@ -220,7 +215,7 @@ namespace bgl
 			ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camPos), -positionRange, positionRange);
 
 			const float rotRange = 20.f;
-			BVec3f& camRot = cameraComp->GetTransform_Mutable().rotation;
+			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
 			ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
 
 			auto& depthDist = camera->GetDepthDistance_Mutable();
@@ -273,6 +268,11 @@ namespace bgl
 
 	}
 
+	void BEngineTest_RoomRendering::Tick()
+	{
+		
+	}
+
 	void BEngineTest_RoomRendering::Term()
 	{
 		
@@ -323,5 +323,92 @@ namespace bgl
 	}
 
 #pragma endregion
+
+#pragma region Deprojection
+
+	void BEngineTest_DeProjection::Init()
+	{
+		CreateStandardWindow("Bagual Engine Test #4 (Deprojection)");
+
+		// Creating scene nodes
+		auto cubeNode = BEngine::Scene().CreateNode("Cube");
+
+		// Creating mesh components and loading geometry from disk
+		cubeNode->CreateComponent<BMeshComponent>("CubeMesh", "./assets/basemap/basemap_cube.obj");
+
+		auto cameraNode = BEngine::Scene().CreateNode("Camera");
+		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
+		camera = cameraComp->GetCamera();
+		camera->SetLocation(BVec3f(0.f, 0.f, 0.f));
+		camera->SetRotation(BRotf(0.f, 0.f, 0.f));
+		camera->SetDepthDistance(800.f);
+		camera->SetFOV(60.f);
+		camera->SetRenderSpeed(BERenderSpeed::VeryFast);
+		camera->SetRenderOutputType(BERenderOutputType::Depth);
+		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
+
+		point1 = BVec3f(1.f, 1.f, 5.f);
+		point2 = BVec3f(-1.f, 1.f, 5.f);
+
+		auto guiTick = [this]()
+		{
+			IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!");
+
+			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(ImVec2(main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
+
+			ImGuiWindowFlags window_flags = 0;
+			if (!ImGui::Begin("Bagual Engine Test #4 Settings", nullptr, window_flags))
+			{
+				ImGui::End();
+				return;
+			}
+
+			ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
+
+			const float positionRange = 10.f;
+			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			ImGui::SliderFloat3("Camera Position", reinterpret_cast<float*>(&camPos), -positionRange, positionRange);
+
+			const float rotRange = 20.f;
+			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
+			ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
+
+			ImGui::SliderFloat3("Point 1", reinterpret_cast<float*>(&point1), -25.f, 25.f);
+			ImGui::SliderFloat3("Point 2", reinterpret_cast<float*>(&point2), -25.f, 25.f);
+
+			ImGui::End();
+
+		};
+
+		// Gui update procedure
+		window->SetGuiTickFunc(guiTick);
+
+	}
+
+	void BEngineTest_DeProjection::Tick()
+	{
+		if (camera)
+		{
+			BPixelPos pp1, pp2;
+
+			const bool pp1valid = BDraw::DeProjectPoint(viewport, point1, pp1);
+			const bool pp2valid = BDraw::DeProjectPoint(viewport, point2, pp2);
+
+			if (pp1valid && pp2valid)
+			{
+				BDraw::DrawLine(viewport, pp1, pp2);
+			}
+
+		}
+	}
+
+	void BEngineTest_DeProjection::Term()
+	{
+
+	}
+
+#pragma endregion	
 
 }

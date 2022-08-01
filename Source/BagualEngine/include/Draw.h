@@ -15,6 +15,83 @@ namespace bgl
 
 	public:
 
+		static bool RayPlaneIntersection(const BVec3f& planeLoc, BVec3f planeNormal, const BVec3f& rayOrig, const BVec3f& rayDir, BVec3f& result)
+		{
+			//planeNormal = planeNormal * -1.f;
+			const float denom = DotProduct(planeNormal, rayDir);
+
+			if (denom > 1e-6f)
+			{
+				BVec3f p0l0 = planeLoc - rayOrig;
+				const float t = DotProduct(p0l0, planeNormal) / denom;
+
+				if (t >= 0.f)
+				{
+					result = rayOrig + rayDir * t;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		// not optimal solution but it works, need optimization
+		inline static bool DeProjectPoint(BViewport* viewport, const BVec3f& point, BPixelPos& pixelPos, const bool bInBoundsOnly = false)
+		{
+			if (viewport == nullptr)
+			{
+				BGL_LOG("Got null viewport when deprojecting point!");
+				return false;
+			}
+
+			const BCamera* camera = viewport->GetCamera();
+
+			if (camera == nullptr)
+			{
+				BGL_LOG("Got null camera when deprojecting point!");
+				return false;
+			}
+
+			// ray plane intersection parameters
+			const float sensorDist = camera->GetSensorDistance();
+			const BVec3f cameraLoc = camera->GetLocation();
+			const BVec3f planeNormal = camera->GetRotation().Direction() * -1.f;
+			const BVec3f planeLoc = planeNormal * sensorDist;
+			const BVec3f rayOrig = point - cameraLoc;
+			BVec3f rayDir = rayOrig * -1.f;
+			rayDir.Normalize();
+			BVec3f planeInterPoint;
+
+			const bool validDeproj = RayPlaneIntersection(planeLoc, planeNormal, rayOrig, rayDir, planeInterPoint);
+
+			if (validDeproj)
+			{
+				BVec2f halfSensorArea = camera->GetSensorArea();
+				halfSensorArea.x /= 2.f;
+				halfSensorArea.y /= 2.f;
+				BVec3f invInterPoint = planeInterPoint;
+				invInterPoint.x *= -1.f;
+
+				const float xn = invInterPoint.x / halfSensorArea.x;
+				const float yn = invInterPoint.y / halfSensorArea.y;
+				
+				// final screen coordinates
+				const int32 halfViewportWidth = static_cast<int32>(viewport->GetSize().width) / 2;
+				const int32 halfViewportHeight = static_cast<int32>(viewport->GetSize().height) / 2;
+				const int32 centeredX = static_cast<int32>(xn * static_cast<float>(halfViewportWidth));
+				const int32 centeredY = static_cast<int32>(yn * static_cast<float>(halfViewportHeight));
+				const int32 x = centeredX + halfViewportWidth + viewport->GetPosition().x;
+				const int32 y = centeredY + halfViewportHeight + viewport->GetPosition().y;
+
+				// returning final screen coordinates
+				pixelPos = BPixelPos(x, y);
+
+				return true;
+			}
+
+			return false;
+		}
+
 		/*	Checks is a specific line is on screen, correcting the line's
 		 *	properties to make sure it only appears in the visible area.
 		 *

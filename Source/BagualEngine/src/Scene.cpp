@@ -71,7 +71,7 @@ namespace bgl
 		return m_transform.translation;
 	}
 
-	const BVec3f BNode::GetRotation() const
+	const BRotf BNode::GetRotation() const
 	{
 		return m_transform.rotation;
 	}
@@ -91,7 +91,7 @@ namespace bgl
 		m_transform.translation = location;
 	}
 
-	void BNode::SetRotation(const BVec3f& rotation)
+	void BNode::SetRotation(const BRotf& rotation)
 	{
 		m_transform.rotation = rotation;
 	}
@@ -308,7 +308,7 @@ namespace bgl
 		return GetTransform().translation;
 	}
 
-	const BVec3f BComponent::GetRotation() const
+	const BRotf BComponent::GetRotation() const
 	{
 		return GetTransform().rotation;
 	}
@@ -328,7 +328,7 @@ namespace bgl
 		GetTransform_Mutable().translation = location;
 	}
 
-	void BComponent::SetRotation(const BVec3f& rotation)
+	void BComponent::SetRotation(const BRotf& rotation)
 	{
 		GetTransform_Mutable().rotation = rotation;
 	}

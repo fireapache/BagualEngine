@@ -68,12 +68,12 @@ namespace bgl
 		BTransform<float>& GetTransform_Mutable();
 		const BTransform<float> GetTransform() const;
 		const BVec3f GetLocation() const;
-		const BVec3f GetRotation() const;
+		const BRotf GetRotation() const;
 		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
 		void SetLocation(const BVec3f& locations);
-		void SetRotation(const BVec3f& rotation);
+		void SetRotation(const BRotf& rotation);
 		void SetScale(const BVec3f& scale);
 
 	};
@@ -158,12 +158,12 @@ namespace bgl
 		BTransform<float>& GetTransform_Mutable();
 		const BTransform<float> GetTransform() const;
 		const BVec3f GetLocation() const;
-		const BVec3f GetRotation() const;
+		const BRotf GetRotation() const;
 		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
 		void SetLocation(const BVec3f& location);
-		void SetRotation(const BVec3f& rotation);
+		void SetRotation(const BRotf& rotation);
 		void SetScale(const BVec3f& scale);
 
 		void SetParent(BNode* node);

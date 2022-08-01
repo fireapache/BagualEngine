@@ -22,7 +22,7 @@ namespace bgl
 		BTransform<float> m_detachedTransform;
 		BERenderOutputType m_renderOutputType = BERenderOutputType::Depth;
 		float m_depthDist = 1000.f;
-		BVec2f m_sensorSize = BVec2f(24.f, 36.f);
+		BVec2f m_sensorSize = BVec2f(36.f, 24.f);
 		BERenderSpeed m_renderSpeed = BERenderSpeed::VeryFast;
 		BERenderThreadMode m_renderThreadMode = BERenderThreadMode::MultiThread;
 		BEIntrinsicsMode m_intrinsicsMode = BEIntrinsicsMode::Off;
@@ -37,7 +37,6 @@ namespace bgl
 		const BEIntrinsicsMode GetIntrinsicsMode() const;
 		void SetIntrinsicsMode(const BEIntrinsicsMode intrinsicsMode);
 
-
 		BERenderSpeed& GetRenderSpeed_Mutable();
 		const BERenderSpeed GetRenderSpeed() const;
 		void SetRenderSpeed(const BERenderSpeed renderSpeed);
@@ -47,8 +46,10 @@ namespace bgl
 		void SetRenderThreadMode(const BERenderThreadMode renderThreadMode);
 
 		BVec2f& GetSensorSize_Mutable();
-		const BVec2f GetSensorSize();
-		void SetSensorSize(const BVec2f sensorSize);
+		const BVec2f GetSensorSize() const;
+		void SetSensorSize(const BVec2f& sensorSize);
+		const BVec2f GetSensorArea() const;
+		const float GetSensorDistance() const;
 
 		const BERenderOutputType GetRenderOutputType() const;
 		BERenderOutputType& GetRenderOutputType_Mutable();
@@ -75,12 +76,12 @@ namespace bgl
 		BTransform<float>& GetTransform_Mutable();
 		const BTransform<float> GetTransform() const;
 		const BVec3f GetLocation() const;
-		const BVec3f GetRotation() const;
+		const BRotf GetRotation() const;
 		const BVec3f GetScale() const;
 
 		void SetTransform(const BTransform<float>& transform);
 		void SetLocation(const BVec3f& translation);
-		void SetRotation(const BVec3f& rotation);
+		void SetRotation(const BRotf& rotation);
 		void SetScale(const BVec3f& scale);
 
 	};

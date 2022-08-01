@@ -41,7 +41,8 @@ namespace bgl
 		if (m_modules)
 		{
 			//m_modules->Add(std::make_shared<BEngineTest_FundamentalRendering>());
-			m_modules->Add(std::make_shared<BEngineTest_RoomRendering>());
+			//m_modules->Add(std::make_shared<BEngineTest_RoomRendering>());
+			m_modules->Add(std::make_shared< BEngineTest_DeProjection>());
 
 			for (auto& module : *m_modules.get())
 			{

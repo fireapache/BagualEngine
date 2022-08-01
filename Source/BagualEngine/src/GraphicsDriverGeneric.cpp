@@ -168,10 +168,8 @@ namespace bgl
 		const uint32 width = viewport->GetSize().width;
 		const uint32 height = viewport->GetSize().height;
 
-		const auto sensorSize = camera->GetSensorSize();
-		const BVector2<float> sensorArea(sensorSize.x / 10.f, sensorSize.y / 10.f);
-		const float biggerSensorSide = std::max(sensorArea.x, sensorArea.y);
-		const float sensorDistance = (biggerSensorSide / 2.f) * (2.f - std::sinf(deg2rad(camera->GetFOV() / 2.f)));
+		const auto sensorArea = camera->GetSensorArea();
+		const float sensorDistance = camera->GetSensorDistance();
 
 		// Keeping some variables stacked
 
@@ -183,7 +181,7 @@ namespace bgl
 		triangleScanParams.viewport = viewport;
 
 		const auto renderThreadMode = camera->GetRenderThreadMode();
-		const BVec3f rot = camera->GetRotation();
+		const BRotf rot = camera->GetRotation();
 		const auto intrinsicsMode = camera->GetIntrinsicsMode();
 
 		// Getting render lines of interest
@@ -212,14 +210,14 @@ namespace bgl
 
 				// Getting ray rotation
 
-				const float x = (((float)i / (float)width) - 0.5f) * sensorArea.y;
-				const float y = -(((float)j / (float)height) - 0.5f) * sensorArea.x;
+				const float x = (((float)i / (float)width) - 0.5f) * sensorArea.x;
+				const float y = -(((float)j / (float)height) - 0.5f) * sensorArea.y;
 				BVec3f& dir = triangleScanParams.dir;
 				dir = BVec3f(x, y, sensorDistance);
 				dir.Normalize();
-				dir = BQuaternion<float>::RotateAroundAxis(rot.x, BVector3<float>(1.f, 0.f, 0.f), dir);
+				dir = BQuaternion<float>::RotateAroundAxis(rot.p, BVector3<float>(1.f, 0.f, 0.f), dir);
 				dir = BQuaternion<float>::RotateAroundAxis(rot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
-				dir = BQuaternion<float>::RotateAroundAxis(rot.z, BVector3<float>(0.f, 0.f, 1.f), dir);
+				dir = BQuaternion<float>::RotateAroundAxis(rot.r, BVector3<float>(0.f, 0.f, 1.f), dir);
 
 				// Getting scene triangles
 

@@ -251,28 +251,28 @@ namespace bgl
 
 		T x, y, z;
 
-		inline BVector3()
+		BVector3()
 		{
 			this->x = T();
 			this->y = T();
 			this->z = T();
 		}
 
-		inline BVector3(T x, T y)
+		BVector3(T x, T y)
 		{
 			this->x = x;
 			this->y = y;
 			this->z = T();
 		}
 
-		inline BVector3(T x, T y, T z)
+		BVector3(T x, T y, T z)
 		{
 			this->x = x;
 			this->y = y;
 			this->z = z;
 		}
 
-		inline BVector3(const BVector3<T> &p)
+		BVector3(const BVector3<T> &p)
 		{
 			this->x = p.x;
 			this->y = p.y;
@@ -281,7 +281,7 @@ namespace bgl
 
 		~BVector3() {}
 
-		inline BVector3<T>& Sum(const BVector3<T>& p)
+		BVector3<T>& Sum(const BVector3<T>& p)
 		{
 			x = x + p.x;
 			y = y + p.y;
@@ -289,7 +289,7 @@ namespace bgl
 			return *this;
 		}
 
-		inline BVector3<T>& Subtract(const BVector3<T>& p)
+		BVector3<T>& Subtract(const BVector3<T>& p)
 		{
 			x = x - p.x;
 			y = y - p.y;
@@ -297,7 +297,7 @@ namespace bgl
 			return *this;
 		}
 
-		inline BVector3<T>& Divide(const BVector3<T>& p)
+		BVector3<T>& Divide(const BVector3<T>& p)
 		{
 			x = x / p.x;
 			y = y / p.y;
@@ -305,7 +305,7 @@ namespace bgl
 			return *this;
 		}
 
-		inline BVector3<T>& Multiply(const BVector3<T>& p)
+		BVector3<T>& Multiply(const BVector3<T>& p)
 		{
 			x = x * p.x;
 			y = y * p.y;
@@ -313,12 +313,12 @@ namespace bgl
 			return *this;
 		}
 
-		inline T DotProduct(const BVector3<T>& p)
+		[[nodiscard]] T DotProduct(const BVector3<T>& p)
 		{
 			return x * p.x + y * p.y + z * p.z;
 		}
 
-		inline BVector3<T>& CrossProduct(const BVector3<T>& p)
+		BVector3<T>& CrossProduct(const BVector3<T>& p)
 		{
 			T xTemp = y * p.z - z * p.y;
 			T yTemp = z * p.x - x * p.z;
@@ -328,37 +328,37 @@ namespace bgl
 			return *this;
 		}
 
-		inline const BVector3<T> operator-(const BVector3<T> &p) const
+		BVector3<T> operator-(const BVector3<T> &p) const
 		{
 			return BVector3<T>(this->x - p.x, this->y - p.y, this->z - p.z);
 		}
 
-		inline const BVector3<T> operator+(const BVector3<T> &p) const
+		BVector3<T> operator+(const BVector3<T> &p) const
 		{
 			return BVector3<T>(this->x + p.x, this->y + p.y, this->z + p.z);
 		}
 
-		inline const BVector3<T> operator*(const BVector3<T>& p) const
+		BVector3<T> operator*(const BVector3<T>& p) const
 		{
 			return BVector3<T>(this->x * p.x, this->y * p.y, this->z * p.z);
 		}
 
-		inline const BVector3<T> operator*(const T& p) const
+		BVector3<T> operator*(const T& p) const
 		{
 			return BVector3<T>(this->x * p, this->y * p, this->z * p);
 		}
 
-		inline const BVector3<T> operator/(const BVector3<T>& p) const
+		BVector3<T> operator/(const BVector3<T>& p) const
 		{
 			return BVector3<T>(this->x / p.x, this->y / p.y, this->z / p.z);
 		}
 
-		inline const BVector3<T> operator/(const T& p) const
+		BVector3<T> operator/(const T& p) const
 		{
 			return BVector3<T>(this->x / p, this->y / p, this->z / p);
 		}
 
-		inline float operator|(const BVector3<T> &p) const
+		float operator|(const BVector3<T> &p) const
 		{
 			float a = static_cast<float>(this->x - p.x);
 			float b = static_cast<float>(this->y - p.y);
@@ -367,12 +367,12 @@ namespace bgl
 			return sqrt(a*a + b*b + c*c);
 		}
 
-		inline T Dot (const BVector3<T>& p) const
+		[[nodiscard]] T Dot (const BVector3<T>& p) const
 		{
 			return (this->x * p.x + this->y * p.y + this->z * p.z);
 		}
 
-		inline BVector3<T> Cross(const BVector3<T>& p) const
+		[[nodiscard]] BVector3<T> Cross(const BVector3<T>& p) const
 		{
 			BVector3<T> Result;
 
@@ -383,51 +383,51 @@ namespace bgl
 			return Result;
 		}
 
-		inline void operator+=(const BVector3<T>& p)
+		void operator+=(const BVector3<T>& p)
 		{
 			this->x += p.x;
 			this->y += p.y;
 			this->z += p.z;
 		}
 
-		inline void operator-=(const BVector3<T>& p)
+		void operator-=(const BVector3<T>& p)
 		{
 			this->x -= p.x;
 			this->y -= p.y;
 			this->z -= p.z;
 		}
 
-		inline void operator*=(const T& p)
+		void operator*=(const T& p)
 		{
 			*this = *this * p;
 		}
 
-		inline void operator*=(const BVector3<T>& p)
+		void operator*=(const BVector3<T>& p)
 		{
 			*this = *this * p;
 		}
 
-		inline void operator/=(const T& p)
+		void operator/=(const T& p)
 		{
 			*this = *this / p;
 		}
 
-		inline void operator/=(const BVector3<T>& p)
+		void operator/=(const BVector3<T>& p)
 		{
 			*this = *this / p;
 		}
 
-		inline T Norm() const
+		[[nodiscard]] T Norm() const
 		{
 			return this->x * this->x + this->y * this->y + this->z * this->z;
 		}
 
-		inline T Length() const
+		[[nodiscard]] T Length() const
 		{
 			return sqrt(Norm());
 		}
 
-		inline BVector3<T> Normalize()
+		void Normalize()
 		{
 			T n = Norm();
 
@@ -437,12 +437,65 @@ namespace bgl
 				this->x /= div, this->y /= div, this->z /= div;
 			}
 
-			return *this;
+			//return *this;
 		}
 
 	};
 
 	typedef BVector3<float> BVec3f;
+
+	template <typename T>
+	class BRotator
+	{
+
+	public:
+
+		T p, y, r;
+
+		inline BRotator()
+		{
+			this->p = T();
+			this->y = T();
+			this->r = T();
+		}
+
+		inline BRotator(T p, T y)
+		{
+			this->p = p;
+			this->y = y;
+			this->r = T();
+		}
+
+		inline BRotator(T p, T y, T r)
+		{
+			this->p = p;
+			this->y = y;
+			this->r = r;
+		}
+
+		inline BRotator(const BRotator<T>& p)
+		{
+			this->p = p.p;
+			this->y = p.y;
+			this->r = p.r;
+		}
+
+		~BRotator() {}
+
+		inline BVector3<T> Direction() const
+		{
+			BVector3<T> dir(T(0), T(0), T(1));
+
+			dir = BQuaternion<T>::RotateAroundAxis(p, BVector3<T>(1.f, 0.f, 0.f), dir);
+			dir = BQuaternion<T>::RotateAroundAxis(y, BVector3<T>(0.f, 1.f, 0.f), dir);
+			dir = BQuaternion<T>::RotateAroundAxis(r, BVector3<T>(0.f, 0.f, 1.f), dir);
+
+			return dir;
+		}
+
+	};
+
+	typedef BRotator<float> BRotf;
 
 	template <typename T>
 	class BTransform
@@ -452,30 +505,30 @@ namespace bgl
 	public:
 
 		BVec3f translation;
-		BVec3f rotation;
+		BRotf rotation;
 		BVec3f scale;
 
 		BTransform() = default;
 
-		inline BTransform(BVec3f&& inTranslation, BVec3f&& inRotation, BVec3f&& inScale)
+		inline BTransform(BVec3f&& inTranslation, BRotf&& inRotation, BVec3f&& inScale)
 			: translation(inTranslation), rotation(inRotation), scale(inScale)
 		{
 
 		}
 
-		inline BTransform(BVec3f& inTranslation, BVec3f& inRotation, BVec3f& inScale)
+		inline BTransform(BVec3f& inTranslation, BRotf& inRotation, BVec3f& inScale)
 			: translation(inTranslation), rotation(inRotation), scale(inScale)
 		{
 
 		}
 
-		inline BTransform(BVec3f&& inTranslation, BVec3f&& inRotation)
+		inline BTransform(BVec3f&& inTranslation, BRotf&& inRotation)
 			: translation(inTranslation), rotation(inRotation)
 		{
 
 		}
 
-		inline BTransform(BVec3f& inTranslation, BVec3f& inRotation)
+		inline BTransform(BVec3f& inTranslation, BRotf& inRotation)
 			: translation(inTranslation), rotation(inRotation)
 		{
 
@@ -901,18 +954,18 @@ namespace bgl
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
-		static inline VecType RotateAroundAxis(T uAngle, VecType&& uAxis, VecType& uVector)
+		static inline VecType RotateAroundAxis(T uAngle, const VecType&& uAxis, const VecType& uVector)
 		{
 			return RotateAroundAxis(uAngle, uAxis, uVector);
 		}
 
-		static inline VecType RotateAroundAxis(T uAngle, VecType& uAxis, VecType& uVector)
+		static inline VecType RotateAroundAxis(T uAngle, const VecType& uAxis, const VecType& uVector)
 		{
 			//convert our vector to a pure quaternion
 			BQuaternion<T> p(0, uVector);
 
 			//normalize the axis
-			uAxis.Normalize();
+			//uAxis.Normalize();
 
 			//create the real quaternion
 			BQuaternion<T> q(uAngle, uAxis);

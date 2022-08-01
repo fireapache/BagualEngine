@@ -120,7 +120,7 @@ namespace bgl
 
 	const bgl::BSize<bgl::uint32> BViewport::GetSize() const
 	{
-		return BSize<uint32>(GetBounds().p2.x - GetBounds().p1.x, GetBounds().p2.y - GetBounds().p1.y);
+		return BSize<uint32>(GetBounds().p2.x - GetBounds().p1.x + 1, GetBounds().p2.y - GetBounds().p1.y + 1);
 	}
 
 	CanvasDataType& BViewport::operator()(size_t x, size_t y)

@@ -19,16 +19,16 @@ namespace bgl
 	class BEngineTestBase : public BModuleBase
 	{
 
-	protected:
+	public:
 
 		FWindowSettings windowSettings;
 		
-		static BPlatformWindow* window;
-		static BViewport* viewport;
-		static BCanvas* canvas;
+		BPlatformWindow* window = nullptr;
+		BCameraComponent* cameraComp = nullptr;
+		BViewport* viewport = nullptr;
+		BCanvas* canvas = nullptr;
+		BCamera* camera = nullptr;
 		float defaultDepthDist;
-
-	public:
 
 		void CreateStandardWindow(const char* windowTitle = nullptr);
 
@@ -37,9 +37,22 @@ namespace bgl
 	class BEngineTest_FundamentalRendering : public BEngineTestBase
 	{
 
-		void DrawCameraLine(class BCamera* camera);
+		void QueueCameraLineDraw(class BCamera* camera);
 
 	public:
+
+		void Init() override;
+		void Tick() override;
+		void Term() override;
+
+	};
+
+	class BEngineTest_DeProjection : public BEngineTestBase
+	{
+
+	public:
+
+		BVec3f point1, point2;
 
 		void Init() override;
 		void Tick() override;
@@ -52,10 +65,10 @@ namespace bgl
 		
 	public:
 
-		BCameraComponent* cameraComp = nullptr;
 		BESceneSetup sceneSetup = BESceneSetup::ObjectsCharacter;
 
 		void Init() override;
+		void Tick() override;
 		void Term() override;
 
 	};

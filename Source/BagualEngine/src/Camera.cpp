@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include "CameraManager.h"
 #include "GraphicsPlatform.h"
+#include "Arithmetics.h"
 
 namespace bgl
 {
@@ -75,14 +76,27 @@ namespace bgl
 		return m_sensorSize;
 	}
 
-	const BVec2f BCamera::GetSensorSize()
+	const BVec2f BCamera::GetSensorSize() const
 	{
 		return m_sensorSize;
 	}
 
-	void BCamera::SetSensorSize(const BVec2f sensorSize)
+	void BCamera::SetSensorSize(const BVec2f& sensorSize)
 	{
 		m_sensorSize = sensorSize;
+	}
+
+	const BVec2f BCamera::GetSensorArea() const
+	{
+		const auto sensorSize = GetSensorSize();
+		return BVector2<float>(sensorSize.x / 10.f, sensorSize.y / 10.f);
+	}
+
+	const float BCamera::GetSensorDistance() const
+	{
+		const auto sensorArea = GetSensorArea();
+		const float biggestSensorSide = std::max(sensorArea.x, sensorArea.y);
+		return (biggestSensorSide / 2.f) * (2.f - std::sinf(deg2rad(GetFOV() / 2.f)));
 	}
 
 	const BERenderOutputType BCamera::GetRenderOutputType() const
@@ -187,7 +201,7 @@ namespace bgl
 		return GetTransform().translation;
 	}
 
-	const BVec3f BCamera::GetRotation() const
+	const BRotf BCamera::GetRotation() const
 	{
 		return GetTransform().rotation;
 	}
@@ -207,7 +221,7 @@ namespace bgl
 		GetTransform_Mutable().translation = location;
 	}
 
-	void BCamera::SetRotation(const BVec3f& rotation)
+	void BCamera::SetRotation(const BRotf& rotation)
 	{
 		GetTransform_Mutable().rotation = rotation;
 	}
