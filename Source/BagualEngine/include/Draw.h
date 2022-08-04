@@ -55,9 +55,15 @@ namespace bgl
 			// ray plane intersection parameters
 			const float sensorDist = camera->GetSensorDistance();
 			const BVec3f cameraLoc = camera->GetLocation();
-			const BVec3f planeNormal = camera->GetRotation().Direction() * -1.f;
+			const BRotf cameraRot = camera->GetRotation();
+			const BVec3f planeNormal = BVec3f(0.f, 0.f, -1.f);
 			const BVec3f planeLoc = planeNormal * sensorDist;
-			const BVec3f rayOrig = point - cameraLoc;
+			BVec3f rayOrig = point - cameraLoc;
+			
+			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.p, BVector3<float>(1.f, 0.f, 0.f), rayOrig);
+			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.y, BVector3<float>(0.f, 1.f, 0.f), rayOrig);
+			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.r, BVector3<float>(0.f, 0.f, 1.f), rayOrig);
+
 			BVec3f rayDir = rayOrig * -1.f;
 			rayDir.Normalize();
 			BVec3f planeInterPoint;
