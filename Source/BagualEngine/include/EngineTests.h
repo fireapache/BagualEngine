@@ -47,12 +47,12 @@ namespace bgl
 
 	};
 
-	class BEngineTest_DeProjection : public BEngineTestBase
+	class BEngineTest_CubeProjection : public BEngineTestBase
 	{
 
 	public:
 
-		BVec3f point1, point2;
+		BVec3f points[8];
 
 		void Init() override;
 		void Tick() override;

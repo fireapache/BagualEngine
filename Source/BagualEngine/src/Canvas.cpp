@@ -71,7 +71,7 @@ namespace bgl
 
 	void BCanvas::ResetZBuffer()
 	{
-		this->zBuffer.get()->SetBufferValue((DepthDataType)999999999999);
+		this->zBuffer->SetBufferValue(static_cast<DepthDataType>(999999999999));
 	}
 
 	const BLine<BPixelPos>* BCanvas::GetEdges() const
@@ -81,25 +81,25 @@ namespace bgl
 
 	const BLine<BPixelPos>& BCanvas::GetEdge(BEBoxEdge edge) const
 	{
-		return edges[static_cast<int>(edge)];
+		return edges[static_cast<int32_t>(edge)];
 	}
 
-	BBuffer<CanvasDataType>& BCanvas::GetColorBuffer()
+	BBuffer<CanvasDataType>& BCanvas::GetColorBuffer() const
 	{
-		return *colorBuffer.get();
+		return *colorBuffer;
 	}
 
-	BBuffer<DepthDataType>& BCanvas::GetZBuffer()
+	BBuffer<DepthDataType>& BCanvas::GetZBuffer() const
 	{
-		return *zBuffer.get();
+		return *zBuffer;
 	}
 
-	BPlatformWindow* BCanvas::GetWindow()
+	BPlatformWindow* BCanvas::GetWindow() const
 	{
 		return window;
 	}
 
-	inline BArray<BViewport*> BCanvas::GetViewports()
+	inline BArray<BViewport*> BCanvas::GetViewports() const
 	{
 		return m_viewports;
 	}
@@ -108,7 +108,7 @@ namespace bgl
 	{
 		width = newWidth;
 		height = newHeight;
-		uint32 newLength = static_cast<uint32>(width) * static_cast<uint32>(height);
+		const uint32 newLength = static_cast<uint32>(width) * static_cast<uint32>(height);
 		colorBuffer->SetLength(newLength);
 	}
 

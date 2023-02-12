@@ -36,11 +36,11 @@ namespace bgl
 		}
 
 		// not optimal solution but it works, need optimization
-		inline static bool DeProjectPoint(BViewport* viewport, const BVec3f& point, BPixelPos& pixelPos, const bool bInBoundsOnly = false)
+		inline static bool ProjectPoint(const BViewport* viewport, const BVec3f& point, BPixelPos& pixelPos, const bool bInBoundsOnly = false)
 		{
 			if (viewport == nullptr)
 			{
-				BGL_LOG("Got null viewport when deprojecting point!");
+				BGL_LOG("Got null viewport when projecting point!");
 				return false;
 			}
 
@@ -48,7 +48,7 @@ namespace bgl
 
 			if (camera == nullptr)
 			{
-				BGL_LOG("Got null camera when deprojecting point!");
+				BGL_LOG("Got null camera when projecting point!");
 				return false;
 			}
 
@@ -64,37 +64,34 @@ namespace bgl
 			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.y, BVector3<float>(0.f, 1.f, 0.f), rayOrig);
 			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.r, BVector3<float>(0.f, 0.f, 1.f), rayOrig);
 
-			BVec3f rayDir = rayOrig * -1.f;
-			rayDir.Normalize();
-			BVec3f planeInterPoint;
+			const BVec3f rayDir(rayOrig * -1.f, true);
+			BVec3f hitPoint;
 
-			const bool validDeproj = RayPlaneIntersection(planeLoc, planeNormal, rayOrig, rayDir, planeInterPoint);
+			const bool bValid = RayPlaneIntersection(planeLoc, planeNormal, rayOrig, rayDir, hitPoint);
 
-			if (validDeproj)
+			if (bValid)
 			{
-				BVec2f halfSensorArea = camera->GetSensorArea();
-				halfSensorArea.x /= 2.f;
-				halfSensorArea.y /= 2.f;
-				BVec3f invInterPoint = planeInterPoint;
-				invInterPoint.x *= -1.f;
+				const BVec2f sensorArea = camera->GetSensorArea();
+				const BVec2f halfSensorArea( sensorArea.x / 2.f, sensorArea.y / 2.f );
+				const BVec3f invHitPoint( -1.f * hitPoint.x, hitPoint.y, hitPoint.z );
 
-				const float xn = invInterPoint.x / halfSensorArea.x;
-				const float yn = invInterPoint.y / halfSensorArea.y;
+				const float xn = invHitPoint.x / halfSensorArea.x;
+				const float yn = invHitPoint.y / halfSensorArea.y;
 				
 				// final screen coordinates
-				const int32 halfViewportWidth = static_cast<int32>(viewport->GetSize().width) / 2;
-				const int32 halfViewportHeight = static_cast<int32>(viewport->GetSize().height) / 2;
-				const int32 centeredX = static_cast<int32>(xn * static_cast<float>(halfViewportWidth));
-				const int32 centeredY = static_cast<int32>(yn * static_cast<float>(halfViewportHeight));
-				const int32 x = centeredX + halfViewportWidth + viewport->GetPosition().x;
-				const int32 y = centeredY + halfViewportHeight + viewport->GetPosition().y;
+				const int32_t halfViewportWidth = static_cast<int32_t>(viewport->GetSize().width) / 2;
+				const int32 halfViewportHeight = static_cast<int32_t>(viewport->GetSize().height) / 2;
+				const int32_t centeredX = static_cast<int32_t>(xn * static_cast<float>(halfViewportWidth));
+				const int32_t centeredY = static_cast<int32_t>(yn * static_cast<float>(halfViewportHeight));
+				const int32_t x = centeredX + halfViewportWidth + viewport->GetPosition().x;
+				const int32_t y = centeredY + halfViewportHeight + viewport->GetPosition().y;
 
 				// returning final screen coordinates
 				pixelPos = BPixelPos(x, y);
 
 				return true;
 			}
-
+			
 			return false;
 		}
 
@@ -111,24 +108,38 @@ namespace bgl
 				BGL_LOG("Got null viewport when clamping viewport line!");
 				return false;
 			}
-
-			auto canvas = viewport->GetCanvas();
-
-			if (canvas == nullptr)
-			{
-				BGL_LOG("Got null canvas when clamping viewport line!");
-				return false;
-			}
-
-			const BBox<BPixelPos>& viewportBounds = viewport->GetBounds();
+			
+			const BBox<BPixelPos> viewportBounds = viewport->GetBounds();
 
 			bool p1In = viewportBounds.IsIn(line.p1);
 			bool p2In = viewportBounds.IsIn(line.p2);
 
 			if (p1In && p2In) return true;
 
-			bool isValid = true;
-			bool isIn;
+			{
+				const bool bBothFarRight = 
+					line.p1.x < 0 && line.p2.x < 0;
+
+				if (bBothFarRight) return false;
+
+				const bool bBothFarLeft = 
+					line.p1.x > viewportBounds.p2.x
+					&& line.p2.x > viewportBounds.p2.x;
+
+				if (bBothFarLeft) return false;
+
+				const bool bBothFarUp = 
+					line.p1.y < 0 && line.p2.y < 0;
+
+				if (bBothFarUp) return false;
+
+				const bool bBothFarDown = 
+					line.p1.y > viewportBounds.p2.y
+					&& line.p2.y > viewportBounds.p2.y;
+
+				if (bBothFarDown) return false;
+			}
+			
 			BPixelPos inters[4];
 			int32 p1Dist = INT_MAX;
 			int32 p2Dist = INT_MAX;
@@ -136,17 +147,17 @@ namespace bgl
 			BPixelPos* newP1 = nullptr;
 			BPixelPos* newP2 = nullptr;
 
-			auto viewEdges = viewport->GetLimits();
+			const BBoxEdges viewEdges = viewport->GetLimits();
 
 			for (int32 i = 0; i < 4; i++)
 			{
 				if (LinesIntersection(line, viewEdges.GetEdges()[i], inters[i]))
 				{
-					isIn = viewportBounds.IsIn(inters[i]);
+					const bool bIsIn = viewportBounds.IsIn(inters[i]);
 
-					if (!p1In && isIn)
+					if (!p1In && bIsIn)
 					{
-						dist = static_cast<int>(line.p1 | inters[i]);
+						dist = static_cast<int32_t>(line.p1 | inters[i]);
 
 						if (dist < p1Dist)
 						{
@@ -155,9 +166,9 @@ namespace bgl
 						}
 					}
 
-					if (!p2In && isIn)
+					if (!p2In && bIsIn)
 					{
-						dist = static_cast<int>(line.p2 | inters[i]);
+						dist = static_cast<int32_t>(line.p2 | inters[i]);
 
 						if (dist < p2Dist)
 						{
@@ -168,11 +179,24 @@ namespace bgl
 				}
 			}
 
-			if (!p1In && newP1) line.p1 = *newP1;
-			else isValid = false;
+			bool isValid = false;
 
-			if (!p2In && newP2) line.p2 = *newP2;
-			else isValid = false;
+			if (!p1In && newP1)
+			{
+				line.p1 = *newP1;
+				p1In = true;
+			}
+
+			if (!p2In && newP2)
+			{
+				line.p2 = *newP2;
+				p2In = true;
+			}
+
+			if (p1In && p2In)
+			{
+				isValid = true;
+			}
 
 			return isValid;
 		}
@@ -210,6 +234,8 @@ namespace bgl
 
 			for (int32 x = line.p1.x; x <= line.p2.x; x++)
 			{
+				if (x >= width) break;
+
 				screen[x + width * y] = 0x0000FF;
 
 				if (D > 0)
@@ -253,8 +279,12 @@ namespace bgl
 			int32 D = 2 * dx - dy;
 			int32 x = line.p1.x;
 
+			const int32 height = canvas->GetHeight();
+
 			for (int32 y = line.p1.y; y <= line.p2.y; y++)
 			{
+				if (y >= height) break;
+
 				screen[x + width * y] = 0x0000FF;
 
 				if (D > 0)

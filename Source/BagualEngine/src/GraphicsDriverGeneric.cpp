@@ -147,7 +147,7 @@ namespace bgl
 		BDraw::DrawLine(viewport, line);
 	}
 
-	void BGraphicsDriverGeneric::RenderLines(BViewport* viewport, const uint32 renderThreadIndex)
+	void BGraphicsDriverGeneric::RenderLines(BViewport* viewport, const uint32_t renderThreadIndex)
 	{
 		if (viewport == nullptr)
 		{
@@ -165,8 +165,8 @@ namespace bgl
 
 		// Calculating camera sensor settings
 
-		const uint32 width = viewport->GetSize().width;
-		const uint32 height = viewport->GetSize().height;
+		const uint32_t width = viewport->GetSize().width;
+		const uint32_t height = viewport->GetSize().height;
 
 		const auto sensorArea = camera->GetSensorArea();
 		const float sensorDistance = camera->GetSensorDistance();
@@ -181,27 +181,27 @@ namespace bgl
 		triangleScanParams.viewport = viewport;
 
 		const auto renderThreadMode = camera->GetRenderThreadMode();
-		const BRotf rot = camera->GetRotation();
+		const BRotf rRot = camera->GetRotation();
 		const auto intrinsicsMode = camera->GetIntrinsicsMode();
 
 		// Getting render lines of interest
 
 		const auto processorCount = 
 			std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
-		const int32 threadCount = processorCount <= 0 ? 1 : processorCount;
+		const int32_t threadCount = processorCount <= 0 ? 1 : processorCount;
 
-		const uint32 lineRange = height / threadCount;
-		const uint32 lineStart = renderThreadIndex * lineRange;
-		const uint32 lineEnd = (renderThreadIndex + 1 == threadCount) ? height : (renderThreadIndex + 1) * lineRange;
+		const uint32_t lineRange = height / threadCount;
+		const uint32_t lineStart = renderThreadIndex * lineRange;
+		const uint32_t lineEnd = (renderThreadIndex + 1 == threadCount) ? height : (renderThreadIndex + 1) * lineRange;
 
 		// Starting line rendering
 
-		const uint32 renderSpeedStep = 
-			(triangleScanParams.renderSpeed == BERenderSpeed::Normal ? 1 : (uint32)triangleScanParams.renderSpeed * 2);
+		const uint32_t renderSpeedStep = 
+			(triangleScanParams.renderSpeed == BERenderSpeed::Normal ? 1 : static_cast<uint32_t>(triangleScanParams.renderSpeed) * 2);
 
-		for (uint32 j = lineStart; j < lineEnd; j += renderSpeedStep)
+		for (uint32_t j = lineStart; j < lineEnd; j += renderSpeedStep)
 		{
-			for (uint32 i = 0; i < width; i += renderSpeedStep)
+			for (uint32_t i = 0; i < width; i += renderSpeedStep)
 			{
 				triangleScanParams.px = i;
 				triangleScanParams.py = j;
@@ -209,15 +209,26 @@ namespace bgl
 				triangleScanParams.t = std::numeric_limits<float>::max();
 
 				// Getting ray rotation
+				const float unitX = static_cast<float>(i) / static_cast<float>(width-1) - 0.5f;
+				const float unitY = static_cast<float>(j) / static_cast<float>(height-1) - 0.5f;
+				
+				BVec3f vRayDir(sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance);
+				vRayDir.Normalize();
 
-				const float x = (((float)i / (float)width) - 0.5f) * sensorArea.x;
-				const float y = -(((float)j / (float)height) - 0.5f) * sensorArea.y;
-				BVec3f& dir = triangleScanParams.dir;
-				dir = BVec3f(x, y, sensorDistance);
-				dir.Normalize();
-				dir = BQuaternion<float>::RotateAroundAxis(rot.p, BVector3<float>(1.f, 0.f, 0.f), dir);
-				dir = BQuaternion<float>::RotateAroundAxis(rot.y, BVector3<float>(0.f, 1.f, 0.f), dir);
-				dir = BQuaternion<float>::RotateAroundAxis(rot.r, BVector3<float>(0.f, 0.f, 1.f), dir);
+				BVec3f vRight(1.f, 0.f, 0.f);
+				//vRight = BQuatf::RotateAroundAxis(rRot.y, BVec3f(0.f, 1.f, 0.f), vRight);
+				vRayDir = BQuatf::RotateAroundAxis(rRot.p, vRight, vRayDir);
+
+				BVec3f vUp(0.f, 1.f, 0.f);
+				vUp = BQuatf::RotateAroundAxis(rRot.p, BVec3f(1.f, 0.f, 0.f), vUp);
+				vRayDir = BQuatf::RotateAroundAxis(rRot.y, vUp, vRayDir);
+
+				BVec3f vForward(0.f, 0.f, 1.f);
+				vForward = BQuatf::RotateAroundAxis(rRot.p, BVec3f(1.f, 0.f, 0.f), vForward);
+				vForward = BQuatf::RotateAroundAxis(rRot.y, BVec3f(0.f, 1.f, 0.f), vForward);
+				vRayDir = BQuatf::RotateAroundAxis(rRot.r, vForward, vRayDir);
+
+				triangleScanParams.dir = vRayDir;
 
 				// Getting scene triangles
 

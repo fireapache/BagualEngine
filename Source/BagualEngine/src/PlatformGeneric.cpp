@@ -91,8 +91,8 @@ namespace bgl
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
 		glfwWindow = glfwCreateWindow(
-			settings.width, 
-			settings.height, 
+			static_cast<int>(settings.width), 
+			static_cast<int>(settings.height), 
 			settings.Title.c_str(), 
 			nullptr, nullptr);
 		
@@ -107,17 +107,23 @@ namespace bgl
 
 			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-			int monitorX, monitorY;
-			glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+			BVec2i monitorPos;
+			glfwGetMonitorPos(monitor, &monitorPos.x, &monitorPos.y);
 
-			glfwSetWindowPos(glfwWindow,
-				monitorX + (mode->width - settings.width) / 2,
-				//monitorY + (mode->height - settings.height) / 2);
-				monitorY + static_cast<int32>((mode->height - settings.height) / 2) * 0.25f);
+			const float windowHalfSizeX(static_cast<float>(mode->width - settings.width) / 2.f);
+			const float windowHalfSizeY(static_cast<float>(mode->height - settings.height) / 2.f * 0.25f);
+
+			glfwSetWindowPos(
+				glfwWindow,
+				monitorPos.x + static_cast<int>(windowHalfSizeX),
+				monitorPos.y + static_cast<int>(windowHalfSizeY));
 		}
 		else
 		{
-			glfwSetWindowPos(glfwWindow, settings.x, settings.y);
+			glfwSetWindowPos(
+				glfwWindow, 
+				static_cast<int>(settings.x), 
+				static_cast<int>(settings.y));
 		}
 
 		// Creating canvas

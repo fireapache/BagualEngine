@@ -31,20 +31,20 @@ namespace bgl
 		BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height);
 		//BCanvas(const BCanvas& canvas);
 
-		uint16 GetWidth() const;
-		uint16 GetHeight() const;
+		[[nodiscard]] uint16 GetWidth() const;
+		[[nodiscard]] uint16 GetHeight() const;
 
 		void AllocateZBuffer();
 		void ResetZBuffer();
 
-		const BLine<BPixelPos>* GetEdges()  const;
-		const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
+		[[nodiscard]] const BLine<BPixelPos>* GetEdges()  const;
+		[[nodiscard]] const BLine<BPixelPos>& GetEdge(BEBoxEdge edge)  const;
 
-		BBuffer<CanvasDataType>& GetColorBuffer();
-		BBuffer<DepthDataType>& GetZBuffer();
+		[[nodiscard]] BBuffer<CanvasDataType>& GetColorBuffer() const;
+		[[nodiscard]] BBuffer<DepthDataType>& GetZBuffer() const;
 
-		BPlatformWindow* GetWindow();
-		BArray<BViewport*> GetViewports();
+		[[nodiscard]] BPlatformWindow* GetWindow() const;
+		[[nodiscard]] BArray<BViewport*> GetViewports() const;
 
 		void SetSize(uint16 newWidth, uint16 newHeight);
 

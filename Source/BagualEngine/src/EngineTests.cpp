@@ -324,11 +324,11 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region Deprojection
+#pragma region Cube Projection
 
-	void BEngineTest_DeProjection::Init()
+	void BEngineTest_CubeProjection::Init()
 	{
-		CreateStandardWindow("Bagual Engine Test #4 (Deprojection)");
+		CreateStandardWindow("Bagual Engine Test #4 (Dube Projection)");
 
 		// Creating scene nodes
 		auto cubeNode = BEngine::Scene().CreateNode("Cube");
@@ -347,8 +347,17 @@ namespace bgl
 		camera->SetRenderOutputType(BERenderOutputType::Depth);
 		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
-		point1 = BVec3f(1.f, 1.f, 5.f);
-		point2 = BVec3f(-1.f, 1.f, 5.f);
+		points[0] = BVec3f(1.f, 1.f, 5.f);
+		points[1] = BVec3f(-1.f, 1.f, 5.f);
+
+		points[2] = BVec3f(1.f, -1.f, 5.f);
+		points[3] = BVec3f(-1.f, -1.f, 5.f);
+
+		points[4] = BVec3f(1.f, 1.f, 7.f);
+		points[5] = BVec3f(-1.f, 1.f, 7.f);
+
+		points[6] = BVec3f(1.f, -1.f, 7.f);
+		points[7] = BVec3f(-1.f, -1.f, 7.f);
 
 		auto guiTick = [this]()
 		{
@@ -375,9 +384,6 @@ namespace bgl
 			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
 			ImGui::SliderFloat3("Camera Rotation", reinterpret_cast<float*>(&camRot), -rotRange, rotRange);
 
-			ImGui::SliderFloat3("Point 1", reinterpret_cast<float*>(&point1), -25.f, 25.f);
-			ImGui::SliderFloat3("Point 2", reinterpret_cast<float*>(&point2), -25.f, 25.f);
-
 			ImGui::End();
 
 		};
@@ -387,24 +393,42 @@ namespace bgl
 
 	}
 
-	void BEngineTest_DeProjection::Tick()
+	void BEngineTest_CubeProjection::Tick()
 	{
 		if (camera)
 		{
-			BPixelPos pp1, pp2;
+			BPixelPos pp[8];
+			bool bPp[8];
 
-			const bool pp1valid = BDraw::DeProjectPoint(viewport, point1, pp1);
-			const bool pp2valid = BDraw::DeProjectPoint(viewport, point2, pp2);
+			bPp[0] = BDraw::ProjectPoint(viewport, points[0], pp[0]);
+			bPp[1] = BDraw::ProjectPoint(viewport, points[1], pp[1]);
+			bPp[2] = BDraw::ProjectPoint(viewport, points[2], pp[2]);
+			bPp[3] = BDraw::ProjectPoint(viewport, points[3], pp[3]);
 
-			if (pp1valid && pp2valid)
-			{
-				BDraw::DrawLine(viewport, pp1, pp2);
-			}
+			bPp[4] = BDraw::ProjectPoint(viewport, points[4], pp[4]);
+			bPp[5] = BDraw::ProjectPoint(viewport, points[5], pp[5]);
+			bPp[6] = BDraw::ProjectPoint(viewport, points[6], pp[6]);
+			bPp[7] = BDraw::ProjectPoint(viewport, points[7], pp[7]);
+
+			if (bPp[0] && bPp[1]) BDraw::DrawLine(viewport, pp[0], pp[1]);
+			if (bPp[2] && bPp[3]) BDraw::DrawLine(viewport, pp[2], pp[3]);
+			if (bPp[0] && bPp[2]) BDraw::DrawLine(viewport, pp[0], pp[2]);
+			if (bPp[1] && bPp[3]) BDraw::DrawLine(viewport, pp[1], pp[3]);
+
+			if (bPp[4] && bPp[5]) BDraw::DrawLine(viewport, pp[4], pp[5]);
+			if (bPp[6] && bPp[7]) BDraw::DrawLine(viewport, pp[6], pp[7]);
+			if (bPp[4] && bPp[6]) BDraw::DrawLine(viewport, pp[4], pp[6]);
+			if (bPp[5] && bPp[7]) BDraw::DrawLine(viewport, pp[5], pp[7]);
+
+			if (bPp[0] && bPp[4]) BDraw::DrawLine(viewport, pp[0], pp[4]);
+			if (bPp[1] && bPp[5]) BDraw::DrawLine(viewport, pp[1], pp[5]);
+			if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6]);
+			if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7]);
 
 		}
 	}
 
-	void BEngineTest_DeProjection::Term()
+	void BEngineTest_CubeProjection::Term()
 	{
 
 	}

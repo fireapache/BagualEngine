@@ -216,8 +216,8 @@ namespace bgl
 
 		inline float operator|(const BVector2<T> &p) const
 		{
-			float a = static_cast<float>(x - p.x);
-			float b = static_cast<float>(y - p.y);
+			const float a = static_cast<float>(x - p.x);
+			const float b = static_cast<float>(y - p.y);
 
 			return sqrt(pow(a, 2.0f) + pow(b, 2.0f));
 		}
@@ -242,6 +242,8 @@ namespace bgl
 	};
 
 	typedef BVector2<float> BVec2f;
+	typedef BVector2<int32_t> BVec2i;
+	typedef BVector2<uint32_t> BVec2u;
 
 	template <typename T>
 	class BVector3
@@ -258,25 +260,36 @@ namespace bgl
 			this->z = T();
 		}
 
-		BVector3(T x, T y)
+		BVector3(T x, bool bNormalize = false)
+		{
+			this->x = x;
+			this->y = T();
+			this->z = T();
+			if (bNormalize) Normalize();
+		}
+
+		BVector3(T x, T y, bool bNormalize = false)
 		{
 			this->x = x;
 			this->y = y;
 			this->z = T();
+			if (bNormalize) Normalize();
 		}
 
-		BVector3(T x, T y, T z)
+		BVector3(T x, T y, T z, bool bNormalize = false)
 		{
 			this->x = x;
 			this->y = y;
 			this->z = z;
+			if (bNormalize) Normalize();
 		}
 
-		BVector3(const BVector3<T> &p)
+		BVector3(const BVector3<T> &p, bool bNormalize = false)
 		{
 			this->x = p.x;
 			this->y = p.y;
 			this->z = p.z;
+			if (bNormalize) Normalize();
 		}
 
 		~BVector3() {}
@@ -628,7 +641,7 @@ namespace bgl
 
 	};
 
-	typedef BVector2<int32> BPixelPos;
+	typedef BVector2<int32_t> BPixelPos;
 	
 	class BBoxEdges
 	{
@@ -656,7 +669,7 @@ namespace bgl
 			memcpy(edges, otherBox.GetEdges(), sizeof(EdgeType) * 4);
 		}
 
-		inline const EdgeType* GetEdges() const
+		[[nodiscard]] const EdgeType* GetEdges() const
 		{
 			return edges;
 		}
@@ -701,14 +714,11 @@ namespace bgl
 		~BBox() {}
 
 		template <typename Y>
-		inline bool IsIn(const BVector2<Y> &v) const
+		[[nodiscard]] bool IsIn(const BVector2<Y> &v) const
 		{
-			bool result = true;
-
-			if (v.x < this->p1.x || v.x > this->p2.x) result = false;
-			else if (v.y < this->p1.y || v.y > this->p2.y) result = false;
-
-			return result;
+			const bool bInRangeX = v.x >= this->p1.x && v.x <= this->p2.x;
+			const bool bInRangeY = v.y >= this->p1.y && v.y <= this->p2.y;
+			return bInRangeX && bInRangeY;
 		}
 
 	};
@@ -771,7 +781,7 @@ namespace bgl
 			return _memBlock[index];
 		}
 
-		inline size_t Length()
+		inline size_t Length() const
 		{
 			return _length;
 		}
@@ -984,25 +994,28 @@ namespace bgl
 		}
 
 	};
+	
+	typedef BQuaternion<float> BQuatf;
+	typedef BQuaternion<double> BQuatd;
 
 #pragma region AVX Specialization
 
-	inline const __m256 operator-(const __m256& p1, const __m256 p2)
+	inline __m256 operator-(const __m256& p1, const __m256 p2)
 	{
 		return _mm256_sub_ps(p1, p2);
 	}
 
-	inline const __m256 operator+(const __m256& p1, const __m256 p2)
+	inline __m256 operator+(const __m256& p1, const __m256 p2)
 	{
 		return _mm256_add_ps(p1, p2);
 	}
 
-	inline const __m256 operator*(const __m256& p1, const __m256 p2)
+	inline __m256 operator*(const __m256& p1, const __m256 p2)
 	{
 		return _mm256_mul_ps(p1, p2);
 	}
 
-	inline const __m256 operator/(const __m256& p1, const __m256 p2)
+	inline __m256 operator/(const __m256& p1, const __m256 p2)
 	{
 		return _mm256_div_ps(p1, p2);
 	}
