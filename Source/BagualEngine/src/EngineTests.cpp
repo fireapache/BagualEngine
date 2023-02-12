@@ -328,7 +328,7 @@ namespace bgl
 
 	void BEngineTest_CubeProjection::Init()
 	{
-		CreateStandardWindow("Bagual Engine Test #4 (Dube Projection)");
+		CreateStandardWindow("Bagual Engine Test #4 (Cube Projection)");
 
 		// Creating scene nodes
 		auto cubeNode = BEngine::Scene().CreateNode("Cube");
