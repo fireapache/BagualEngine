@@ -215,18 +215,21 @@ namespace bgl
 				BVec3f vRayDir(sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance);
 				vRayDir.Normalize();
 
-				BVec3f vRight(1.f, 0.f, 0.f);
-				//vRight = BQuatf::RotateAroundAxis(rRot.y, BVec3f(0.f, 1.f, 0.f), vRight);
-				vRayDir = BQuatf::RotateAroundAxis(rRot.p, vRight, vRayDir);
+				BVec3f vUp(BVec3f::up());
+				BVec3f vRight(BVec3f::right());
+				BVec3f vForward(BVec3f::forward());
 
-				BVec3f vUp(0.f, 1.f, 0.f);
-				vUp = BQuatf::RotateAroundAxis(rRot.p, BVec3f(1.f, 0.f, 0.f), vUp);
-				vRayDir = BQuatf::RotateAroundAxis(rRot.y, vUp, vRayDir);
+				// yaw
+				vRayDir = BQuatf::rotateVector(rRot.y, vUp, vRayDir);
 
-				BVec3f vForward(0.f, 0.f, 1.f);
-				vForward = BQuatf::RotateAroundAxis(rRot.p, BVec3f(1.f, 0.f, 0.f), vForward);
-				vForward = BQuatf::RotateAroundAxis(rRot.y, BVec3f(0.f, 1.f, 0.f), vForward);
-				vRayDir = BQuatf::RotateAroundAxis(rRot.r, vForward, vRayDir);
+				// pitch
+				vRight = BQuatf::rotateVector(rRot.y, vUp, vRight);
+				vRayDir = BQuatf::rotateVector(rRot.p, vRight, vRayDir);
+
+				// roll
+				vForward = BQuatf::rotateVector(rRot.y, BVec3f::up(), vForward);
+				vForward = BQuatf::rotateVector(rRot.p, BVec3f::right(), vForward);
+				vRayDir = BQuatf::rotateVector(rRot.r, vForward, vRayDir);
 
 				triangleScanParams.dir = vRayDir;
 

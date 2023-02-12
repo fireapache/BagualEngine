@@ -59,10 +59,22 @@ namespace bgl
 			const BVec3f planeNormal = BVec3f(0.f, 0.f, -1.f);
 			const BVec3f planeLoc = planeNormal * sensorDist;
 			BVec3f rayOrig = point - cameraLoc;
-			
-			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.p, BVector3<float>(1.f, 0.f, 0.f), rayOrig);
-			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.y, BVector3<float>(0.f, 1.f, 0.f), rayOrig);
-			rayOrig = BQuaternion<float>::RotateAroundAxis(-cameraRot.r, BVector3<float>(0.f, 0.f, 1.f), rayOrig);
+
+			BVec3f vUp(BVec3f::up());
+			BVec3f vRight(BVec3f::right());
+			BVec3f vForward(BVec3f::forward());
+
+			// yaw
+			rayOrig = BQuatf::rotateVector(-cameraRot.y, vUp, rayOrig);
+
+			// pitch
+			//vRight = BQuatf::rotateVector(-cameraRot.y, vRight, vRight);
+			rayOrig = BQuatf::rotateVector(-cameraRot.p, vRight, rayOrig);
+
+			// roll
+			//vForward = BQuatf::rotateVector(-cameraRot.y, BVec3f::up(), vForward);
+			//vForward = BQuatf::rotateVector(-cameraRot.p, BVec3f::right(), vForward);
+			rayOrig = BQuatf::rotateVector(-cameraRot.r, vForward, rayOrig);
 
 			const BVec3f rayDir(rayOrig * -1.f, true);
 			BVec3f hitPoint;

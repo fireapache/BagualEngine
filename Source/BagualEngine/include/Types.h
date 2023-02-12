@@ -453,6 +453,10 @@ namespace bgl
 			//return *this;
 		}
 
+		static BVector3<T> up() { return BVector3<T>(T(0), T(1), T(0)); }
+		static BVector3<T> right() { return BVector3<T>(T(1), T(0), T(0)); }
+		static BVector3<T> forward() { return BVector3<T>(T(0), T(0), T(1)); }
+
 	};
 
 	typedef BVector3<float> BVec3f;
@@ -964,12 +968,12 @@ namespace bgl
 			return BQuaternion<T>(scalar, imaginary);
 		}
 
-		static inline VecType RotateAroundAxis(T uAngle, const VecType&& uAxis, const VecType& uVector)
+		static inline VecType rotateVector(T uAngle, const VecType&& uAxis, const VecType& uVector)
 		{
-			return RotateAroundAxis(uAngle, uAxis, uVector);
+			return rotateVector(uAngle, uAxis, uVector);
 		}
 
-		static inline VecType RotateAroundAxis(T uAngle, const VecType& uAxis, const VecType& uVector)
+		static inline VecType rotateVector(T uAngle, const VecType& uAxis, const VecType& uVector)
 		{
 			//convert our vector to a pure quaternion
 			BQuaternion<T> p(0, uVector);

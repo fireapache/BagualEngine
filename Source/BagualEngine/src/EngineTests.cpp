@@ -343,7 +343,7 @@ namespace bgl
 		camera->SetRotation(BRotf(0.f, 0.f, 0.f));
 		camera->SetDepthDistance(800.f);
 		camera->SetFOV(60.f);
-		camera->SetRenderSpeed(BERenderSpeed::VeryFast);
+		camera->SetRenderSpeed(BERenderSpeed::Normal);
 		camera->SetRenderOutputType(BERenderOutputType::Depth);
 		camera->SetIntrinsicsMode(BEIntrinsicsMode::AVX);
 
