@@ -102,7 +102,6 @@ namespace bgl
 
 	void BEngineTest_FundamentalRendering::Tick()
 	{
-		return;
 		auto cameras = BCameraManager::GetCameras();
 
 		for (auto camera : cameras)
@@ -151,9 +150,9 @@ namespace bgl
 		auto charNode = BEngine::Scene().CreateNode("Character");
 
 		// Creating mesh components and loading geometry from disk
-		roomNode->CreateComponent<BMeshComponent>("RoomMesh", "./assets/basemap/basemap.obj");
-		objectsNode->CreateComponent<BMeshComponent>("ObjectsMesh", "./assets/basemap/basemap_objects.obj");
-		charNode->CreateComponent<BMeshComponent>("CharMesh", "./assets/basemesh/basemesh.obj");
+		roomMeshComp = roomNode->CreateComponent<BMeshComponent>("RoomMesh", "./assets/basemap/basemap.obj");
+		objectsMeshComp = objectsNode->CreateComponent<BMeshComponent>("ObjectsMesh", "./assets/basemap/basemap_objects.obj");
+		charMeshComp = charNode->CreateComponent<BMeshComponent>("CharMesh", "./assets/basemesh/basemesh.obj");
 
 		auto cameraNode = BEngine::Scene().CreateNode("Camera");
 		cameraComp = cameraNode->CreateComponent<BCameraComponent>("CameraComp", viewport);
@@ -203,6 +202,12 @@ namespace bgl
 					}
 				}
 			}
+
+			ImGui::Checkbox("Show Room Wireframe", &(roomMeshComp->getShowWireframe_Mutable()));
+			ImGui::SameLine();
+			ImGui::Checkbox("Show Object Wireframe", &(objectsMeshComp->getShowWireframe_Mutable()));
+			ImGui::SameLine();
+			ImGui::Checkbox("Show Character Wireframe", &(charMeshComp->getShowWireframe_Mutable()));
 
 			auto camera = cameraComp->GetCamera();
 
@@ -395,37 +400,36 @@ namespace bgl
 
 	void BEngineTest_CubeProjection::Tick()
 	{
-		if (camera)
-		{
-			BPixelPos pp[8];
-			bool bPp[8];
+		//if (camera)
+		//{
+		//	BPixelPos pp[8];
+		//	bool bPp[8];
 
-			bPp[0] = BDraw::ProjectPoint(viewport, points[0], pp[0]);
-			bPp[1] = BDraw::ProjectPoint(viewport, points[1], pp[1]);
-			bPp[2] = BDraw::ProjectPoint(viewport, points[2], pp[2]);
-			bPp[3] = BDraw::ProjectPoint(viewport, points[3], pp[3]);
+		//	bPp[0] = BDraw::ProjectPoint(viewport, points[0], pp[0]);
+		//	bPp[1] = BDraw::ProjectPoint(viewport, points[1], pp[1]);
+		//	bPp[2] = BDraw::ProjectPoint(viewport, points[2], pp[2]);
+		//	bPp[3] = BDraw::ProjectPoint(viewport, points[3], pp[3]);
 
-			bPp[4] = BDraw::ProjectPoint(viewport, points[4], pp[4]);
-			bPp[5] = BDraw::ProjectPoint(viewport, points[5], pp[5]);
-			bPp[6] = BDraw::ProjectPoint(viewport, points[6], pp[6]);
-			bPp[7] = BDraw::ProjectPoint(viewport, points[7], pp[7]);
+		//	bPp[4] = BDraw::ProjectPoint(viewport, points[4], pp[4]);
+		//	bPp[5] = BDraw::ProjectPoint(viewport, points[5], pp[5]);
+		//	bPp[6] = BDraw::ProjectPoint(viewport, points[6], pp[6]);
+		//	bPp[7] = BDraw::ProjectPoint(viewport, points[7], pp[7]);
 
-			if (bPp[0] && bPp[1]) BDraw::DrawLine(viewport, pp[0], pp[1]);
-			if (bPp[2] && bPp[3]) BDraw::DrawLine(viewport, pp[2], pp[3]);
-			if (bPp[0] && bPp[2]) BDraw::DrawLine(viewport, pp[0], pp[2]);
-			if (bPp[1] && bPp[3]) BDraw::DrawLine(viewport, pp[1], pp[3]);
+		//	if (bPp[0] && bPp[1]) BDraw::DrawLine(viewport, pp[0], pp[1]);
+		//	if (bPp[2] && bPp[3]) BDraw::DrawLine(viewport, pp[2], pp[3]);
+		//	if (bPp[0] && bPp[2]) BDraw::DrawLine(viewport, pp[0], pp[2]);
+		//	if (bPp[1] && bPp[3]) BDraw::DrawLine(viewport, pp[1], pp[3]);
 
-			if (bPp[4] && bPp[5]) BDraw::DrawLine(viewport, pp[4], pp[5]);
-			if (bPp[6] && bPp[7]) BDraw::DrawLine(viewport, pp[6], pp[7]);
-			if (bPp[4] && bPp[6]) BDraw::DrawLine(viewport, pp[4], pp[6]);
-			if (bPp[5] && bPp[7]) BDraw::DrawLine(viewport, pp[5], pp[7]);
+		//	if (bPp[4] && bPp[5]) BDraw::DrawLine(viewport, pp[4], pp[5]);
+		//	if (bPp[6] && bPp[7]) BDraw::DrawLine(viewport, pp[6], pp[7]);
+		//	if (bPp[4] && bPp[6]) BDraw::DrawLine(viewport, pp[4], pp[6]);
+		//	if (bPp[5] && bPp[7]) BDraw::DrawLine(viewport, pp[5], pp[7]);
 
-			if (bPp[0] && bPp[4]) BDraw::DrawLine(viewport, pp[0], pp[4]);
-			if (bPp[1] && bPp[5]) BDraw::DrawLine(viewport, pp[1], pp[5]);
-			if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6]);
-			if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7]);
-
-		}
+		//	if (bPp[0] && bPp[4]) BDraw::DrawLine(viewport, pp[0], pp[4]);
+		//	if (bPp[1] && bPp[5]) BDraw::DrawLine(viewport, pp[1], pp[5]);
+		//	if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6]);
+		//	if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7]);
+		//}
 	}
 
 	void BEngineTest_CubeProjection::Term()

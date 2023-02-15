@@ -123,13 +123,38 @@ namespace bgl
 
 #pragma endregion
 
+#pragma region Projecting 3D Lines
+
+			for (auto meshComponent : BMeshComponent::g_meshComponents)
+			{
+				if (meshComponent == nullptr) continue;
+				if (meshComponent->getShowWireframe() == false) continue;
+
+				auto& edges = meshComponent->getMeshData().edges;
+
+				for (auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++)
+				{
+					BPixelPos pp0, pp1;
+					const bool bPp0 = BDraw::ProjectPoint(viewport, edge->p1, pp0);
+					const bool bPp1 = BDraw::ProjectPoint(viewport, edge->p2, pp1);
+					if (bPp0 && bPp1)
+					{
+						renderThreadPool.push_task(DrawLine, viewport, BLine<BPixelPos>(pp0, pp1));
+					}
+				}
+			}
+			
+			camera->ClearLine2DBuffer();
+
+#pragma endregion
+
 #pragma region Rendering 2D Line Tasks
 
-			auto& lines = camera->GetLine2DBuffer();
+			auto& lines2D = camera->GetLine2DBuffer();
 
-			for (auto& line : lines)
+			for (auto& line2D : lines2D)
 			{
-				renderThreadPool.push_task(DrawLine, viewport, line);
+				renderThreadPool.push_task(DrawLine, viewport, line2D);
 			}
 
 			camera->ClearLine2DBuffer();

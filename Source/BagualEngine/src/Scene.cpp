@@ -125,15 +125,42 @@ namespace bgl
 	BMeshComponent::BMeshComponent(class BNode* owner /*= nullptr*/, const char* name /*= "None"*/, const char* assetPath /*= nullptr*/)
 		: BComponent(owner, name)
 	{
-		g_meshComponentTriangles.Add(&m_triangles);
+		g_meshComponentTriangles.Add(&m_MeshData.triangles);
 		g_meshComponents.Add(this);
 		if (assetPath) LoadMesh(assetPath);
 	}
 
 	BMeshComponent::~BMeshComponent()
 	{
-		g_meshComponentTriangles.Remove(&m_triangles);
+		g_meshComponentTriangles.Remove(&m_MeshData.triangles);
 		g_meshComponents.Remove(this);
+	}
+
+	void BMeshComponent::addUniqueEdge(const BLine<BVec3f>& line)
+	{
+		auto& edges = m_MeshData.edges;
+		bool bUnique = true;
+		for (auto* curEdge = edges.data(); curEdge < edges.data() + edges.Size(); curEdge++)
+		{
+			if (*curEdge == line)
+			{
+				bUnique = false;
+				break;
+			}
+		}
+
+		if (bUnique)
+		{
+			edges.emplace_back(line);
+		}
+	}
+
+	void BMeshComponent::addUniqueTriEdges(const BTriangle<float>& tri)
+	{
+		auto& edges = m_MeshData.edges;
+		addUniqueEdge(BLine<BVec3f>(tri.v0, tri.v1));
+		addUniqueEdge(BLine<BVec3f>(tri.v0, tri.v2));
+		addUniqueEdge(BLine<BVec3f>(tri.v1, tri.v2));
 	}
 
 	void BMeshComponent::LoadMesh(const char* assetPath)
@@ -170,64 +197,83 @@ namespace bgl
 			triCache.v2.y = vert2.Position.Y;
 			triCache.v2.z = vert2.Position.Z;
 
-			m_triangles.Add(triCache);
+			m_MeshData.triangles.Add(triCache);
+			
+			addUniqueTriEdges(triCache);
 
-			m_triangles_SIMD.v0.x.Add(triCache.v0.x);
-			m_triangles_SIMD.v0.y.Add(triCache.v0.y);
-			m_triangles_SIMD.v0.z.Add(triCache.v0.z);
-			m_triangles_SIMD.v1.x.Add(triCache.v1.x);
-			m_triangles_SIMD.v1.y.Add(triCache.v1.y);
-			m_triangles_SIMD.v1.z.Add(triCache.v1.z);
-			m_triangles_SIMD.v2.x.Add(triCache.v2.x);
-			m_triangles_SIMD.v2.y.Add(triCache.v2.y);
-			m_triangles_SIMD.v2.z.Add(triCache.v2.z);
+			m_MeshData.triangles_SIMD.v0.x.Add(triCache.v0.x);
+			m_MeshData.triangles_SIMD.v0.y.Add(triCache.v0.y);
+			m_MeshData.triangles_SIMD.v0.z.Add(triCache.v0.z);
+			m_MeshData.triangles_SIMD.v1.x.Add(triCache.v1.x);
+			m_MeshData.triangles_SIMD.v1.y.Add(triCache.v1.y);
+			m_MeshData.triangles_SIMD.v1.z.Add(triCache.v1.z);
+			m_MeshData.triangles_SIMD.v2.x.Add(triCache.v2.x);
+			m_MeshData.triangles_SIMD.v2.y.Add(triCache.v2.y);
+			m_MeshData.triangles_SIMD.v2.z.Add(triCache.v2.z);
 		}
 
-		const int32 simdFillerCount = (8 - m_triangles_SIMD.v0.x.Size() % 8) % 8;
+		const size_t simdFillerCount = (8 - m_MeshData.triangles_SIMD.v0.x.Size() % 8) % 8;
 
-		for (int32 i = 0; i < simdFillerCount; i++)
+		for (size_t i = 0; i < simdFillerCount; i++)
 		{
 			constexpr float dummy = 0.f;
-			m_triangles_SIMD.v0.x.Add(dummy);
-			m_triangles_SIMD.v0.y.Add(dummy);
-			m_triangles_SIMD.v0.z.Add(dummy);
-			m_triangles_SIMD.v1.x.Add(dummy);
-			m_triangles_SIMD.v1.y.Add(dummy);
-			m_triangles_SIMD.v1.z.Add(dummy);
-			m_triangles_SIMD.v2.x.Add(dummy);
-			m_triangles_SIMD.v2.y.Add(dummy);
-			m_triangles_SIMD.v2.z.Add(dummy);
+			m_MeshData.triangles_SIMD.v0.x.Add(dummy);
+			m_MeshData.triangles_SIMD.v0.y.Add(dummy);
+			m_MeshData.triangles_SIMD.v0.z.Add(dummy);
+			m_MeshData.triangles_SIMD.v1.x.Add(dummy);
+			m_MeshData.triangles_SIMD.v1.y.Add(dummy);
+			m_MeshData.triangles_SIMD.v1.z.Add(dummy);
+			m_MeshData.triangles_SIMD.v2.x.Add(dummy);
+			m_MeshData.triangles_SIMD.v2.y.Add(dummy);
+			m_MeshData.triangles_SIMD.v2.z.Add(dummy);
 		}
 
+	}
+
+	bool BMeshComponent::getShowWireframe() const
+	{
+		return m_ShowWireframe;
+	}
+
+	bool& BMeshComponent::getShowWireframe_Mutable()
+	{
+		return m_ShowWireframe;
+	}
+
+	void BMeshComponent::setShowWireframe( const bool bValue )
+	{
+		m_ShowWireframe = bValue;
 	}
 
 	bgl::BArray<bgl::BTriangle<float>>& BMeshComponent::GetTriangles()
 	{
-		return m_triangles;
+		return m_MeshData.triangles;
 	}
 
 	BTriangle<BArray<float>>& BMeshComponent::GetTriangles_SIMD()
 	{
-		return m_triangles_SIMD;
+		return m_MeshData.triangles_SIMD;
 	}
 
-	void BMeshComponent::AddTriangles(BArray<BTriangle<float>>& triangles)
+	void BMeshComponent::AddTriangles(const BArray<BTriangle<float>>& triangles)
 	{
-		m_triangles.Add(triangles);
+		m_MeshData.triangles.Add(triangles);
 
 		for (auto& tri : triangles)
 		{
-			m_triangles_SIMD.v0.x.Add(tri.v0.x);
-			m_triangles_SIMD.v0.y.Add(tri.v0.y);
-			m_triangles_SIMD.v0.z.Add(tri.v0.z);
+			addUniqueTriEdges(tri);
 
-			m_triangles_SIMD.v1.x.Add(tri.v1.x);
-			m_triangles_SIMD.v1.y.Add(tri.v1.y);
-			m_triangles_SIMD.v1.z.Add(tri.v1.z);
+			m_MeshData.triangles_SIMD.v0.x.Add(tri.v0.x);
+			m_MeshData.triangles_SIMD.v0.y.Add(tri.v0.y);
+			m_MeshData.triangles_SIMD.v0.z.Add(tri.v0.z);
 
-			m_triangles_SIMD.v2.x.Add(tri.v2.x);
-			m_triangles_SIMD.v2.y.Add(tri.v2.y);
-			m_triangles_SIMD.v2.z.Add(tri.v2.z);
+			m_MeshData.triangles_SIMD.v1.x.Add(tri.v1.x);
+			m_MeshData.triangles_SIMD.v1.y.Add(tri.v1.y);
+			m_MeshData.triangles_SIMD.v1.z.Add(tri.v1.z);
+
+			m_MeshData.triangles_SIMD.v2.x.Add(tri.v2.x);
+			m_MeshData.triangles_SIMD.v2.y.Add(tri.v2.y);
+			m_MeshData.triangles_SIMD.v2.z.Add(tri.v2.z);
 		}
 		
 	}

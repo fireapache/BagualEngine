@@ -78,17 +78,32 @@ namespace bgl
 
 	};
 
+	class BRawMeshData
+	{
+	public:
+
+		BArray<BTriangle<float>> triangles;
+		BTriangle<BArray<float>> triangles_SIMD;
+		BArray<BLine<BVec3f>> edges;
+	};
+
 	class BMeshComponent : public BComponent
 	{
 		friend class BScene;
+		friend class BGraphicsDriverGeneric;
 
 		static BArray<BArray<BTriangle<float>>*> g_meshComponentTriangles;
 		static BArray<BMeshComponent*> g_meshComponents;
 
 	protected:
 
-		BArray<BTriangle<float>> m_triangles;
-		BTriangle<BArray<float>> m_triangles_SIMD;
+		void addUniqueTriEdges(const BTriangle<float>& tri);
+		void addUniqueEdge(const BLine<BVec3f>& line);
+
+		//BRawMeshData m_sourceMeshData;
+		BRawMeshData m_MeshData;
+
+		bool m_ShowWireframe = false;
 		
 	public:
 
@@ -97,10 +112,19 @@ namespace bgl
 
 		void LoadMesh(const char* assetPath);
 
+		[[nodiscard]] bool getShowWireframe() const;
+		bool& getShowWireframe_Mutable();
+		void setShowWireframe(const bool bValue);
+
 		BArray<BTriangle<float>>& GetTriangles();
 		BTriangle<BArray<float>>& GetTriangles_SIMD();
 
-		void AddTriangles(BArray<BTriangle<float>>& triangles);
+		[[nodiscard]] const BRawMeshData& getMeshData() const
+		{
+			return m_MeshData;
+		}
+
+		void AddTriangles(const BArray<BTriangle<float>>& triangles);
 
 	};
 

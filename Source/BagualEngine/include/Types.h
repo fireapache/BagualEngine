@@ -430,6 +430,11 @@ namespace bgl
 			*this = *this / p;
 		}
 
+		bool operator==(const BVector3<T>& p)
+		{
+			return x == p.x && y == p.y && z == p.z;
+		}
+
 		[[nodiscard]] T Norm() const
 		{
 			return this->x * this->x + this->y * this->y + this->z * this->z;
@@ -641,6 +646,11 @@ namespace bgl
 		inline const BLine operator-() const
 		{
 			return BLine(p2, p1);
+		}
+
+		bool operator==(const BLine<T>& val)
+		{
+			return p1 == val.p1 && p2 == val.p2;
 		}
 
 	};

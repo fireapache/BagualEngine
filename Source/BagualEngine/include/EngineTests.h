@@ -12,6 +12,7 @@ namespace bgl
 	class BCanvas;
 	class BNode;
 	class BCameraComponent;
+	class BMeshComponent;
 }
 
 namespace bgl
@@ -24,6 +25,9 @@ namespace bgl
 		FWindowSettings windowSettings;
 		
 		BPlatformWindow* window = nullptr;
+		BMeshComponent* roomMeshComp;
+		BMeshComponent* objectsMeshComp;
+		BMeshComponent* charMeshComp;
 		BCameraComponent* cameraComp = nullptr;
 		BViewport* viewport = nullptr;
 		BCanvas* canvas = nullptr;
