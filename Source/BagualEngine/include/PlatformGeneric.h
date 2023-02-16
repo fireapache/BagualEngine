@@ -34,7 +34,7 @@ namespace bgl
 
 		GLFWwindow* glfwWindow = nullptr;
 
-		uint32 glTex = -1;
+		uint32_t glTex = UINT32_MAX;
 
 	protected:
 

@@ -11,26 +11,11 @@ namespace bgl
 	BCanvas::BCanvas(BPlatformWindow* window, uint16 width, uint16 height)
 		: width(width), height(height)
 	{
-		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<size_t>(width) * height);
-		AllocateZBuffer();
-
+		AllocateBuffers();
 		this->window = window;
-
-		UpdateEdges();
-
-	}
-
-	BCanvas::BCanvas(BPlatformWindow* window, void* pixels, uint8 width, uint8 height)
-		: width(width), height(height)
-	{
-		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(static_cast<CanvasDataType*>(pixels), static_cast<size_t>(width) * height);
-		AllocateZBuffer();
-
-		this->window = window;
-
 		UpdateEdges();
 	}
-
+	
 	inline void BCanvas::UpdateEdges()
 	{
 		const BPixelPos edge0_0(0, 0);
@@ -64,14 +49,23 @@ namespace bgl
 		return height;
 	}
 
-	void BCanvas::AllocateZBuffer()
+	void BCanvas::AllocateBuffers()
 	{
-		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(static_cast<size_t>(width) * height, DepthDataType(9999999999999));
+		const size_t frameBufferLength = static_cast<size_t>(width) * static_cast<size_t>(height);
+		this->colorBuffer = std::make_shared<BBuffer<CanvasDataType>>(frameBufferLength, static_cast<CanvasDataType>(0));
+		this->zBuffer = std::make_shared<BBuffer<DepthDataType>>(frameBufferLength, static_cast<DepthDataType>(9999999999999));
+		this->wireframeBuffer = std::make_shared<BBuffer<CanvasDataType>>(frameBufferLength, static_cast<CanvasDataType>(0));
+		this->readyFrameBuffer = std::make_shared<BBuffer<CanvasDataType>>(frameBufferLength, static_cast<CanvasDataType>(0));
 	}
 
 	void BCanvas::ResetZBuffer()
 	{
 		this->zBuffer->SetBufferValue(static_cast<DepthDataType>(999999999999));
+	}
+
+	void BCanvas::ResetWireframeBuffer()
+	{
+		this->wireframeBuffer->SetBufferValue(static_cast<CanvasDataType>(0));
 	}
 
 	const BLine<BPixelPos>* BCanvas::GetEdges() const
@@ -92,6 +86,16 @@ namespace bgl
 	BBuffer<DepthDataType>& BCanvas::GetZBuffer() const
 	{
 		return *zBuffer;
+	}
+
+	BBuffer<CanvasDataType>& BCanvas::GetWireframeBuffer() const
+	{
+		return *wireframeBuffer;
+	}
+
+	BBuffer<CanvasDataType>& BCanvas::GetReadyFrameBuffer() const
+	{
+		return *readyFrameBuffer;
 	}
 
 	BPlatformWindow* BCanvas::GetWindow() const

@@ -59,12 +59,7 @@ namespace bgl
 
 	void BGraphicsDriverBase::SwapFrames()
 	{
-		if (true)
-		{
-			SwapGameFrame();
-			m_bGameFrameReady = false;
-		}
-
+		SwapGameFrame();
 		SwapUIFrame();
 	}
 

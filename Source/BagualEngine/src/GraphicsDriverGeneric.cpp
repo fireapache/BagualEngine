@@ -109,8 +109,8 @@ namespace bgl
 
 #pragma region Rendering Geometry Tasks
 
-			viewport->ResetPixelDepth();
-			auto renderThreadMode = camera->GetRenderThreadMode();
+			canvas->ResetZBuffer();
+			const auto renderThreadMode = camera->GetRenderThreadMode();
 
 			const auto processorCount = std::thread::hardware_concurrency() * (renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1);
 			uint32 renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
@@ -123,7 +123,9 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region Projecting 3D Lines
+			canvas->ResetWireframeBuffer();
+
+#pragma region Rendering 3D Lines
 
 			for (auto meshComponent : BMeshComponent::g_meshComponents)
 			{
@@ -162,12 +164,39 @@ namespace bgl
 #pragma endregion
 
 			renderThreadPool.wait_for_tasks();
+			
+			auto& wireframeBuffer = canvas->GetWireframeBuffer();
+			CanvasDataType* wireframdeBufferData = wireframeBuffer.GetData();
+			auto& colorBuffer = canvas->GetColorBuffer();
+			CanvasDataType* colorBufferData = colorBuffer.GetData();
+			auto& readyFrameBuffer = canvas->GetReadyFrameBuffer();
+			CanvasDataType* readyFrameBufferData = readyFrameBuffer.GetData();
+
+			// TODO: make wireframe work with zbuffer
+			//auto& zBuffer = canvas->GetZBuffer();
+			//DepthDataType* zBufferData = zBuffer.GetData();
+
+			while (colorBufferData < colorBuffer.GetData() + colorBuffer.Length())
+			{
+				if (*wireframdeBufferData > 0 /*&& zBufferData*/ )
+				{
+					*readyFrameBufferData = *wireframdeBufferData;
+				}
+				else
+				{
+					*readyFrameBufferData = *colorBufferData;
+				}
+				wireframdeBufferData++;
+				colorBufferData++;
+				readyFrameBufferData++;
+				//zBufferData++;
+			}
 
 		}
-
+		
 	}
 
-	void BGraphicsDriverGeneric::DrawLine(BViewport* viewport, BLine<BPixelPos> line)
+	void BGraphicsDriverGeneric::DrawLine(BViewport* viewport, const BLine<BPixelPos>& line)
 	{
 		BDraw::DrawLine(viewport, line);
 	}
@@ -553,31 +582,35 @@ namespace bgl
 	{
 		if (m_cachedPlatformWindowPtr)
 		{
-
+			
 #pragma region Rendering Window Canvas to OpenGL
 
 			auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 			glfwMakeContextCurrent(glfwWindow);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			GLfloat windowWidth = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetWidth());
-			GLfloat windowHeight = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetHeight());
+			const GLfloat windowWidth = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetWidth());
+			const GLfloat windowHeight = static_cast<GLfloat>(m_cachedPlatformWindowPtr->GetCanvas()->GetHeight());
 
 			GLuint& tex = m_cachedPlatformWindowPtr->GetglTex();
 
-			if (tex == -1)
+			if (!glIsTexture(tex))
 			{
 				glGenTextures(1, &tex);
+				m_cachedPlatformWindowPtr->SetglTex(tex);
 			}
 
-			glBindTexture(GL_TEXTURE_2D, tex);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+			if (m_bGameFrameReady)
+			{
+				glBindTexture(GL_TEXTURE_2D, tex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 				static_cast<GLsizei>(windowWidth), static_cast<GLsizei>(windowHeight),
-				0, GL_RGBA, GL_UNSIGNED_BYTE, m_cachedPlatformWindowPtr->GetCanvas()->GetColorBuffer().GetData());
-			glBindTexture(GL_TEXTURE_2D, 0);
-
+				0, GL_RGBA, GL_UNSIGNED_BYTE, m_cachedPlatformWindowPtr->GetCanvas()->GetReadyFrameBuffer().GetData());
+				glBindTexture(GL_TEXTURE_2D, 0);
+				m_bGameFrameReady = false;
+			}
+			
 			// Match projection to window resolution
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();

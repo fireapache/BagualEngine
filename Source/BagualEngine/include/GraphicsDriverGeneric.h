@@ -71,7 +71,7 @@ namespace bgl
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines(BViewport* viewport, const uint32_t renderThreadIndex);
-		static void DrawLine(BViewport* viewport, BLine<BPixelPos> line);
+		static void DrawLine(BViewport* viewport, const BLine<BPixelPos>& line);
 		static void PaintPixel(BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb);
 
 		void SwapFrames() override;

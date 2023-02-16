@@ -795,12 +795,12 @@ namespace bgl
 			return _memBlock[index];
 		}
 
-		inline size_t Length() const
+		[[nodiscard]] size_t Length() const
 		{
 			return _length;
 		}
 
-		inline T* GetData()
+		T* GetData()
 		{
 			return _memBlock;
 		}

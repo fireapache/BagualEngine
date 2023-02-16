@@ -229,7 +229,7 @@ namespace bgl
 				return;
 			}
 
-			auto& screen = canvas->GetColorBuffer();
+			auto& screen = canvas->GetWireframeBuffer();
 			const int32 width = canvas->GetWidth();
 			int32 dx = line.p2.x - line.p1.x;
 			int32 dy = line.p2.y - line.p1.y;
@@ -276,7 +276,7 @@ namespace bgl
 				return;
 			}
 
-			auto& screen = canvas->GetColorBuffer();
+			auto& screen = canvas->GetWireframeBuffer();
 			const int32 width = canvas->GetWidth();
 			int32 dx = line.p2.x - line.p1.x;
 			int32 dy = line.p2.y - line.p1.y;
@@ -310,7 +310,7 @@ namespace bgl
 		}
 
 		/*	Draw a line on viewport. */
-		inline static void DrawLine(BViewport* viewport, const BLine<BPixelPos> line)
+		static void DrawLine(BViewport* viewport, const BLine<BPixelPos>& line)
 		{
 			if (viewport == nullptr)
 			{
@@ -356,7 +356,7 @@ namespace bgl
 		}
 
 		/*	Draw a line between pixel positions on viewport */
-		inline static void DrawLine(BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2)
+		static void DrawLine(BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2)
 		{
 			DrawLine(viewport, BLine<BPixelPos>(p1, p2));
 		}
