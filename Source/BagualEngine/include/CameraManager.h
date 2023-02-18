@@ -16,15 +16,12 @@ namespace bgl
 {
 	class BCameraManager
 	{
-
-		static BArray<BCamera*> m_cameras;
+		static BArray< BCamera* > m_cameras;
 
 	public:
+		static void AddCamera( BCamera* camera );
+		static void RemoveCamera( BCamera* camera );
 
-		static void AddCamera(BCamera* camera);
-		static void RemoveCamera(BCamera* camera);
-
-		static BArray<BCamera*> GetCameras();
-
+		static BArray< BCamera* > GetCameras();
 	};
-}
+} // namespace bgl

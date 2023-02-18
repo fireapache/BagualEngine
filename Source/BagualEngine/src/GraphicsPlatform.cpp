@@ -1,5 +1,7 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "GraphicsPlatform.h"
 
@@ -12,21 +14,21 @@
 
 namespace bgl
 {
-	
+
 	BGraphicsPlatform::BGraphicsPlatform()
 	{
-		m_driverInstance = std::make_unique<BGraphicsDriverGeneric>();
-		m_viewports = BArray<std::shared_ptr<BViewport>>();
+		m_driverInstance = std::make_unique< BGraphicsDriverGeneric >();
+		m_viewports = BArray< std::shared_ptr< BViewport > >();
 	}
 
-	const BArray<BViewport*> BGraphicsPlatform::GetViewports() const
+	const BArray< BViewport* > BGraphicsPlatform::GetViewports() const
 	{
 		return m_viewportsRaw;
 	}
 
-	void BGraphicsPlatform::SetEnabled(const bool bValue)
+	void BGraphicsPlatform::SetEnabled( const bool bValue )
 	{
-		m_driverInstance->SetEnabled(bValue);
+		m_driverInstance->SetEnabled( bValue );
 	}
 
 	bool BGraphicsPlatform::IsEnabled() const
@@ -36,55 +38,59 @@ namespace bgl
 
 	void BGraphicsPlatform::SwapFrames()
 	{
-		if (m_driverInstance)
+		if( m_driverInstance )
 		{
 			m_driverInstance->SwapFrames();
 		}
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas)
+	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas )
 	{
-		return RegisterViewport(canvas);
+		return RegisterViewport( canvas );
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const BBox<BVector2<float>> normalizedSize)
+	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas, const BBox< BVector2< float > > normalizedSize )
 	{
-		return RegisterViewport(canvas, normalizedSize);
+		return RegisterViewport( canvas, normalizedSize );
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32 width, const uint32 height)
+	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas, const uint32 width, const uint32 height )
 	{
-		return RegisterViewport(canvas, width, height);
+		return RegisterViewport( canvas, width, height );
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport(BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height)
+	BViewport* BGraphicsPlatform::CreateViewport(
+		BCanvas* canvas,
+		const uint32 x,
+		const uint32 y,
+		const uint32 width,
+		const uint32 height )
 	{
-		return RegisterViewport(canvas, x, y, width, height);
+		return RegisterViewport( canvas, x, y, width, height );
 	}
 
-	void BGraphicsPlatform::Delay(const uint32&& ms)
+	void BGraphicsPlatform::Delay( const uint32&& ms )
 	{
-		if (m_driverInstance)
+		if( m_driverInstance )
 		{
-			m_driverInstance->Delay(ms);
+			m_driverInstance->Delay( ms );
 		}
 	}
 
-	void BGraphicsPlatform::Delay(const uint32& ms)
+	void BGraphicsPlatform::Delay( const uint32& ms )
 	{
-		if (m_driverInstance)
+		if( m_driverInstance )
 		{
-			m_driverInstance->Delay(ms);
+			m_driverInstance->Delay( ms );
 		}
 	}
 
-	void BGraphicsPlatform::RenderCamera(const BCamera& camera)
+	void BGraphicsPlatform::RenderCamera( const BCamera& camera )
 	{
-		if (m_driverInstance)
+		if( m_driverInstance )
 		{
-			m_driverInstance->RenderCamera(camera);
+			m_driverInstance->RenderCamera( camera );
 		}
 	}
 
-}
-
+} // namespace bgl

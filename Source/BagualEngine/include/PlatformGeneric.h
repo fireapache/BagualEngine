@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common.h"
-
 #include "PlatformBase.h"
 
 struct ImGuiIO;
@@ -11,33 +10,27 @@ namespace bgl
 {
 	class BPlatformGeneric : public BPlatformBase
 	{
-
 	private:
-
 		ImGuiIO* imguiConfig;
 
 	public:
-
 		BPlatformGeneric();
 		~BPlatformGeneric();
 
 		virtual BPlatformWindow* CreateWindow() override;
-		virtual BPlatformWindow* CreateWindow(const FWindowSettings& settings) override;
+		virtual BPlatformWindow* CreateWindow( const FWindowSettings& settings ) override;
 
 		ImGuiIO* GetImguiConfig();
 	};
 
 	class BGenericPlatformWindow : public BPlatformWindow
 	{
-
 	private:
-
 		GLFWwindow* glfwWindow = nullptr;
 
 		uint32_t glTex = UINT32_MAX;
 
 	protected:
-
 		virtual void ApplySettings() override;
 
 		virtual void Create() override;
@@ -45,9 +38,8 @@ namespace bgl
 		virtual void Destroy() override;
 
 	public:
-
 		BGenericPlatformWindow() = delete;
-		BGenericPlatformWindow(const FWindowSettings& windowSettings);
+		BGenericPlatformWindow( const FWindowSettings& windowSettings );
 		~BGenericPlatformWindow();
 
 		virtual bool Tick() override;
@@ -56,7 +48,6 @@ namespace bgl
 
 		uint32& GetglTex();
 
-		void SetglTex(uint32 index);
-
+		void SetglTex( uint32 index );
 	};
-}
+} // namespace bgl

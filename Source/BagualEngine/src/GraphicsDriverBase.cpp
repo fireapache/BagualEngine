@@ -1,28 +1,29 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "GraphicsDriverBase.h"
 
 #include "CameraManager.h"
-#include <thread>
 
 namespace bgl
 {
 	BGraphicsDriverBase::BGraphicsDriverBase()
 	{
-
 	}
 
 	BGraphicsDriverBase::~BGraphicsDriverBase()
 	{
 		StopGameFrameRenderingThread();
 	}
-	
-	void BGraphicsDriverBase::SetEnabled(const bool bValue)
-	{
-		if (bValue == m_bEnabled) return;
 
-		if (bValue)
+	void BGraphicsDriverBase::SetEnabled( const bool bValue )
+	{
+		if( bValue == m_bEnabled )
+			return;
+
+		if( bValue )
 		{
 			StartGameFrameRenderingThread();
 		}
@@ -40,16 +41,17 @@ namespace bgl
 	void BGraphicsDriverBase::StartGameFrameRenderingThread()
 	{
 		m_bStopRenderThread = false;
-		m_renderGameFrameThread = std::thread([this]()
+		m_renderGameFrameThread = std::thread(
+			[ this ]()
 			{
 				m_bEnabled = true;
-				while (!m_bStopRenderThread)
+				while( !m_bStopRenderThread )
 				{
 					RenderGameFrame();
 					m_bGameFrameReady = true;
 				}
 				m_bEnabled = false;
-			});
+			} );
 	}
 
 	void BGraphicsDriverBase::StopGameFrameRenderingThread()
@@ -67,25 +69,21 @@ namespace bgl
 	{
 		auto cameras = BCameraManager::GetCameras();
 
-		for (auto camera : cameras)
+		for( auto camera : cameras )
 		{
-			RenderCamera(*camera);
+			RenderCamera( *camera );
 		}
-
 	}
 
 	void BGraphicsDriverBase::SwapUIFrame()
 	{
-
 	}
 
 	void BGraphicsDriverBase::SwapGameFrame()
 	{
-		
 	}
 
-	void BGraphicsDriverBase::RenderCamera(const BCamera& camera)
+	void BGraphicsDriverBase::RenderCamera( const BCamera& camera )
 	{
-
 	}
-}
+} // namespace bgl

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Common.h"
-
-#include "Module.h"
 #include "Camera.h"
+#include "Common.h"
+#include "Module.h"
 
 namespace bgl
 {
@@ -13,17 +12,15 @@ namespace bgl
 	class BNode;
 	class BCameraComponent;
 	class BMeshComponent;
-}
+} // namespace bgl
 
 namespace bgl
 {
 	class BEngineTestBase : public BModuleBase
 	{
-
 	public:
-
 		FWindowSettings windowSettings;
-		
+
 		BPlatformWindow* window = nullptr;
 		BMeshComponent* roomMeshComp;
 		BMeshComponent* objectsMeshComp;
@@ -34,47 +31,37 @@ namespace bgl
 		BCamera* camera = nullptr;
 		float defaultDepthDist;
 
-		void CreateStandardWindow(const char* windowTitle = nullptr);
-
+		void CreateStandardWindow( const char* windowTitle = nullptr );
 	};
 
 	class BEngineTest_FundamentalRendering : public BEngineTestBase
 	{
-
-		void QueueCameraLineDraw(class BCamera* camera);
+		void QueueCameraLineDraw( class BCamera* camera );
 
 	public:
-
 		void Init() override;
 		void Tick() override;
 		void Term() override;
-
 	};
 
 	class BEngineTest_CubeProjection : public BEngineTestBase
 	{
-
 	public:
-
-		BVec3f points[8];
+		BVec3f points[ 8 ];
 
 		void Init() override;
 		void Tick() override;
 		void Term() override;
-
 	};
 
 	class BEngineTest_RoomRendering : public BEngineTestBase
 	{
-		
 	public:
-
 		BESceneSetup sceneSetup = BESceneSetup::ObjectsCharacter;
 
 		void Init() override;
 		void Tick() override;
 		void Term() override;
-
 	};
 
 	class BEngineTest_NodeEditor : public BEngineTestBase
@@ -82,9 +69,7 @@ namespace bgl
 		void* nodeEditorContext;
 
 	public:
-
 		void Init() override;
 		void Term() override;
-
 	};
-}
+} // namespace bgl

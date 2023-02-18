@@ -1,28 +1,31 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "Camera.h"
-#include "Viewport.h"
+
+#include "Arithmetics.h"
 #include "BagualEngine.h"
+#include "CameraManager.h"
+#include "Canvas.h"
+#include "GraphicsPlatform.h"
 #include "Logger.h"
 #include "PlatformBase.h"
-#include "Canvas.h"
 #include "Scene.h"
-#include "CameraManager.h"
-#include "GraphicsPlatform.h"
-#include "Arithmetics.h"
+#include "Viewport.h"
 
 namespace bgl
 {
-	
+
 	BCamera::BCamera()
 	{
-		BGL_ASSERT(false && "Trying to build an empty camera!");
+		BGL_ASSERT( false && "Trying to build an empty camera!" );
 	}
-	
-	BCamera::BCamera(BViewport* viewport, BCameraComponent* owner)
+
+	BCamera::BCamera( BViewport* viewport, BCameraComponent* owner )
 	{
-		SetViewport(viewport);
+		SetViewport( viewport );
 		m_owner = owner;
 	}
 
@@ -36,7 +39,7 @@ namespace bgl
 		return m_intrinsicsMode;
 	}
 
-	void BCamera::SetIntrinsicsMode(const BEIntrinsicsMode intrinsicsMode)
+	void BCamera::SetIntrinsicsMode( const BEIntrinsicsMode intrinsicsMode )
 	{
 		m_intrinsicsMode = intrinsicsMode;
 	}
@@ -51,7 +54,7 @@ namespace bgl
 		return m_renderSpeed;
 	}
 
-	void BCamera::SetRenderSpeed(const BERenderSpeed renderSpeed)
+	void BCamera::SetRenderSpeed( const BERenderSpeed renderSpeed )
 	{
 		m_renderSpeed = renderSpeed;
 	}
@@ -66,7 +69,7 @@ namespace bgl
 		return m_renderThreadMode;
 	}
 
-	void BCamera::SetRenderThreadMode(const BERenderThreadMode renderThreadMode)
+	void BCamera::SetRenderThreadMode( const BERenderThreadMode renderThreadMode )
 	{
 		m_renderThreadMode = renderThreadMode;
 	}
@@ -81,7 +84,7 @@ namespace bgl
 		return m_sensorSize;
 	}
 
-	void BCamera::SetSensorSize(const BVec2f& sensorSize)
+	void BCamera::SetSensorSize( const BVec2f& sensorSize )
 	{
 		m_sensorSize = sensorSize;
 	}
@@ -89,14 +92,14 @@ namespace bgl
 	const BVec2f BCamera::GetSensorArea() const
 	{
 		const auto sensorSize = GetSensorSize();
-		return BVector2<float>(sensorSize.x / 10.f, sensorSize.y / 10.f);
+		return BVector2< float >( sensorSize.x / 10.f, sensorSize.y / 10.f );
 	}
 
 	const float BCamera::GetSensorDistance() const
 	{
 		const auto sensorArea = GetSensorArea();
-		const float biggestSensorSide = std::max(sensorArea.x, sensorArea.y);
-		return (biggestSensorSide / 2.f) * (2.f - std::sinf(deg2rad(GetFOV() / 2.f)));
+		const float biggestSensorSide = std::max( sensorArea.x, sensorArea.y );
+		return ( biggestSensorSide / 2.f ) * ( 2.f - std::sinf( deg2rad( GetFOV() / 2.f ) ) );
 	}
 
 	const BERenderOutputType BCamera::GetRenderOutputType() const
@@ -109,7 +112,7 @@ namespace bgl
 		return m_renderOutputType;
 	}
 
-	void BCamera::SetRenderOutputType(const BERenderOutputType type)
+	void BCamera::SetRenderOutputType( const BERenderOutputType type )
 	{
 		m_renderOutputType = type;
 	}
@@ -124,19 +127,19 @@ namespace bgl
 		return m_depthDist;
 	}
 
-	void BCamera::SetDepthDistance(const float depth)
+	void BCamera::SetDepthDistance( const float depth )
 	{
 		m_depthDist = depth;
 	}
 
-	void BCamera::SetFOV(const float fov)
+	void BCamera::SetFOV( const float fov )
 	{
 		m_fov = fov;
 	}
 
-	void BCamera::AddLine2DBuffer(const BLine<BPixelPos>& line)
+	void BCamera::AddLine2DBuffer( const BLine< BPixelPos >& line )
 	{
-		m_line2DBuffer.Add(line);
+		m_line2DBuffer.Add( line );
 	}
 
 	BViewport* BCamera::GetViewport()
@@ -146,9 +149,9 @@ namespace bgl
 		auto viewports = BEngine::GraphicsPlatform().GetViewports();
 
 		// Checking if any viewport points to this camera
-		for (auto viewport : viewports)
+		for( auto viewport : viewports )
 		{
-			if (viewport->GetCamera() == this)
+			if( viewport->GetCamera() == this )
 			{
 				result = viewport;
 				break;
@@ -158,15 +161,15 @@ namespace bgl
 		return result;
 	}
 
-	void BCamera::SetViewport(BViewport* viewport)
+	void BCamera::SetViewport( BViewport* viewport )
 	{
-		if (viewport)
+		if( viewport )
 		{
-			viewport->SetCamera(this);
+			viewport->SetCamera( this );
 		}
 	}
 
-	BArray<BLine<BPixelPos>>& BCamera::GetLine2DBuffer()
+	BArray< BLine< BPixelPos > >& BCamera::GetLine2DBuffer()
 	{
 		return m_line2DBuffer;
 	}
@@ -176,9 +179,9 @@ namespace bgl
 		m_line2DBuffer.Clear();
 	}
 
-	BTransform<float>& BCamera::GetTransform_Mutable()
+	BTransform< float >& BCamera::GetTransform_Mutable()
 	{
-		if (m_owner)
+		if( m_owner )
 		{
 			return m_owner->GetTransform_Mutable();
 		}
@@ -186,9 +189,9 @@ namespace bgl
 		return m_detachedTransform;
 	}
 
-	const BTransform<float> BCamera::GetTransform() const
+	const BTransform< float > BCamera::GetTransform() const
 	{
-		if (m_owner)
+		if( m_owner )
 		{
 			return m_owner->GetTransform();
 		}
@@ -211,22 +214,22 @@ namespace bgl
 		return GetTransform().scale;
 	}
 
-	void BCamera::SetTransform(const BTransform<float>& transform)
+	void BCamera::SetTransform( const BTransform< float >& transform )
 	{
 		GetTransform_Mutable() = transform;
 	}
 
-	void BCamera::SetLocation(const BVec3f& location)
+	void BCamera::SetLocation( const BVec3f& location )
 	{
 		GetTransform_Mutable().translation = location;
 	}
 
-	void BCamera::SetRotation(const BRotf& rotation)
+	void BCamera::SetRotation( const BRotf& rotation )
 	{
 		GetTransform_Mutable().rotation = rotation;
 	}
 
-	void BCamera::SetScale(const BVec3f& scale)
+	void BCamera::SetScale( const BVec3f& scale )
 	{
 		GetTransform_Mutable().scale = scale;
 	}
@@ -241,4 +244,4 @@ namespace bgl
 		return m_fov;
 	}
 
-}
+} // namespace bgl

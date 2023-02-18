@@ -1,11 +1,10 @@
 #pragma once
 
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <iostream>
 #include <memory>
 #include <string>
-#include <cassert>
-#include <vector>
-#include <cmath>
-#include <algorithm>
-#include <iostream>
 #include <thread>
-
+#include <vector>

@@ -1,13 +1,16 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "PlatformBase.h"
+
 #include "Assertions.h"
 
 namespace bgl
 {
 
-	BPlatformWindow::BPlatformWindow(const FWindowSettings& windowSettings)
+	BPlatformWindow::BPlatformWindow( const FWindowSettings& windowSettings )
 	{
 		settings = windowSettings;
 		Create();
@@ -18,7 +21,7 @@ namespace bgl
 		return settings;
 	}
 
-	void BPlatformWindow::SetWindow(const FWindowSettings& newSettings)
+	void BPlatformWindow::SetWindow( const FWindowSettings& newSettings )
 	{
 		settings = newSettings;
 		ApplySettings();
@@ -29,7 +32,7 @@ namespace bgl
 		return m_canvas.get();
 	}
 
-	void BPlatformWindow::SetGuiTickFunc(GuiTickFuncType func)
+	void BPlatformWindow::SetGuiTickFunc( GuiTickFuncType func )
 	{
 		m_guiTickFunc = func;
 	}
@@ -49,14 +52,11 @@ namespace bgl
 		BGL_NEED_IMPLEMENTATION
 	}
 
-	void BPlatformWindow::Destroy()
-	{
-		BGL_NEED_IMPLEMENTATION
-	}
+	void BPlatformWindow::Destroy(){ BGL_NEED_IMPLEMENTATION }
 
-	BArray<std::shared_ptr<BPlatformWindow>>& BPlatformBase::GetWindows()
+	BArray< std::shared_ptr< BPlatformWindow > >& BPlatformBase::GetWindows()
 	{
 		return windows;
 	}
 
-}
+} // namespace bgl

@@ -1,49 +1,49 @@
 #pragma once
 
-#include <cmath>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <cassert>
-#include <immintrin.h>
-#include "Logger.h"
 #include "Assertions.h"
 #include "Definitions.h"
+#include "Logger.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <immintrin.h>
+#include <string>
+#include <vector>
 
 namespace bgl
 {
-	template <class T, class aloc = std::allocator<T>>
-	class BArray : public std::vector<T, aloc>
+	template< class T, class aloc = std::allocator< T > >
+	class BArray : public std::vector< T, aloc >
 	{
 		//std::vector<T, aloc> stdContainer;
 
 	public:
-
 		inline void ZeroAll()
 		{
-			std::fill(begin(), end(), T(0));
+			std::fill( begin(), end(), T( 0 ) );
 		}
 
-		inline void Reserve(size_t size)
+		inline void Reserve( size_t size )
 		{
-			reserve(size);
+			reserve( size );
 		}
 
-		inline void Resize(size_t size)
+		inline void Resize( size_t size )
 		{
-			resize(size);
-		}
-		
-		inline T& operator[](size_t index)
-		{
-			assert(index < Size());
-			return at(index);
+			resize( size );
 		}
 
-		inline const T& operator[](size_t index) const
+		inline T& operator[]( size_t index )
 		{
-			assert(index < Size());
-			return at(index);
+			assert( index < Size() );
+			return at( index );
+		}
+
+		inline const T& operator[]( size_t index ) const
+		{
+			assert( index < Size() );
+			return at( index );
 		}
 
 		inline size_t Size() const
@@ -51,69 +51,68 @@ namespace bgl
 			return size();
 		}
 
-		inline void Add(const T& item)
+		inline void Add( const T& item )
 		{
-			push_back(item);
+			push_back( item );
 		}
 
-		inline void Add(const BArray<T>& list)
+		inline void Add( const BArray< T >& list )
 		{
-			insert(end(), list.begin(), list.end());
+			insert( end(), list.begin(), list.end() );
 		}
 
-		inline void Remove(const T& item)
+		inline void Remove( const T& item )
 		{
-			auto result = std::remove(begin(), end(), item);
+			auto result = std::remove( begin(), end(), item );
 		}
 
-		inline void MoveAdd(const BArray<T>& list)
+		inline void MoveAdd( const BArray< T >& list )
 		{
-			splice(end(), list);
+			splice( end(), list );
 		}
 
 		inline void Clear()
 		{
 			clear();
 		}
-
 	};
 
 	// Based on the implementation from the following link,
 	// and with fixes mentioned in the same thread:
 	// https://codereview.stackexchange.com/questions/164675/c-class-for-aligning-objects-on-the-stack
-	template<size_t Align, typename T>
+	template< size_t Align, typename T >
 	class BStackAligned
 	{
 	public:
 		using value_type = T;
-		using aligned_type = BStackAligned<Align, T>;
+		using aligned_type = BStackAligned< Align, T >;
 
 		BStackAligned()
 		{
 			ptr_ = aligned_position();
 		}
 
-		BStackAligned(const aligned_type& other)
+		BStackAligned( const aligned_type& other )
 		{
 			*ptr_ = *other.ptr_;
 		}
 
-		BStackAligned(aligned_type&& other)
+		BStackAligned( aligned_type&& other )
 		{
-			*ptr_ = std::move(*other.ptr_);
+			*ptr_ = std::move( *other.ptr_ );
 		}
 
-		aligned_type& operator=(const aligned_type& other)
+		aligned_type& operator=( const aligned_type& other )
 		{
 			*ptr_ = *other.ptr_;
 			return *this;
 		}
 
-		template<typename... Args>
-		BStackAligned(Args&&... args)
+		template< typename... Args >
+		BStackAligned( Args&&... args )
 		{
 			ptr_ = aligned_position();
-			new (ptr_) T(std::forward<Args>(args)...);
+			new( ptr_ ) T( std::forward< Args >( args )... );
 		}
 
 		~BStackAligned()
@@ -139,13 +138,11 @@ namespace bgl
 	private:
 		T* aligned_position() const noexcept
 		{
-			return reinterpret_cast<T*>(
-				(reinterpret_cast<std::uintptr_t>(&storage_) + Align - 1) & ~(Align - 1));
+			return reinterpret_cast< T* >( ( reinterpret_cast< std::uintptr_t >( &storage_ ) + Align - 1 ) & ~( Align - 1 ) );
 		}
 
-		uint8_t storage_[Align - 1 + sizeof(T)];
+		uint8_t storage_[ Align - 1 + sizeof( T ) ];
 		T* ptr_;
-
 	};
 
 	enum class BEBoxEdge : uint32
@@ -158,22 +155,32 @@ namespace bgl
 
 	class BString : std::string
 	{
-
 	};
 
-	template <typename T>
+	template< typename T >
 	class BSize
 	{
-
 	public:
-
 		T width, height;
 
-		inline BSize() : width(0), height(0) {}
-		inline BSize(const T& width, const T& height) : width(width), height(height) {}
-		inline BSize(const BSize<T>& p) : width(p.width), height(p.height) {}
-		~BSize() {}
-
+		inline BSize()
+			: width( 0 )
+			, height( 0 )
+		{
+		}
+		inline BSize( const T& width, const T& height )
+			: width( width )
+			, height( height )
+		{
+		}
+		inline BSize( const BSize< T >& p )
+			: width( p.width )
+			, height( p.height )
+		{
+		}
+		~BSize()
+		{
+		}
 	};
 
 	/*template <typename T>
@@ -191,35 +198,47 @@ namespace bgl
 
 	};*/
 
-	template <typename T>
+	template< typename T >
 	class BVector2
 	{
-
 	public:
-
 		T x, y;
 
-		inline BVector2() : x(T()), y(T()) {}
-		inline BVector2(const T& x, const T& y) : x(x), y(y) {}
-		inline BVector2(const BVector2<T> &p) : x(p.x), y(p.y) {}
-		~BVector2() {}
-
-		inline const BVector2<T>& operator-(const BVector2<T> &p) const
+		inline BVector2()
+			: x( T() )
+			, y( T() )
 		{
-			return BVector2<T>(x - p.x, y - p.y);
+		}
+		inline BVector2( const T& x, const T& y )
+			: x( x )
+			, y( y )
+		{
+		}
+		inline BVector2( const BVector2< T >& p )
+			: x( p.x )
+			, y( p.y )
+		{
+		}
+		~BVector2()
+		{
 		}
 
-		inline const BVector2<T>& operator+(const BVector2<T> &p) const
+		inline const BVector2< T >& operator-( const BVector2< T >& p ) const
 		{
-			return BVector2<T>(x + p.x, y + p.y);
+			return BVector2< T >( x - p.x, y - p.y );
 		}
 
-		inline float operator|(const BVector2<T> &p) const
+		inline const BVector2< T >& operator+( const BVector2< T >& p ) const
 		{
-			const float a = static_cast<float>(x - p.x);
-			const float b = static_cast<float>(y - p.y);
+			return BVector2< T >( x + p.x, y + p.y );
+		}
 
-			return sqrt(pow(a, 2.0f) + pow(b, 2.0f));
+		inline float operator|( const BVector2< T >& p ) const
+		{
+			const float a = static_cast< float >( x - p.x );
+			const float b = static_cast< float >( y - p.y );
+
+			return sqrt( pow( a, 2.0f ) + pow( b, 2.0f ) );
 		}
 
 		inline T Norm() const
@@ -227,13 +246,13 @@ namespace bgl
 			return x * x + y * y;
 		}
 
-		inline BVector2<T>& Normalize()
+		inline BVector2< T >& Normalize()
 		{
-			T n = Norm<T>();
+			T n = Norm< T >();
 
-			if (n > 0)
+			if( n > 0 )
 			{
-				T factor = 1 / sqrt<T>(n);
+				T factor = 1 / sqrt< T >( n );
 				x *= factor, y *= factor;
 			}
 
@@ -241,16 +260,14 @@ namespace bgl
 		}
 	};
 
-	typedef BVector2<float> BVec2f;
-	typedef BVector2<int32_t> BVec2i;
-	typedef BVector2<uint32_t> BVec2u;
+	typedef BVector2< float > BVec2f;
+	typedef BVector2< int32_t > BVec2i;
+	typedef BVector2< uint32_t > BVec2u;
 
-	template <typename T>
+	template< typename T >
 	class BVector3
 	{
-
 	public:
-
 		T x, y, z;
 
 		BVector3()
@@ -260,41 +277,47 @@ namespace bgl
 			this->z = T();
 		}
 
-		BVector3(T x, bool bNormalize = false)
+		BVector3( T x, bool bNormalize = false )
 		{
 			this->x = x;
 			this->y = T();
 			this->z = T();
-			if (bNormalize) Normalize();
+			if( bNormalize )
+				Normalize();
 		}
 
-		BVector3(T x, T y, bool bNormalize = false)
+		BVector3( T x, T y, bool bNormalize = false )
 		{
 			this->x = x;
 			this->y = y;
 			this->z = T();
-			if (bNormalize) Normalize();
+			if( bNormalize )
+				Normalize();
 		}
 
-		BVector3(T x, T y, T z, bool bNormalize = false)
+		BVector3( T x, T y, T z, bool bNormalize = false )
 		{
 			this->x = x;
 			this->y = y;
 			this->z = z;
-			if (bNormalize) Normalize();
+			if( bNormalize )
+				Normalize();
 		}
 
-		BVector3(const BVector3<T> &p, bool bNormalize = false)
+		BVector3( const BVector3< T >& p, bool bNormalize = false )
 		{
 			this->x = p.x;
 			this->y = p.y;
 			this->z = p.z;
-			if (bNormalize) Normalize();
+			if( bNormalize )
+				Normalize();
 		}
 
-		~BVector3() {}
+		~BVector3()
+		{
+		}
 
-		BVector3<T>& Sum(const BVector3<T>& p)
+		BVector3< T >& Sum( const BVector3< T >& p )
 		{
 			x = x + p.x;
 			y = y + p.y;
@@ -302,7 +325,7 @@ namespace bgl
 			return *this;
 		}
 
-		BVector3<T>& Subtract(const BVector3<T>& p)
+		BVector3< T >& Subtract( const BVector3< T >& p )
 		{
 			x = x - p.x;
 			y = y - p.y;
@@ -310,7 +333,7 @@ namespace bgl
 			return *this;
 		}
 
-		BVector3<T>& Divide(const BVector3<T>& p)
+		BVector3< T >& Divide( const BVector3< T >& p )
 		{
 			x = x / p.x;
 			y = y / p.y;
@@ -318,7 +341,7 @@ namespace bgl
 			return *this;
 		}
 
-		BVector3<T>& Multiply(const BVector3<T>& p)
+		BVector3< T >& Multiply( const BVector3< T >& p )
 		{
 			x = x * p.x;
 			y = y * p.y;
@@ -326,12 +349,12 @@ namespace bgl
 			return *this;
 		}
 
-		[[nodiscard]] T DotProduct(const BVector3<T>& p)
+		[[nodiscard]] T DotProduct( const BVector3< T >& p )
 		{
 			return x * p.x + y * p.y + z * p.z;
 		}
 
-		BVector3<T>& CrossProduct(const BVector3<T>& p)
+		BVector3< T >& CrossProduct( const BVector3< T >& p )
 		{
 			T xTemp = y * p.z - z * p.y;
 			T yTemp = z * p.x - x * p.z;
@@ -341,53 +364,53 @@ namespace bgl
 			return *this;
 		}
 
-		BVector3<T> operator-(const BVector3<T> &p) const
+		BVector3< T > operator-( const BVector3< T >& p ) const
 		{
-			return BVector3<T>(this->x - p.x, this->y - p.y, this->z - p.z);
+			return BVector3< T >( this->x - p.x, this->y - p.y, this->z - p.z );
 		}
 
-		BVector3<T> operator+(const BVector3<T> &p) const
+		BVector3< T > operator+( const BVector3< T >& p ) const
 		{
-			return BVector3<T>(this->x + p.x, this->y + p.y, this->z + p.z);
+			return BVector3< T >( this->x + p.x, this->y + p.y, this->z + p.z );
 		}
 
-		BVector3<T> operator*(const BVector3<T>& p) const
+		BVector3< T > operator*( const BVector3< T >& p ) const
 		{
-			return BVector3<T>(this->x * p.x, this->y * p.y, this->z * p.z);
+			return BVector3< T >( this->x * p.x, this->y * p.y, this->z * p.z );
 		}
 
-		BVector3<T> operator*(const T& p) const
+		BVector3< T > operator*( const T& p ) const
 		{
-			return BVector3<T>(this->x * p, this->y * p, this->z * p);
+			return BVector3< T >( this->x * p, this->y * p, this->z * p );
 		}
 
-		BVector3<T> operator/(const BVector3<T>& p) const
+		BVector3< T > operator/( const BVector3< T >& p ) const
 		{
-			return BVector3<T>(this->x / p.x, this->y / p.y, this->z / p.z);
+			return BVector3< T >( this->x / p.x, this->y / p.y, this->z / p.z );
 		}
 
-		BVector3<T> operator/(const T& p) const
+		BVector3< T > operator/( const T& p ) const
 		{
-			return BVector3<T>(this->x / p, this->y / p, this->z / p);
+			return BVector3< T >( this->x / p, this->y / p, this->z / p );
 		}
 
-		float operator|(const BVector3<T> &p) const
+		float operator|( const BVector3< T >& p ) const
 		{
-			float a = static_cast<float>(this->x - p.x);
-			float b = static_cast<float>(this->y - p.y);
-			float c = static_cast<float>(this->z - p.z);
+			float a = static_cast< float >( this->x - p.x );
+			float b = static_cast< float >( this->y - p.y );
+			float c = static_cast< float >( this->z - p.z );
 
-			return sqrt(a*a + b*b + c*c);
+			return sqrt( a * a + b * b + c * c );
 		}
 
-		[[nodiscard]] T Dot (const BVector3<T>& p) const
+		[[nodiscard]] T Dot( const BVector3< T >& p ) const
 		{
-			return (this->x * p.x + this->y * p.y + this->z * p.z);
+			return ( this->x * p.x + this->y * p.y + this->z * p.z );
 		}
 
-		[[nodiscard]] BVector3<T> Cross(const BVector3<T>& p) const
+		[[nodiscard]] BVector3< T > Cross( const BVector3< T >& p ) const
 		{
-			BVector3<T> Result;
+			BVector3< T > Result;
 
 			Result.x = this->y * p.z - this->z * p.y;
 			Result.y = this->z * p.x - this->x * p.z;
@@ -396,41 +419,41 @@ namespace bgl
 			return Result;
 		}
 
-		void operator+=(const BVector3<T>& p)
+		void operator+=( const BVector3< T >& p )
 		{
 			this->x += p.x;
 			this->y += p.y;
 			this->z += p.z;
 		}
 
-		void operator-=(const BVector3<T>& p)
+		void operator-=( const BVector3< T >& p )
 		{
 			this->x -= p.x;
 			this->y -= p.y;
 			this->z -= p.z;
 		}
 
-		void operator*=(const T& p)
+		void operator*=( const T& p )
 		{
 			*this = *this * p;
 		}
 
-		void operator*=(const BVector3<T>& p)
+		void operator*=( const BVector3< T >& p )
 		{
 			*this = *this * p;
 		}
 
-		void operator/=(const T& p)
+		void operator/=( const T& p )
 		{
 			*this = *this / p;
 		}
 
-		void operator/=(const BVector3<T>& p)
+		void operator/=( const BVector3< T >& p )
 		{
 			*this = *this / p;
 		}
 
-		bool operator==(const BVector3<T>& p)
+		bool operator==( const BVector3< T >& p )
 		{
 			return x == p.x && y == p.y && z == p.z;
 		}
@@ -442,36 +465,42 @@ namespace bgl
 
 		[[nodiscard]] T Length() const
 		{
-			return sqrt(Norm());
+			return sqrt( Norm() );
 		}
 
 		void Normalize()
 		{
 			T n = Norm();
 
-			if (n > 0)
+			if( n > 0 )
 			{
-				T div = sqrt(n);
+				T div = sqrt( n );
 				this->x /= div, this->y /= div, this->z /= div;
 			}
 
 			//return *this;
 		}
 
-		static BVector3<T> up() { return BVector3<T>(T(0), T(1), T(0)); }
-		static BVector3<T> right() { return BVector3<T>(T(1), T(0), T(0)); }
-		static BVector3<T> forward() { return BVector3<T>(T(0), T(0), T(1)); }
-
+		static BVector3< T > up()
+		{
+			return BVector3< T >( T( 0 ), T( 1 ), T( 0 ) );
+		}
+		static BVector3< T > right()
+		{
+			return BVector3< T >( T( 1 ), T( 0 ), T( 0 ) );
+		}
+		static BVector3< T > forward()
+		{
+			return BVector3< T >( T( 0 ), T( 0 ), T( 1 ) );
+		}
 	};
 
-	typedef BVector3<float> BVec3f;
+	typedef BVector3< float > BVec3f;
 
-	template <typename T>
+	template< typename T >
 	class BRotator
 	{
-
 	public:
-
 		T p, y, r;
 
 		inline BRotator()
@@ -481,206 +510,214 @@ namespace bgl
 			this->r = T();
 		}
 
-		inline BRotator(T p, T y)
+		inline BRotator( T p, T y )
 		{
 			this->p = p;
 			this->y = y;
 			this->r = T();
 		}
 
-		inline BRotator(T p, T y, T r)
+		inline BRotator( T p, T y, T r )
 		{
 			this->p = p;
 			this->y = y;
 			this->r = r;
 		}
 
-		inline BRotator(const BRotator<T>& p)
+		inline BRotator( const BRotator< T >& p )
 		{
 			this->p = p.p;
 			this->y = p.y;
 			this->r = p.r;
 		}
 
-		~BRotator() {}
-
-		inline BVector3<T> Direction() const
+		~BRotator()
 		{
-			BVector3<T> dir(T(0), T(0), T(1));
+		}
 
-			dir = BQuaternion<T>::RotateAroundAxis(p, BVector3<T>(1.f, 0.f, 0.f), dir);
-			dir = BQuaternion<T>::RotateAroundAxis(y, BVector3<T>(0.f, 1.f, 0.f), dir);
-			dir = BQuaternion<T>::RotateAroundAxis(r, BVector3<T>(0.f, 0.f, 1.f), dir);
+		inline BVector3< T > Direction() const
+		{
+			BVector3< T > dir( T( 0 ), T( 0 ), T( 1 ) );
+
+			dir = BQuaternion< T >::RotateAroundAxis( p, BVector3< T >( 1.f, 0.f, 0.f ), dir );
+			dir = BQuaternion< T >::RotateAroundAxis( y, BVector3< T >( 0.f, 1.f, 0.f ), dir );
+			dir = BQuaternion< T >::RotateAroundAxis( r, BVector3< T >( 0.f, 0.f, 1.f ), dir );
 
 			return dir;
 		}
-
 	};
 
-	typedef BRotator<float> BRotf;
+	typedef BRotator< float > BRotf;
 
-	template <typename T>
+	template< typename T >
 	class BTransform
 	{
-
-
 	public:
-
 		BVec3f translation;
 		BRotf rotation;
 		BVec3f scale;
 
 		BTransform() = default;
 
-		inline BTransform(BVec3f&& inTranslation, BRotf&& inRotation, BVec3f&& inScale)
-			: translation(inTranslation), rotation(inRotation), scale(inScale)
+		inline BTransform( BVec3f&& inTranslation, BRotf&& inRotation, BVec3f&& inScale )
+			: translation( inTranslation )
+			, rotation( inRotation )
+			, scale( inScale )
 		{
-
 		}
 
-		inline BTransform(BVec3f& inTranslation, BRotf& inRotation, BVec3f& inScale)
-			: translation(inTranslation), rotation(inRotation), scale(inScale)
+		inline BTransform( BVec3f& inTranslation, BRotf& inRotation, BVec3f& inScale )
+			: translation( inTranslation )
+			, rotation( inRotation )
+			, scale( inScale )
 		{
-
 		}
 
-		inline BTransform(BVec3f&& inTranslation, BRotf&& inRotation)
-			: translation(inTranslation), rotation(inRotation)
+		inline BTransform( BVec3f&& inTranslation, BRotf&& inRotation )
+			: translation( inTranslation )
+			, rotation( inRotation )
 		{
-
 		}
 
-		inline BTransform(BVec3f& inTranslation, BRotf& inRotation)
-			: translation(inTranslation), rotation(inRotation)
+		inline BTransform( BVec3f& inTranslation, BRotf& inRotation )
+			: translation( inTranslation )
+			, rotation( inRotation )
 		{
-
 		}
 
-		inline BTransform(BVec3f&& inTranslation)
-			: translation(inTranslation)
+		inline BTransform( BVec3f&& inTranslation )
+			: translation( inTranslation )
 		{
-
 		}
 
-		inline BTransform(BVec3f& inTranslation)
-			: translation(inTranslation)
+		inline BTransform( BVec3f& inTranslation )
+			: translation( inTranslation )
 		{
-
 		}
-
 	};
 
-	template <typename T>
+	template< typename T >
 	class BTriangle
 	{
-
 	public:
-
-		BVector3<T> v0, v1, v2;
+		BVector3< T > v0, v1, v2;
 
 		BTriangle() = default;
-		inline BTriangle(const BVector3<T>&& v0, const BVector3<T>&& v1, const BVector3<T>&& v2)
+		inline BTriangle( const BVector3< T >&& v0, const BVector3< T >&& v1, const BVector3< T >&& v2 )
 		{
 			this->v0 = v0;
 			this->v1 = v1;
 			this->v2 = v2;
 		}
-		inline BTriangle(const BVector3<T>& v0, const BVector3<T>& v1, const BVector3<T>& v2)
+		inline BTriangle( const BVector3< T >& v0, const BVector3< T >& v1, const BVector3< T >& v2 )
 		{
 			this->v0 = v0;
 			this->v1 = v1;
 			this->v2 = v2;
 		}
 
-		inline BVector3<T> GetPointOnSurface(const float u, const float v)
+		inline BVector3< T > GetPointOnSurface( const float u, const float v )
 		{
-			const BVector3<T> v0v1 = v1 - v0;
-			const BVector3<T> v0v2 = v2 - v0;
+			const BVector3< T > v0v1 = v1 - v0;
+			const BVector3< T > v0v2 = v2 - v0;
 			return v0 + v0v1 * u + v0v2 * v;
 		}
 
-		inline BTriangle<T>& Sum(const BTriangle<T>& p)
+		inline BTriangle< T >& Sum( const BTriangle< T >& p )
 		{
-			v0.Sum(p.v0);
-			v1.Sum(p.v1);
-			v2.Sum(p.v2);
+			v0.Sum( p.v0 );
+			v1.Sum( p.v1 );
+			v2.Sum( p.v2 );
 		}
 
-		inline BTriangle<T>& Subtract(const BTriangle<T>& p)
+		inline BTriangle< T >& Subtract( const BTriangle< T >& p )
 		{
-			v0.Subtract(p.v0);
-			v1.Subtract(p.v1);
-			v2.Subtract(p.v2);
+			v0.Subtract( p.v0 );
+			v1.Subtract( p.v1 );
+			v2.Subtract( p.v2 );
 		}
 
-		inline BTriangle<T>& Multiply(const BTriangle<T>& p)
+		inline BTriangle< T >& Multiply( const BTriangle< T >& p )
 		{
-			v0.Multiply(p.v0);
-			v1.Multiply(p.v1);
-			v2.Multiply(p.v2);
+			v0.Multiply( p.v0 );
+			v1.Multiply( p.v1 );
+			v2.Multiply( p.v2 );
 		}
 
-		inline BTriangle<T>& Divide(const BTriangle<T>& p)
+		inline BTriangle< T >& Divide( const BTriangle< T >& p )
 		{
-			v0.Divide(p.v0);
-			v1.Divide(p.v1);
-			v2.Divide(p.v2);
+			v0.Divide( p.v0 );
+			v1.Divide( p.v1 );
+			v2.Divide( p.v2 );
 		}
-
 	};
 
-	template <typename T>
+	template< typename T >
 	class BLine
 	{
-
 	public:
-
 		T p1;
 		T p2;
 
-		inline BLine() : p1(T()), p2(T()) {}
-		inline BLine(const T &p1, const T &p2) : p1(p1), p2(p2) {}
-		inline BLine(const BLine<T> &l) : p1(l.p1), p2(l.p2) {}
-		~BLine() {}
+		inline BLine()
+			: p1( T() )
+			, p2( T() )
+		{
+		}
+		inline BLine( const T& p1, const T& p2 )
+			: p1( p1 )
+			, p2( p2 )
+		{
+		}
+		inline BLine( const BLine< T >& l )
+			: p1( l.p1 )
+			, p2( l.p2 )
+		{
+		}
+		~BLine()
+		{
+		}
 
 		inline const BLine operator-() const
 		{
-			return BLine(p2, p1);
+			return BLine( p2, p1 );
 		}
 
-		bool operator==(const BLine<T>& val)
+		bool operator==( const BLine< T >& val )
 		{
 			return p1 == val.p1 && p2 == val.p2;
 		}
-
 	};
 
-	typedef BVector2<int32_t> BPixelPos;
-	
+	typedef BVector2< int32_t > BPixelPos;
+
 	class BBoxEdges
 	{
-		typedef BLine<BPixelPos> EdgeType;
+		typedef BLine< BPixelPos > EdgeType;
 
-		EdgeType edges[4];
+		EdgeType edges[ 4 ];
 
 	public:
-
 		BBoxEdges()
 		{
 			//BGL_LOG("Creating an empty BBoxEdges object!");
 		}
 
-		inline BBoxEdges(const EdgeType& topEdge, const EdgeType& bottomEdge, const EdgeType& LeftEdge, const EdgeType& rightEdge)
+		inline BBoxEdges(
+			const EdgeType& topEdge,
+			const EdgeType& bottomEdge,
+			const EdgeType& LeftEdge,
+			const EdgeType& rightEdge )
 		{
-			edges[(uint32)BEBoxEdge::Top] = topEdge;
-			edges[(uint32)BEBoxEdge::Bottom] = bottomEdge;
-			edges[(uint32)BEBoxEdge::Left] = LeftEdge;
-			edges[(uint32)BEBoxEdge::Right] = rightEdge;
+			edges[ ( uint32 )BEBoxEdge::Top ] = topEdge;
+			edges[ ( uint32 )BEBoxEdge::Bottom ] = bottomEdge;
+			edges[ ( uint32 )BEBoxEdge::Left ] = LeftEdge;
+			edges[ ( uint32 )BEBoxEdge::Right ] = rightEdge;
 		}
 
-		inline BBoxEdges(const BBoxEdges& otherBox)
+		inline BBoxEdges( const BBoxEdges& otherBox )
 		{
-			memcpy(edges, otherBox.GetEdges(), sizeof(EdgeType) * 4);
+			memcpy( edges, otherBox.GetEdges(), sizeof( EdgeType ) * 4 );
 		}
 
 		[[nodiscard]] const EdgeType* GetEdges() const
@@ -688,111 +725,106 @@ namespace bgl
 			return edges;
 		}
 
-		inline EdgeType& operator[](const BEBoxEdge&& index)
+		inline EdgeType& operator[]( const BEBoxEdge&& index )
 		{
-			return edges[(uint32)index];
+			return edges[ ( uint32 )index ];
 		}
 
-		inline EdgeType& operator[](uint32 index)
+		inline EdgeType& operator[]( uint32 index )
 		{
-			return edges[index];
+			return edges[ index ];
 		}
-
-
 	};
 
-	template <typename T>
-	class BBox : public BLine<T>
+	template< typename T >
+	class BBox : public BLine< T >
 	{
-
 	public:
-
 		BBox()
 		{
 			this->p1 = T();
 			this->p2 = T();
 		}
 
-		inline BBox(const T &p1, const T &p2)
+		inline BBox( const T& p1, const T& p2 )
 		{
 			this->p1 = p1;
 			this->p2 = p2;
 		}
 
-		inline BBox(const BBox<T> &b)
+		inline BBox( const BBox< T >& b )
 		{
 			this->p1 = b.p1;
 			this->p2 = b.p2;
 		}
 
-		~BBox() {}
+		~BBox()
+		{
+		}
 
-		template <typename Y>
-		[[nodiscard]] bool IsIn(const BVector2<Y> &v) const
+		template< typename Y >
+		[[nodiscard]] bool IsIn( const BVector2< Y >& v ) const
 		{
 			const bool bInRangeX = v.x >= this->p1.x && v.x <= this->p2.x;
 			const bool bInRangeY = v.y >= this->p1.y && v.y <= this->p2.y;
 			return bInRangeX && bInRangeY;
 		}
-
 	};
 
-	template<typename T>
+	template< typename T >
 	class BBuffer
 	{
-
 		T* _memBlock;
 
 		size_t _length;
 		size_t _allocLength;
 
 	public:
-
-		inline BBuffer(size_t length = 0)
+		inline BBuffer( size_t length = 0 )
 		{
-			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+			BGL_ASSERT( length > 0 && "Can't start buffer with length <= 0!" );
 
-			_memBlock = new T[length];
+			_memBlock = new T[ length ];
 			_length = length;
 			_allocLength = length;
 		}
 
-		inline BBuffer(size_t length, T defaultValue)
+		inline BBuffer( size_t length, T defaultValue )
 		{
-			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+			BGL_ASSERT( length > 0 && "Can't start buffer with length <= 0!" );
 
-			_memBlock = new T[length];
+			_memBlock = new T[ length ];
 			_length = length;
 			_allocLength = length;
 
-			SetBufferValue(defaultValue);
+			SetBufferValue( defaultValue );
 		}
 
-		inline BBuffer(T* data, size_t length)
+		inline BBuffer( T* data, size_t length )
 		{
-			BGL_ASSERT(length > 0 && "Can't start buffer with length <= 0!");
+			BGL_ASSERT( length > 0 && "Can't start buffer with length <= 0!" );
 
 			_memBlock = data;
 			_length = length;
 			_allocLength = length;
 		}
 
-		inline BBuffer(T* data, size_t length, T defaultValue)
+		inline BBuffer( T* data, size_t length, T defaultValue )
 		{
-			BBuffer(data, length);
-			SetBufferValue(defaultValue);
+			BBuffer( data, length );
+			SetBufferValue( defaultValue );
 		}
 
-		inline T& operator[](size_t index)
+		inline T& operator[]( size_t index )
 		{
-			BGL_ASSERT(index < Length() && "Out of range!");
-			return _memBlock[index];
+			BGL_ASSERT( index < Length() && "Out of range!" );
+			return _memBlock[ index ];
 		}
 
-		inline const T& operator[](size_t index) const
+		inline const T& operator[]( size_t index ) const
 		{
-			BGL_ASSERT(index < Length() && "Out of range!");
-			return _memBlock[index];
+			BGL_ASSERT( index < Length() && "Out of range!" );
+			return _memBlock[ index ];
 		}
 
 		[[nodiscard]] size_t Length() const
@@ -805,19 +837,19 @@ namespace bgl
 			return _memBlock;
 		}
 
-		inline void Allocate(size_t allocLength, bool bMove = false)
+		inline void Allocate( size_t allocLength, bool bMove = false )
 		{
-			BGL_ASSERT(allocLength > 0 && "Got negative allocLength!");
+			BGL_ASSERT( allocLength > 0 && "Got negative allocLength!" );
 
-			if (allocLength > _allocLength)
+			if( allocLength > _allocLength )
 			{
-				BGL_LOG("Reallocating Buffer!");
+				BGL_LOG( "Reallocating Buffer!" );
 
-				T* newMemBlock = new T[allocLength];
+				T* newMemBlock = new T[ allocLength ];
 
-				if (bMove)
+				if( bMove )
 				{
-					memcpy(newMemBlock, _memBlock, _allocLength);
+					memcpy( newMemBlock, _memBlock, _allocLength );
 				}
 
 				_allocLength = allocLength;
@@ -827,124 +859,128 @@ namespace bgl
 			}
 		}
 
-		inline void SetLength(size_t newLength, bool bMove = false)
+		inline void SetLength( size_t newLength, bool bMove = false )
 		{
-			BGL_ASSERT(newLength > 0 && "Got negative newLength!");
+			BGL_ASSERT( newLength > 0 && "Got negative newLength!" );
 
-			if (newLength > _allocLength)
+			if( newLength > _allocLength )
 			{
-				Allocate(newLength, bMove);
+				Allocate( newLength, bMove );
 			}
 
 			_length = newLength;
 		}
 
-		inline void SetBufferValue(T value)
+		inline void SetBufferValue( T value )
 		{
-			std::fill_n(_memBlock, _length, value);
+			std::fill_n( _memBlock, _length, value );
 		}
-
 	};
 
-	template <typename T>
+	template< typename T >
 	class BQuaternion
 	{
-		typedef BVector3<T> VecType;
+		typedef BVector3< T > VecType;
 
 	public:
-
 		T s;
 		VecType v;
 
-		inline BQuaternion<T>() : s(0), v(VecType()) { }
+		inline BQuaternion< T >()
+			: s( 0 )
+			, v( VecType() )
+		{
+		}
 
-		inline BQuaternion<T>(const T scalar, const BVector3<T>& vec)
+		inline BQuaternion< T >( const T scalar, const BVector3< T >& vec )
 		{
 			this->s = scalar;
 			this->v = vec;
 		}
 
-		~BQuaternion<T>() { }
+		~BQuaternion< T >()
+		{
+		}
 
-		inline BQuaternion<T>(const BQuaternion& value)
+		inline BQuaternion< T >( const BQuaternion& value )
 		{
 			this->s = value.s;
 			this->v = value.v;
 		}
 
-		inline BQuaternion<T>& operator=(const BQuaternion& value)
+		inline BQuaternion< T >& operator=( const BQuaternion& value )
 		{
 			this->s = value.s;
 			this->v = value.v;
 			return *this;
 		}
 
-		inline void operator+=(const BQuaternion& q)
+		inline void operator+=( const BQuaternion& q )
 		{
 			s += q.s;
 			v += q.v;
 		}
 
-		inline BQuaternion<T> operator+(const BQuaternion& q) const
+		inline BQuaternion< T > operator+( const BQuaternion& q ) const
 		{
 			const T scalar = s + q.s;
 			const VecType imaginary = v + q.v;
-			return BQuaternion<T>(scalar, imaginary);
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
-		inline void operator-=(const BQuaternion& q)
+		inline void operator-=( const BQuaternion& q )
 		{
 			s -= q.s;
 			v -= q.v;
 		}
 
-		inline BQuaternion<T> operator-(const BQuaternion<T>& q) const
+		inline BQuaternion< T > operator-( const BQuaternion< T >& q ) const
 		{
 			const T scalar = s - q.s;
 			const VecType imaginary = v - q.v;
-			return BQuaternion<T>(scalar, imaginary);
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
-		inline void operator*=(const BQuaternion<T>& q)
+		inline void operator*=( const BQuaternion< T >& q )
 		{
-			(*this) = multiply(q);
+			( *this ) = multiply( q );
 		}
 
-		inline BQuaternion<T> operator*(const BQuaternion<T>& q) const
+		inline BQuaternion< T > operator*( const BQuaternion< T >& q ) const
 		{
-			return multiply(q);
+			return multiply( q );
 		}
 
-		inline BQuaternion<T> multiply(const BQuaternion<T>& q) const
+		inline BQuaternion< T > multiply( const BQuaternion< T >& q ) const
 		{
-			const T scalar = s * q.s - v.Dot(q.v);
-			const VecType imaginary = q.v * s + v * q.s + v.Cross(q.v);
-			return BQuaternion<T>(scalar, imaginary);
+			const T scalar = s * q.s - v.Dot( q.v );
+			const VecType imaginary = q.v * s + v * q.s + v.Cross( q.v );
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
-		inline void operator*=(const T value)
+		inline void operator*=( const T value )
 		{
 			s *= value;
 			v *= value;
 		}
 
-		inline BQuaternion<T> operator*(const T value) const
+		inline BQuaternion< T > operator*( const T value ) const
 		{
 			const T scalar = s * value;
 			const VecType imaginary = v * value;
-			return BQuaternion<T>(scalar, imaginary);
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
 		inline T norm()
 		{
 			const T scalar = s * s;
 			const VecType imaginary = v * v;
-			return std::sqrt(scalar + imaginary.x + imaginary.y + imaginary.z);
+			return std::sqrt( scalar + imaginary.x + imaginary.y + imaginary.z );
 		}
 
 		inline void normalize()
 		{
-			if (norm() != 0)
+			if( norm() != 0 )
 			{
 				const T normValue = 1.f / norm();
 				s *= normValue;
@@ -956,84 +992,83 @@ namespace bgl
 		{
 			const T angle = s * fPi / 180.f;
 			v.Normalize();
-			s = cosf(angle * 0.5f);
-			v *= sinf(angle * 0.5f);
+			s = cosf( angle * 0.5f );
+			v *= sinf( angle * 0.5f );
 		}
 
-		inline BQuaternion<T> conjugate()
+		inline BQuaternion< T > conjugate()
 		{
 			const T scalar = s;
-			const VecType imaginary = v * (-1.f);
-			return BQuaternion<T>(scalar, imaginary);
+			const VecType imaginary = v * ( -1.f );
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
-		inline BQuaternion<T> inverse()
+		inline BQuaternion< T > inverse()
 		{
 			T absoluteValue = norm();
 			absoluteValue *= absoluteValue;
 			absoluteValue = 1 / absoluteValue;
-			BQuaternion<T> conjugateValue = conjugate();
+			BQuaternion< T > conjugateValue = conjugate();
 			const T scalar = conjugateValue.s * absoluteValue;
 			const VecType imaginary = conjugateValue.v * absoluteValue;
-			return BQuaternion<T>(scalar, imaginary);
+			return BQuaternion< T >( scalar, imaginary );
 		}
 
-		static inline VecType rotateVector(T uAngle, const VecType&& uAxis, const VecType& uVector)
+		static inline VecType rotateVector( T uAngle, const VecType&& uAxis, const VecType& uVector )
 		{
-			return rotateVector(uAngle, uAxis, uVector);
+			return rotateVector( uAngle, uAxis, uVector );
 		}
 
-		static inline VecType rotateVector(T uAngle, const VecType& uAxis, const VecType& uVector)
+		static inline VecType rotateVector( T uAngle, const VecType& uAxis, const VecType& uVector )
 		{
 			//convert our vector to a pure quaternion
-			BQuaternion<T> p(0, uVector);
+			BQuaternion< T > p( 0, uVector );
 
 			//normalize the axis
 			//uAxis.Normalize();
 
 			//create the real quaternion
-			BQuaternion<T> q(uAngle, uAxis);
+			BQuaternion< T > q( uAngle, uAxis );
 
 			//convert quaternion to unit norm quaternion
 			q.convertToUnitNormQuaternion();
 
 			//Get the inverse of the quaternion
-			BQuaternion<T> qInverse = q.inverse();
+			BQuaternion< T > qInverse = q.inverse();
 
 			//rotate the quaternion
-			BQuaternion<T> rotatedVector = q * p * qInverse;
+			BQuaternion< T > rotatedVector = q * p * qInverse;
 
 			//return the vector part of the quaternion
 			return rotatedVector.v;
 		}
-
 	};
-	
-	typedef BQuaternion<float> BQuatf;
-	typedef BQuaternion<double> BQuatd;
+
+	typedef BQuaternion< float > BQuatf;
+	typedef BQuaternion< double > BQuatd;
 
 #pragma region AVX Specialization
 
-	inline __m256 operator-(const __m256& p1, const __m256 p2)
+	inline __m256 operator-( const __m256& p1, const __m256 p2 )
 	{
-		return _mm256_sub_ps(p1, p2);
+		return _mm256_sub_ps( p1, p2 );
 	}
 
-	inline __m256 operator+(const __m256& p1, const __m256 p2)
+	inline __m256 operator+( const __m256& p1, const __m256 p2 )
 	{
-		return _mm256_add_ps(p1, p2);
+		return _mm256_add_ps( p1, p2 );
 	}
 
-	inline __m256 operator*(const __m256& p1, const __m256 p2)
+	inline __m256 operator*( const __m256& p1, const __m256 p2 )
 	{
-		return _mm256_mul_ps(p1, p2);
+		return _mm256_mul_ps( p1, p2 );
 	}
 
-	inline __m256 operator/(const __m256& p1, const __m256 p2)
+	inline __m256 operator/( const __m256& p1, const __m256 p2 )
 	{
-		return _mm256_div_ps(p1, p2);
+		return _mm256_div_ps( p1, p2 );
 	}
 
 #pragma endregion
 
-}
+} // namespace bgl

@@ -1,5 +1,7 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "CameraManager.h"
 
@@ -8,22 +10,21 @@
 
 namespace bgl
 {
-	BArray<BCamera*> BCameraManager::m_cameras = BArray<BCamera*>();
+	BArray< BCamera* > BCameraManager::m_cameras = BArray< BCamera* >();
 
-	void BCameraManager::AddCamera(BCamera* camera)
+	void BCameraManager::AddCamera( BCamera* camera )
 	{
-		m_cameras.Add(camera);
+		m_cameras.Add( camera );
 	}
 
-	void BCameraManager::RemoveCamera(BCamera* camera)
+	void BCameraManager::RemoveCamera( BCamera* camera )
 	{
-		m_cameras.Remove(camera);
+		m_cameras.Remove( camera );
 	}
 
-	BArray<BCamera*> BCameraManager::GetCameras()
+	BArray< BCamera* > BCameraManager::GetCameras()
 	{
 		return m_cameras;
 	}
 
-}
-
+} // namespace bgl

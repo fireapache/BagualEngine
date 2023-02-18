@@ -1,55 +1,54 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "BagualEngine.h"
-#include "Camera.h"
-#include "CameraManager.h"
+
 #include "EngineTests.h"
-#include "Module.h"
-#include "Types.h"
-#include "Settings.h"
 #include "GraphicsPlatform.h"
+#include "Module.h"
 #include "PlatformGeneric.h"
 #include "Scene.h"
+#include "Settings.h"
+#include "Types.h"
 
 namespace bgl
 {
-	std::unique_ptr<BEngine> BEngine::m_instance(nullptr);
+	std::unique_ptr< BEngine > BEngine::m_instance( nullptr );
 
 	void BEngine::Init()
 	{
 		// Initializing stuff
 		m_engineState = EBEngineState::Initializing;
 
-		m_platform = std::make_unique<BPlatformGeneric>();
-		m_graphicsPlatform = std::make_unique<BGraphicsPlatform>();
-		m_modules = std::make_unique<BArray<std::shared_ptr<BIModule>>>();
-		m_scene = std::make_unique<BScene>();
+		m_platform = std::make_unique< BPlatformGeneric >();
+		m_graphicsPlatform = std::make_unique< BGraphicsPlatform >();
+		m_modules = std::make_unique< BArray< std::shared_ptr< BIModule > > >();
+		m_scene = std::make_unique< BScene >();
 
 		RegisterModules();
 	}
 
 	void BEngine::LoadData()
 	{
-		
 	}
 
 	void BEngine::RegisterModules()
 	{
 		m_engineState = EBEngineState::RegisteringModules;
 
-		if (m_modules)
+		if( m_modules )
 		{
 			//m_modules->Add(std::make_shared<BEngineTest_FundamentalRendering>());
-			m_modules->Add(std::make_shared<BEngineTest_RoomRendering>());
+			m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
 			//m_modules->Add(std::make_shared< BEngineTest_CubeProjection>());
 
-			for (auto& module : *m_modules.get())
+			for( auto& module : *m_modules.get() )
 			{
 				module->Init();
 			}
 		}
-
 	}
 
 	void BEngine::BeginPlay()
@@ -57,7 +56,7 @@ namespace bgl
 		m_engineState = EBEngineState::BeginPlaying;
 
 		// Starting rendering thread
-		m_graphicsPlatform->SetEnabled(true);
+		m_graphicsPlatform->SetEnabled( true );
 	}
 
 	void BEngine::EndPlay()
@@ -65,7 +64,7 @@ namespace bgl
 		m_engineState = EBEngineState::EndPlaying;
 
 		// Stopping rendering thread
-		m_graphicsPlatform->SetEnabled(false);
+		m_graphicsPlatform->SetEnabled( false );
 	}
 
 	void BEngine::Term()
@@ -98,28 +97,27 @@ namespace bgl
 	{
 		m_engineState = EBEngineState::Ticking;
 
-		while (m_engineState != EBEngineState::Quitting)
+		while( m_engineState != EBEngineState::Quitting )
 		{
 			ProcessInput();
 			ModulesLoop();
 
-			if (m_engineState != EBEngineState::Paused)
+			if( m_engineState != EBEngineState::Paused )
 			{
 				TickWindows();
 
-				if (m_platform->GetWindows().Size() <= 0)
+				if( m_platform->GetWindows().Size() <= 0 )
 				{
-					SetState(EBEngineState::Quitting);
+					SetState( EBEngineState::Quitting );
 					continue;
 				}
 
-				if (m_graphicsPlatform)
+				if( m_graphicsPlatform )
 				{
 					m_graphicsPlatform->SwapFrames();
 				}
-				
 			}
-			
+
 			//m_graphicsPlatform->Delay(1);
 		}
 	}
@@ -129,11 +127,11 @@ namespace bgl
 		// Ticking windows to check if need to be destroyed
 		auto& windows = m_platform->GetWindows();
 
-		for (uint32 i = 0; i < windows.Size(); i++)
+		for( uint32 i = 0; i < windows.Size(); i++ )
 		{
-			if (windows[i]->Tick() == false)
+			if( windows[ i ]->Tick() == false )
 			{
-				windows.erase(windows.begin() + i);
+				windows.erase( windows.begin() + i );
 				i--;
 			}
 		}
@@ -141,22 +139,23 @@ namespace bgl
 
 	void BEngine::ModulesLoop()
 	{
-		for (size_t i = 0; i < m_modules->Size(); i++)
+		for( size_t i = 0; i < m_modules->Size(); i++ )
 		{
-			(*m_modules)[i]->Tick();
+			( *m_modules )[ i ]->Tick();
 		}
 	}
 
-	void BEngine::SetState(EBEngineState newState)
+	void BEngine::SetState( EBEngineState newState )
 	{
-		if (m_engineState != newState)
+		if( m_engineState != newState )
 		{
 			m_engineState = newState;
 			// TODO: Broadcast new engine state through an event
 		}
 	}
 
-	BEngine::BEngine() : m_engineState(EBEngineState::None)
+	BEngine::BEngine()
+		: m_engineState( EBEngineState::None )
 	{
 		Settings::width = 320;
 		Settings::height = 240;
@@ -164,7 +163,8 @@ namespace bgl
 
 	BEngine& BEngine::Instance()
 	{
-		if (!m_instance) m_instance = std::make_unique<BEngine>();
+		if( !m_instance )
+			m_instance = std::make_unique< BEngine >();
 		return *m_instance.get();
 	}
 
@@ -193,6 +193,4 @@ namespace bgl
 		return *Instance().m_scene.get();
 	}
 
-}
-
-
+} // namespace bgl

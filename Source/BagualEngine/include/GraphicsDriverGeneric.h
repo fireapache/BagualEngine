@@ -60,29 +60,29 @@ namespace bgl
 	{
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
-		static void ScanTriangles_Sequential(BArray<BTriangle<float>>& compTris, BFTriangleScanParams& p);
-		static void ScanTriangles_SIMD(BTriangle<BArray<float>>& compTris, BFTriangleScanParams& p);
+		static void ScanTriangles_Sequential( BArray< BTriangle< float > >& compTris, BFTriangleScanParams& p );
+		static void ScanTriangles_SIMD( BTriangle< BArray< float > >& compTris, BFTriangleScanParams& p );
 
-		static void PaintPixelWithShader(BFTriangleScanParams& p);
+		static void PaintPixelWithShader( BFTriangleScanParams& p );
 
 	public:
-
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
-		static void RenderLines(BViewport* viewport, const uint32_t renderThreadIndex);
-		static void DrawLine(BViewport* viewport, const BLine<BPixelPos>& line);
-		static void PaintPixel(BViewport* viewportPtr, BERenderSpeed renderSpeed, uint32 i, uint32 j, uint32 rgb);
+		static void RenderLines( BViewport* viewport, const uint32_t renderThreadIndex );
+		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line );
+		static void PaintPixel(
+			BViewport* viewportPtr,
+			const BERenderSpeed renderSpeed,
+			const uint32 i,
+			const uint32 j,
+			const uint32 rgb );
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;
 		void SwapUIFrame() override;
 		void SwapGameFrame() override;
-		void Delay(const uint32_t&& ms) override;
-		void Delay(const uint32_t& ms) override;
-
+		void Delay( const uint32_t&& ms ) override;
+		void Delay( const uint32_t& ms ) override;
 	};
-}
-
-
-
+} // namespace bgl

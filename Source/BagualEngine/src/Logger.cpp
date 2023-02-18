@@ -1,5 +1,7 @@
 
+// clang-format off
 #include "Bagual.pch.h"
+// clang-format on
 
 #include "Logger.h"
 
@@ -8,12 +10,9 @@
 namespace bgl
 {
 
-	void BLogger::Log(const char* RawMessage)
+	void BLogger::Log( const char* RawMessage )
 	{
 		std::cout << RawMessage << std::endl;
 	}
 
-}
-
-
-
+} // namespace bgl
