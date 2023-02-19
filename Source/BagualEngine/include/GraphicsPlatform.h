@@ -38,16 +38,16 @@ namespace bgl
 		virtual bool IsEnabled() const;
 		virtual void SwapFrames() override;
 		virtual void RenderCamera( const BCamera& camera ) override;
-		virtual void Delay( const uint32&& ms ) override;
-		virtual void Delay( const uint32& ms ) override;
+		virtual void Delay( const uint32_t&& ms ) override;
+		virtual void Delay( const uint32_t& ms ) override;
 		virtual BViewport* CreateViewport( BCanvas* canvas );
 		virtual BViewport* CreateViewport( BCanvas* canvas, const BBox< BVector2< float > > normalizedSize );
-		virtual BViewport* CreateViewport( BCanvas* canvas, const uint32 width, const uint32 height );
+		virtual BViewport* CreateViewport( BCanvas* canvas, const uint32_t width, const uint32_t height );
 		virtual BViewport* CreateViewport(
 			BCanvas* canvas,
-			const uint32 x,
-			const uint32 y,
-			const uint32 width,
-			const uint32 height );
+			const uint32_t x,
+			const uint32_t y,
+			const uint32_t width,
+			const uint32_t height );
 	};
 } // namespace bgl

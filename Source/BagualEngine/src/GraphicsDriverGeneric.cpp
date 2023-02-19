@@ -117,10 +117,10 @@ namespace bgl
 			const auto renderThreadMode = camera->GetRenderThreadMode();
 			const bool bUseHyperThread = renderThreadMode == BERenderThreadMode::HyperThread;
 			const auto processorCount = std::thread::hardware_concurrency() * ( bUseHyperThread ? 2 : 1 );
-			uint32 renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
+			uint32_t renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
 			thread_pool renderThreadPool( renderThreadCount );
 
-			for( uint32 t = 0; t < processorCount; t++ )
+			for( uint32_t t = 0; t < processorCount; t++ )
 			{
 				renderThreadPool.push_task( RenderLines, viewport, t );
 			}
@@ -138,6 +138,7 @@ namespace bgl
 				if( meshComponent->getShowWireframe() == false )
 					continue;
 
+				const Color32Bit lineColor = meshComponent->getColor().getRGB();
 				auto& edges = meshComponent->getMeshData().edges;
 
 				for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
@@ -147,13 +148,11 @@ namespace bgl
 					const bool bPp1 = BDraw::ProjectPoint( viewport, edge->p2, pp1 );
 					if( bPp0 && bPp1 )
 					{
-						renderThreadPool.push_task( DrawLine, viewport, BLine< BPixelPos >( pp0, pp1 ) );
+						renderThreadPool.push_task( DrawLine, viewport, BLine< BPixelPos >( pp0, pp1 ), lineColor );
 					}
 				}
 			}
-
-			camera->ClearLine2DBuffer();
-
+			
 #pragma endregion
 
 #pragma region Rendering 2D Line Tasks
@@ -162,21 +161,21 @@ namespace bgl
 
 			for( auto& line2D : lines2D )
 			{
-				renderThreadPool.push_task( DrawLine, viewport, line2D );
+				renderThreadPool.push_task( DrawLine, viewport, line2D, BSettings::lineColor );
 			}
 
 			camera->ClearLine2DBuffer();
-
+			
 #pragma endregion
 
 			renderThreadPool.wait_for_tasks();
 
 			auto& wireframeBuffer = canvas->GetWireframeBuffer();
-			CanvasDataType* wireframdeBufferData = wireframeBuffer.GetData();
+			Color32Bit* wireframdeBufferData = wireframeBuffer.GetData();
 			auto& colorBuffer = canvas->GetColorBuffer();
-			CanvasDataType* colorBufferData = colorBuffer.GetData();
+			Color32Bit* colorBufferData = colorBuffer.GetData();
 			auto& readyFrameBuffer = canvas->GetReadyFrameBuffer();
-			CanvasDataType* readyFrameBufferData = readyFrameBuffer.GetData();
+			Color32Bit* readyFrameBufferData = readyFrameBuffer.GetData();
 
 			// TODO: make wireframe work with zbuffer
 			//auto& zBuffer = canvas->GetZBuffer();
@@ -200,9 +199,9 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsDriverGeneric::DrawLine( BViewport* viewport, const BLine< BPixelPos >& line )
+	void BGraphicsDriverGeneric::DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 	{
-		BDraw::DrawLine( viewport, line );
+		BDraw::DrawLine( viewport, line, color );
 	}
 
 	void BGraphicsDriverGeneric::RenderLines( BViewport* viewport, const uint32_t renderThreadIndex )
@@ -296,7 +295,7 @@ namespace bgl
 
 				auto meshComponents = BEngine::Scene().GetMeshComponents();
 
-				for( auto meshComp : meshComponents )
+				for( const auto meshComp : meshComponents )
 				{
 					// Skipping not visible components
 					if( meshComp->IsVisible() == false )
@@ -488,7 +487,7 @@ namespace bgl
 
 	inline void BGraphicsDriverGeneric::PaintPixelWithShader( BFTriangleScanParams& p )
 	{
-		const double depthZ = p.t * 100.0;
+		const double depthZ = static_cast< double >( p.t ) * 100.0;
 		const double currentDepthZ = p.viewport->GetPixelDepth( p.px, p.py );
 
 		p.rgb = 0x000000;
@@ -504,11 +503,11 @@ namespace bgl
 				const double calcB = std::fmax( calcA, 0.0 );
 				const double calcC = calcB / p.depthDist;
 
-				const uint32 gray = static_cast< uint32 >( 255.0 * calcC );
+				const uint32_t gray = static_cast< uint32_t >( 255.0 * calcC );
 
 				p.rgb = gray;
-				p.rgb = ( p.rgb << 8 ) + gray;
-				p.rgb = ( p.rgb << 8 ) + gray;
+				p.rgb = ( p.rgb << 8 ) | gray;
+				p.rgb = ( p.rgb << 8 ) | gray;
 
 				PaintPixel( p.viewport, p.renderSpeed, p.px, p.py, p.rgb );
 			}
@@ -517,13 +516,13 @@ namespace bgl
 #pragma region UV Coloring Shader
 			else if( p.renderType == BERenderOutputType::UvColor )
 			{
-				const char r = static_cast< char >( 255 * std::clamp( p.u, 0.f, 1.f ) );
-				const char g = static_cast< char >( 255 * std::clamp( p.v, 0.f, 1.f ) );
-				const char b = static_cast< char >( 255 * std::clamp( 1 - p.u - p.v, 0.f, 1.f ) );
+				const uint32_t r = static_cast< uint32_t >( 255.f * std::clamp( p.u, 0.f, 1.f ) );
+				const uint32_t g = static_cast< uint32_t >( 255.f * std::clamp( p.v, 0.f, 1.f ) );
+				const uint32_t b = static_cast< uint32_t >( 255.f * std::clamp( 1 - p.u - p.v, 0.f, 1.f ) );
 
 				p.rgb = r;
-				p.rgb = ( p.rgb << 8 ) + g;
-				p.rgb = ( p.rgb << 8 ) + b;
+				p.rgb = ( p.rgb << 8 ) | g;
+				p.rgb = ( p.rgb << 8 ) | b;
 
 				PaintPixel( p.viewport, p.renderSpeed, p.px, p.py, p.rgb );
 			}
@@ -654,12 +653,12 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsDriverGeneric::Delay( const uint32&& ms )
+	void BGraphicsDriverGeneric::Delay( const uint32_t&& ms )
 	{
 		//SDL_Delay(ms);
 	}
 
-	void BGraphicsDriverGeneric::Delay( const uint32& ms )
+	void BGraphicsDriverGeneric::Delay( const uint32_t& ms )
 	{
 		//SDL_Delay(ms);
 	}
@@ -667,9 +666,9 @@ namespace bgl
 	void BGraphicsDriverGeneric::PaintPixel(
 		BViewport* viewportPtr,
 		const BERenderSpeed renderSpeed,
-		const uint32 i,
-		const uint32 j,
-		const uint32 rgb )
+		const uint32_t i,
+		const uint32_t j,
+		const uint32_t rgb )
 	{
 		if( viewportPtr == nullptr )
 			return;

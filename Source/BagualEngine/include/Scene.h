@@ -96,6 +96,8 @@ namespace bgl
 
 		bool m_ShowWireframe = false;
 
+		BColor color;
+
 	public:
 		BMeshComponent( BNode* owner = nullptr, const char* name = "None", const char* assetPath = nullptr );
 		~BMeshComponent();
@@ -105,6 +107,19 @@ namespace bgl
 		[[nodiscard]] bool getShowWireframe() const;
 		bool& getShowWireframe_Mutable();
 		void setShowWireframe( const bool bValue );
+
+		[[nodiscard]] const BColor& getColor() const
+		{
+			return color;
+		}
+		BColor& getColorMutable()
+		{
+			return color;
+		}
+		void setColor( const BColor& newColor )
+		{
+			this->color = newColor;
+		}
 
 		BArray< BTriangle< float > >& GetTriangles();
 		BTriangle< BArray< float > >& GetTriangles_SIMD();

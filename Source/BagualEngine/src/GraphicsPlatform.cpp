@@ -54,22 +54,22 @@ namespace bgl
 		return RegisterViewport( canvas, normalizedSize );
 	}
 
-	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas, const uint32 width, const uint32 height )
+	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas, const uint32_t width, const uint32_t height )
 	{
 		return RegisterViewport( canvas, width, height );
 	}
 
 	BViewport* BGraphicsPlatform::CreateViewport(
 		BCanvas* canvas,
-		const uint32 x,
-		const uint32 y,
-		const uint32 width,
-		const uint32 height )
+		const uint32_t x,
+		const uint32_t y,
+		const uint32_t width,
+		const uint32_t height )
 	{
 		return RegisterViewport( canvas, x, y, width, height );
 	}
 
-	void BGraphicsPlatform::Delay( const uint32&& ms )
+	void BGraphicsPlatform::Delay( const uint32_t&& ms )
 	{
 		if( m_driverInstance )
 		{
@@ -77,7 +77,7 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsPlatform::Delay( const uint32& ms )
+	void BGraphicsPlatform::Delay( const uint32_t& ms )
 	{
 		if( m_driverInstance )
 		{

@@ -22,9 +22,9 @@ namespace bgl
 		FWindowSettings windowSettings;
 
 		BPlatformWindow* window = nullptr;
-		BMeshComponent* roomMeshComp;
-		BMeshComponent* objectsMeshComp;
-		BMeshComponent* charMeshComp;
+		BMeshComponent* roomMeshComp = nullptr;
+		BMeshComponent* objectsMeshComp = nullptr;
+		BMeshComponent* charMeshComp = nullptr;
 		BCameraComponent* cameraComp = nullptr;
 		BViewport* viewport = nullptr;
 		BCanvas* canvas = nullptr;
@@ -66,10 +66,21 @@ namespace bgl
 
 	class BEngineTest_NodeEditor : public BEngineTestBase
 	{
-		void* nodeEditorContext;
+		void* nodeEditorContext = nullptr;
 
 	public:
 		void Init() override;
 		void Term() override;
 	};
+
+	class BEngineTest_AABBTests : public BEngineTestBase
+	{
+	public:
+		BMeshComponent* cubeMeshComp = nullptr;
+		
+		void Init() override;
+		void Tick() override;
+		void Term() override;
+	};
+
 } // namespace bgl

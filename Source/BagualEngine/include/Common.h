@@ -5,5 +5,5 @@
 #include "Logger.h"
 #include "Types.h"
 
+#include <stdint.h>
 #include <memory>
-#include <string>

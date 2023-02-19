@@ -77,6 +77,27 @@ namespace bgl
 		}
 	};
 
+	class BColor
+	{
+	public:
+		float value[ 4 ] = { 1.f, 0.f, 1.f, 1.f };
+
+		[[nodiscard]] Color32Bit getRGB() const
+		{
+			Color32Bit result = static_cast< Color32Bit >( 255.f * value[ 2 ] );
+			Color32Bit cur = static_cast< Color32Bit >( 255.f * value[ 1 ] );
+			result = ( result << 8 ) | cur;
+			cur = static_cast< Color32Bit >( 255.f * value[ 0 ] );
+			result = ( result << 8 ) | cur;
+			return result;
+		}
+
+		[[nodiscard]] Color32Bit getRGBA() const
+		{
+			return ( getRGB() << 8 ) | static_cast< uint32_t >( 255.f * value[ 3 ] );
+		}
+	};
+
 	// Based on the implementation from the following link,
 	// and with fixes mentioned in the same thread:
 	// https://codereview.stackexchange.com/questions/164675/c-class-for-aligning-objects-on-the-stack
@@ -145,7 +166,7 @@ namespace bgl
 		T* ptr_;
 	};
 
-	enum class BEBoxEdge : uint32
+	enum class BEBoxEdge : uint32_t
 	{
 		Top = 0,
 		Bottom,
@@ -653,6 +674,48 @@ namespace bgl
 	};
 
 	template< typename T >
+	class BCube
+	{
+	public:
+		BVector3< T > origin;
+		T width, height, depth;
+		T halfWidth, halfHeight, halfDepth;
+		T min[ EBAxis::DIMENSIONS ], max[ EBAxis::DIMENSIONS ];
+
+		BCube()
+			: origin{ T{ 0 }, T{ 0 }, T{ 0 } }
+			, width{ T{ 2 } }
+			, height{ T{ 2 } }
+			, depth{ T{ 2 } }
+			, halfWidth{ T{ 1 } }
+			, halfHeight{ T{ 1 } }
+			, halfDepth{ T{ 1 } }
+			, min{ T{ -1 }, T{ -1 }, T{ -1 } }
+			, max{ T{ 1 }, T{ 1 }, T{ 1 } }
+		{
+		}
+
+		BCube( const BVector3< T >& origin, const T width, const T height, const T depth )
+			: origin{ origin }
+			, width{ width }
+			, height{ height }
+			, depth{ depth }
+		{
+			halfWidth = width / T{ 2 };
+			halfHeight = height / T{ 2 };
+			halfDepth = depth / T{ 2 };
+			min[ EBAxis::X ] = origin.x - halfWidth;
+			min[ EBAxis::Y ] = origin.y - halfHeight;
+			min[ EBAxis::Z ] = origin.z - halfDepth;
+			max[ EBAxis::X ] = origin.x + halfWidth;
+			max[ EBAxis::Y ] = origin.y + halfHeight;
+			max[ EBAxis::Z ] = origin.z + halfDepth;
+		}
+	};
+
+	typedef BCube< float > BCubef;
+
+	template< typename T >
 	class BLine
 	{
 	public:
@@ -709,10 +772,10 @@ namespace bgl
 			const EdgeType& LeftEdge,
 			const EdgeType& rightEdge )
 		{
-			edges[ ( uint32 )BEBoxEdge::Top ] = topEdge;
-			edges[ ( uint32 )BEBoxEdge::Bottom ] = bottomEdge;
-			edges[ ( uint32 )BEBoxEdge::Left ] = LeftEdge;
-			edges[ ( uint32 )BEBoxEdge::Right ] = rightEdge;
+			edges[ ( uint32_t )BEBoxEdge::Top ] = topEdge;
+			edges[ ( uint32_t )BEBoxEdge::Bottom ] = bottomEdge;
+			edges[ ( uint32_t )BEBoxEdge::Left ] = LeftEdge;
+			edges[ ( uint32_t )BEBoxEdge::Right ] = rightEdge;
 		}
 
 		inline BBoxEdges( const BBoxEdges& otherBox )
@@ -727,10 +790,10 @@ namespace bgl
 
 		inline EdgeType& operator[]( const BEBoxEdge&& index )
 		{
-			return edges[ ( uint32 )index ];
+			return edges[ ( uint32_t )index ];
 		}
 
-		inline EdgeType& operator[]( uint32 index )
+		inline EdgeType& operator[]( uint32_t index )
 		{
 			return edges[ index ];
 		}

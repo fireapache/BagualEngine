@@ -4,8 +4,7 @@
 
 namespace bgl
 {
-
-	class Settings
+	class BSettings
 	{
 	public:
 		// Size of viewport
@@ -19,6 +18,9 @@ namespace bgl
 		static BLine< BPixelPos > screenEdges[ 4 ];
 		static void* surface;
 		static void* pixels;
+
+		// Current wireframe line drawing color
+		static Color32Bit lineColor;
 	};
 
 } // namespace bgl

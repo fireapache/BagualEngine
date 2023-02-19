@@ -7,14 +7,14 @@
 
 namespace bgl
 {
-	static constexpr const uint32& BGL_WINDOW_CENTRALIZED = -1;
+	static constexpr const uint32_t& BGL_WINDOW_CENTRALIZED = -1;
 
 	struct FWindowSettings
 	{
-		uint32 x = BGL_WINDOW_CENTRALIZED;
-		uint32 y = BGL_WINDOW_CENTRALIZED;
-		uint32 width = 320;
-		uint32 height = 240;
+		uint32_t x = BGL_WINDOW_CENTRALIZED;
+		uint32_t y = BGL_WINDOW_CENTRALIZED;
+		uint32_t width = 320;
+		uint32_t height = 240;
 		std::string Title = "Bagual Engine Window";
 	};
 

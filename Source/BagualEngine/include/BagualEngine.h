@@ -15,7 +15,7 @@ namespace bgl
 	class BEngine
 	{
 #pragma region Private Types
-		enum class EBEngineState : uint8
+		enum class EBEngineState : uint8_t
 		{
 			None,
 			Initializing,

@@ -21,13 +21,13 @@ namespace bgl
 
 		void UpdateLimits();
 
-		CanvasDataType m_dummyData;
+		Color32Bit m_dummyData;
 
 	public:
 		BViewport( BCanvas* canvas );
 		BViewport( BCanvas* canvas, const BBox< BVector2< float > > normalizedSize );
-		BViewport( BCanvas* canvas, const uint32 width, const uint32 height );
-		BViewport( BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height );
+		BViewport( BCanvas* canvas, const uint32_t width, const uint32_t height );
+		BViewport( BCanvas* canvas, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height );
 		~BViewport();
 
 		/*	Calculates viewport's position in the canvas based on its
@@ -57,9 +57,9 @@ namespace bgl
 
 		[[nodiscard]] BPixelPos GetPosition() const;
 
-		[[nodiscard]] BSize< uint32 > GetSize() const;
+		[[nodiscard]] BSize< uint32_t > GetSize() const;
 
-		CanvasDataType& operator()( const size_t x, const size_t y );
+		Color32Bit& operator()( const size_t x, const size_t y );
 
 		DepthDataType GetPixelDepth( const size_t x, const size_t y );
 		void SetPixelDepth( size_t x, size_t y, DepthDataType value );

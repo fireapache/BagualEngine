@@ -51,43 +51,46 @@ namespace bgl
 		// Creating 8 simple triangles
 		BArray< BTriangle< float > > tris;
 
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, -0.25f, -5.f ), 
-			BVec3f( 1.f, -0.25f, -5.f ), 
-			BVec3f( 0.f, -2.25f, -5.f ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -3.f, 1.f, -5.f ), 
-			BVec3f( -1.f, 1.f, -5.f ), 
-			BVec3f( -2.f, -1.f, -5.f ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( 1.f, 1.f, -5.f ), 
-			BVec3f( 3.f, 1.f, -5.f ), 
-			BVec3f( 2.f, -1.f, -5.f ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, 2.25f, -5.f ), 
-			BVec3f( 1.f, 2.25f, -5.f ), 
-			BVec3f( 0.f, 0.25f, -5.f ) ) );
+		constexpr float z = 5.f;
 
 		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, -0.25f, -5.f ), 
-			BVec3f( 1.f, -0.25f, -5.f ), 
-			BVec3f( 0.f, -2.25f, -5.f ) ) );
+			BVec3f( -1.f, -0.25f, z ), 
+			BVec3f( 1.f, -0.25f, z ), 
+			BVec3f( 0.f, -2.25f, z ) ) );
 		tris.Add( BTriangle< float >( 
-			BVec3f( -3.f, 1.f, -5.f ), 
-			BVec3f( -1.f, 1.f, -5.f ), 
-			BVec3f( -2.f, -1.f, -5.f ) ) );
+			BVec3f( -3.f, 1.f, z ), 
+			BVec3f( -1.f, 1.f, z ), 
+			BVec3f( -2.f, -1.f, z ) ) );
 		tris.Add( BTriangle< float >( 
-			BVec3f( 1.f, 1.f, -5.f ), 
-			BVec3f( 3.f, 1.f, -5.f ), 
-			BVec3f( 2.f, -1.f, -5.f ) ) );
+			BVec3f( 1.f, 1.f, z ), 
+			BVec3f( 3.f, 1.f, z ), 
+			BVec3f( 2.f, -1.f, z ) ) );
 		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, 2.25f, -5.f ), 
-			BVec3f( 1.f, 2.25f, -5.f ), 
-			BVec3f( 0.f, 0.25f, -5.f ) ) );
+			BVec3f( -1.f, 2.25f, z ), 
+			BVec3f( 1.f, 2.25f, z ), 
+			BVec3f( 0.f, 0.25f, z ) ) );
+
+		tris.Add( BTriangle< float >( 
+			BVec3f( -1.f, -0.25f, z ), 
+			BVec3f( 1.f, -0.25f, z ), 
+			BVec3f( 0.f, -2.25f, z ) ) );
+		tris.Add( BTriangle< float >( 
+			BVec3f( -3.f, 1.f, z ), 
+			BVec3f( -1.f, 1.f, z ), 
+			BVec3f( -2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( 
+			BVec3f( 1.f, 1.f, z ), 
+			BVec3f( 3.f, 1.f, z ), 
+			BVec3f( 2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( 
+			BVec3f( -1.f, 2.25f, z ), 
+			BVec3f( 1.f, 2.25f, z ), 
+			BVec3f( 0.f, 0.25f, z ) ) );
 
 		auto trisNode = BEngine::Scene().CreateNode( "SimpleTriangles" );
 		auto meshComp = trisNode->CreateComponent< BMeshComponent >( "Triangles" );
 		meshComp->AddTriangles( tris );
+		meshComp->setShowWireframe( true );
 
 		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
 		auto cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
@@ -455,6 +458,80 @@ namespace bgl
 	}
 
 	void BEngineTest_CubeProjection::Term()
+	{
+	}
+
+#pragma endregion
+
+#pragma region AABB Tests
+
+	void BEngineTest_AABBTests::Init()
+	{
+		CreateStandardWindow( "Bagual Engine Test #4 (AABB Tests)" );
+
+		// Creating scene nodes
+		auto cubeNode = BEngine::Scene().CreateNode( "Cube" );
+
+		// Creating mesh components and loading geometry from disk
+		cubeMeshComp = cubeNode->CreateComponent< BMeshComponent >( "CubeMesh", "./assets/basemap/basemap_cube.obj" );
+
+		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
+		cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
+		camera = cameraComp->GetCamera();
+		camera->SetLocation( BVec3f( 0.f, 0.f, 0.f ) );
+		camera->SetRotation( BRotf( 0.f, 0.f, 0.f ) );
+		camera->SetDepthDistance( 800.f );
+		camera->SetFOV( 60.f );
+		camera->SetRenderSpeed( BERenderSpeed::Normal );
+		camera->SetRenderOutputType( BERenderOutputType::Depth );
+		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
+
+		BCubef cube;
+		
+		auto guiTick = [ this ]()
+		{
+			IM_ASSERT( ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!" );
+
+			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(
+				ImVec2( main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20 ),
+				ImGuiCond_FirstUseEver );
+			ImGui::SetNextWindowSize( ImVec2( 550, 680 ), ImGuiCond_FirstUseEver );
+
+			ImGuiWindowFlags window_flags = 0;
+			if( !ImGui::Begin( "Bagual Engine Test #5 Settings", nullptr, window_flags ) )
+			{
+				ImGui::End();
+				return;
+			}
+
+			ImGui::PushItemWidth( ImGui::GetFontSize() * -12 );
+
+			ImGui::Checkbox( "Show Wireframe", &( cubeMeshComp->getShowWireframe_Mutable() ) );
+
+			ImGui::ColorEdit3( "Wireframe Color", cubeMeshComp->getColorMutable().value );
+
+			const float positionRange = 10.f;
+			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
+
+			const float rotRange = 20.f;
+			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
+			ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
+
+			ImGui::End();
+		};
+
+		// Gui update procedure
+		window->SetGuiTickFunc( guiTick );
+	}
+
+	void BEngineTest_AABBTests::Tick()
+	{
+		
+	}
+
+	void BEngineTest_AABBTests::Term()
 	{
 	}
 

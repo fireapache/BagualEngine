@@ -40,9 +40,10 @@ namespace bgl
 
 		if( m_modules )
 		{
-			//m_modules->Add(std::make_shared<BEngineTest_FundamentalRendering>());
-			m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
-			//m_modules->Add(std::make_shared< BEngineTest_CubeProjection>());
+			//m_modules->Add( std::make_shared< BEngineTest_FundamentalRendering >() );
+			//m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
+			//m_modules->Add( std::make_shared< BEngineTest_CubeProjection >() );
+			m_modules->Add( std::make_shared< BEngineTest_AABBTests >() );
 
 			for( auto& module : *m_modules.get() )
 			{
@@ -127,7 +128,7 @@ namespace bgl
 		// Ticking windows to check if need to be destroyed
 		auto& windows = m_platform->GetWindows();
 
-		for( uint32 i = 0; i < windows.Size(); i++ )
+		for( uint32_t i = 0; i < windows.Size(); i++ )
 		{
 			if( windows[ i ]->Tick() == false )
 			{
@@ -157,8 +158,8 @@ namespace bgl
 	BEngine::BEngine()
 		: m_engineState( EBEngineState::None )
 	{
-		Settings::width = 320;
-		Settings::height = 240;
+		BSettings::width = 320;
+		BSettings::height = 240;
 	}
 
 	BEngine& BEngine::Instance()

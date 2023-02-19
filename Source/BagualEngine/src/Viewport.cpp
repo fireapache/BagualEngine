@@ -51,7 +51,7 @@ namespace bgl
 		SetNormalizedSize( normalizedSize );
 	}
 
-	BViewport::BViewport( BCanvas* canvas, const uint32 width, const uint32 height )
+	BViewport::BViewport( BCanvas* canvas, const uint32_t width, const uint32_t height )
 	{
 		m_canvas = canvas;
 
@@ -63,7 +63,7 @@ namespace bgl
 		UpdateLimits();
 	}
 
-	BViewport::BViewport( BCanvas* canvas, const uint32 x, const uint32 y, const uint32 width, const uint32 height )
+	BViewport::BViewport( BCanvas* canvas, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height )
 	{
 		m_canvas = canvas;
 
@@ -87,10 +87,10 @@ namespace bgl
 
 		m_normalSize = normalizedSize;
 
-		m_bounds.p1.x = static_cast< uint32 >( m_normalSize.p1.x * static_cast< float >( canvasRes.width ) );
-		m_bounds.p1.y = static_cast< uint32 >( m_normalSize.p1.y * static_cast< float >( canvasRes.height ) );
-		m_bounds.p2.x = static_cast< uint32 >( m_normalSize.p2.x * static_cast< float >( canvasRes.width ) ) - 1;
-		m_bounds.p2.y = static_cast< uint32 >( m_normalSize.p2.y * static_cast< float >( canvasRes.height ) ) - 1;
+		m_bounds.p1.x = static_cast< uint32_t >( m_normalSize.p1.x * static_cast< float >( canvasRes.width ) );
+		m_bounds.p1.y = static_cast< uint32_t >( m_normalSize.p1.y * static_cast< float >( canvasRes.height ) );
+		m_bounds.p2.x = static_cast< uint32_t >( m_normalSize.p2.x * static_cast< float >( canvasRes.width ) ) - 1;
+		m_bounds.p2.y = static_cast< uint32_t >( m_normalSize.p2.y * static_cast< float >( canvasRes.height ) ) - 1;
 
 		UpdateLimits();
 	}
@@ -128,7 +128,7 @@ namespace bgl
 				 bounds.p2.y - bounds.p1.y + static_cast< uint32_t >( 1 ) };
 	}
 
-	CanvasDataType& BViewport::operator()( const size_t x, const size_t y )
+	Color32Bit& BViewport::operator()( const size_t x, const size_t y )
 	{
 		if( !m_canvas )
 		{

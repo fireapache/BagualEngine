@@ -21,8 +21,8 @@ namespace bgl
 		virtual bool IsEnabled() const = 0;
 		virtual void SwapFrames() = 0;
 		virtual void RenderCamera( const BCamera& camera ) = 0;
-		virtual void Delay( const uint32&& ms ) = 0;
-		virtual void Delay( const uint32& ms ) = 0;
+		virtual void Delay( const uint32_t&& ms ) = 0;
+		virtual void Delay( const uint32_t& ms ) = 0;
 	};
 
 	enum class BERenderOutputType

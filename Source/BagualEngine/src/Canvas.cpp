@@ -10,7 +10,7 @@
 namespace bgl
 {
 
-	BCanvas::BCanvas( BPlatformWindow* window, uint16 width, uint16 height )
+	BCanvas::BCanvas( BPlatformWindow* window, uint16_t width, uint16_t height )
 		: width( width )
 		, height( height )
 	{
@@ -42,12 +42,12 @@ namespace bgl
 		this->edges[ 3 ] = BLine< BPixelPos >( edge3_0, edge3_1 );
 	}
 
-	uint16 BCanvas::GetWidth() const
+	uint16_t BCanvas::GetWidth() const
 	{
 		return width;
 	}
 
-	uint16 BCanvas::GetHeight() const
+	uint16_t BCanvas::GetHeight() const
 	{
 		return height;
 	}
@@ -55,10 +55,10 @@ namespace bgl
 	void BCanvas::AllocateBuffers()
 	{
 		const size_t frameBufferLength = static_cast< size_t >( width ) * static_cast< size_t >( height );
-		this->colorBuffer = std::make_shared< BBuffer< CanvasDataType > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		this->colorBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
 		this->zBuffer = std::make_shared< BBuffer< DepthDataType > >( frameBufferLength, DEFAULT_DEPTH_VALUE );
-		this->wireframeBuffer = std::make_shared< BBuffer< CanvasDataType > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
-		this->readyFrameBuffer = std::make_shared< BBuffer< CanvasDataType > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		this->wireframeBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		this->readyFrameBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
 	}
 
 	void BCanvas::ResetZBuffer()
@@ -81,7 +81,7 @@ namespace bgl
 		return edges[ static_cast< int32_t >( edge ) ];
 	}
 
-	BBuffer< CanvasDataType >& BCanvas::GetColorBuffer() const
+	BBuffer< Color32Bit >& BCanvas::GetColorBuffer() const
 	{
 		return *colorBuffer;
 	}
@@ -91,12 +91,12 @@ namespace bgl
 		return *zBuffer;
 	}
 
-	BBuffer< CanvasDataType >& BCanvas::GetWireframeBuffer() const
+	BBuffer< Color32Bit >& BCanvas::GetWireframeBuffer() const
 	{
 		return *wireframeBuffer;
 	}
 
-	BBuffer< CanvasDataType >& BCanvas::GetReadyFrameBuffer() const
+	BBuffer< Color32Bit >& BCanvas::GetReadyFrameBuffer() const
 	{
 		return *readyFrameBuffer;
 	}

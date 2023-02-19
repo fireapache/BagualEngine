@@ -45,7 +45,7 @@ namespace bgl
 		// Viewport to render
 		BViewport* viewport = nullptr;
 		// Pixel location and final color
-		uint32 px, py, rgb;
+		uint32_t px, py, rgb;
 		// Type of render output
 		BERenderOutputType renderType = BERenderOutputType::UvColor;
 		// Max distance to render on pixel depth output mode
@@ -70,13 +70,13 @@ namespace bgl
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines( BViewport* viewport, const uint32_t renderThreadIndex );
-		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line );
+		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color );
 		static void PaintPixel(
 			BViewport* viewportPtr,
 			const BERenderSpeed renderSpeed,
-			const uint32 i,
-			const uint32 j,
-			const uint32 rgb );
+			const uint32_t i,
+			const uint32_t j,
+			const uint32_t rgb );
 
 		void SwapFrames() override;
 		void RenderGameFrame() override;

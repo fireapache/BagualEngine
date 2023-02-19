@@ -179,7 +179,7 @@ namespace bgl
 
 		BTriangle< float > triCache;
 		objl::Vertex vert0, vert1, vert2;
-		uint32 index0, index1, index2;
+		uint32_t index0, index1, index2;
 
 		objl::Loader triLoader( assetPath );
 

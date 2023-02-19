@@ -7,10 +7,11 @@
 
 namespace bgl
 {
-	int Settings::width = 320;
-	int Settings::height = 240;
-	void* Settings::window = nullptr;
-	void* Settings::surface = nullptr;
-	void* Settings::pixels = nullptr;
-	BLine< BPixelPos > Settings::screenEdges[ 4 ];
+	int BSettings::width = 320;
+	int BSettings::height = 240;
+	void* BSettings::window = nullptr;
+	void* BSettings::surface = nullptr;
+	void* BSettings::pixels = nullptr;
+	BLine< BPixelPos > BSettings::screenEdges[ 4 ];
+	uint32_t BSettings::lineColor = 0x000000FF;
 } // namespace bgl

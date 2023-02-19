@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Canvas.h"
 #include "Common.h"
+#include "Settings.h"
 #include "Viewport.h"
 
 namespace bgl
@@ -13,7 +14,7 @@ namespace bgl
 	public:
 		static bool RayPlaneIntersection(
 			const BVec3f& planeLoc,
-			BVec3f planeNormal,
+			const BVec3f& planeNormal,
 			const BVec3f& rayOrig,
 			const BVec3f& rayDir,
 			BVec3f& result )
@@ -23,7 +24,7 @@ namespace bgl
 
 			if( denom > 1e-6f )
 			{
-				BVec3f p0l0 = planeLoc - rayOrig;
+				const BVec3f p0l0 = planeLoc - rayOrig;
 				const float t = DotProduct( p0l0, planeNormal ) / denom;
 
 				if( t >= 0.f )
@@ -97,7 +98,7 @@ namespace bgl
 
 				// final screen coordinates
 				const int32_t halfViewportWidth = static_cast< int32_t >( viewport->GetSize().width ) / 2;
-				const int32 halfViewportHeight = static_cast< int32_t >( viewport->GetSize().height ) / 2;
+				const int32_t halfViewportHeight = static_cast< int32_t >( viewport->GetSize().height ) / 2;
 				const int32_t centeredX = static_cast< int32_t >( xn * static_cast< float >( halfViewportWidth ) );
 				const int32_t centeredY = static_cast< int32_t >( yn * static_cast< float >( halfViewportHeight ) );
 				const int32_t x = centeredX + halfViewportWidth + viewport->GetPosition().x;
@@ -157,15 +158,15 @@ namespace bgl
 			}
 
 			BPixelPos inters[ 4 ];
-			int32 p1Dist = INT_MAX;
-			int32 p2Dist = INT_MAX;
-			int32 dist;
+			int32_t p1Dist = INT_MAX;
+			int32_t p2Dist = INT_MAX;
+			int32_t dist;
 			BPixelPos* newP1 = nullptr;
 			BPixelPos* newP2 = nullptr;
 
 			const BBoxEdges viewEdges = viewport->GetLimits();
 
-			for( int32 i = 0; i < 4; i++ )
+			for( int32_t i = 0; i < 4; i++ )
 			{
 				if( LinesIntersection( line, viewEdges.GetEdges()[ i ], inters[ i ] ) )
 				{
@@ -217,7 +218,7 @@ namespace bgl
 			return isValid;
 		}
 
-		inline static void DrawLineLow( BViewport* viewport, const BLine< BPixelPos >& line )
+		inline static void DrawLineLow( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
 			{
@@ -234,10 +235,10 @@ namespace bgl
 			}
 
 			auto& screen = canvas->GetWireframeBuffer();
-			const int32 width = canvas->GetWidth();
-			int32 dx = line.p2.x - line.p1.x;
-			int32 dy = line.p2.y - line.p1.y;
-			int32 yi = 1;
+			const int32_t width = canvas->GetWidth();
+			int32_t dx = line.p2.x - line.p1.x;
+			int32_t dy = line.p2.y - line.p1.y;
+			int32_t yi = 1;
 
 			if( dy < 0 )
 			{
@@ -245,15 +246,15 @@ namespace bgl
 				dy = -dy;
 			}
 
-			int32 D = 2 * dy - dx;
-			int32 y = line.p1.y;
+			int32_t D = 2 * dy - dx;
+			int32_t y = line.p1.y;
 
-			for( int32 x = line.p1.x; x <= line.p2.x; x++ )
+			for( int32_t x = line.p1.x; x <= line.p2.x; x++ )
 			{
 				if( x >= width )
 					break;
 
-				screen[ x + width * y ] = 0x0000FF;
+				screen[ x + width * y ] = color;
 
 				if( D > 0 )
 				{
@@ -265,7 +266,7 @@ namespace bgl
 			}
 		}
 
-		inline static void DrawLineHigh( BViewport* viewport, const BLine< BPixelPos >& line )
+		inline static void DrawLineHigh( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
 			{
@@ -282,10 +283,10 @@ namespace bgl
 			}
 
 			auto& screen = canvas->GetWireframeBuffer();
-			const int32 width = canvas->GetWidth();
-			int32 dx = line.p2.x - line.p1.x;
-			int32 dy = line.p2.y - line.p1.y;
-			int32 xi = 1;
+			const int32_t width = canvas->GetWidth();
+			int32_t dx = line.p2.x - line.p1.x;
+			int32_t dy = line.p2.y - line.p1.y;
+			int32_t xi = 1;
 
 			if( dx < 0 )
 			{
@@ -293,17 +294,17 @@ namespace bgl
 				dx = -dx;
 			}
 
-			int32 D = 2 * dx - dy;
-			int32 x = line.p1.x;
+			int32_t D = 2 * dx - dy;
+			int32_t x = line.p1.x;
 
-			const int32 height = canvas->GetHeight();
+			const int32_t height = canvas->GetHeight();
 
-			for( int32 y = line.p1.y; y <= line.p2.y; y++ )
+			for( int32_t y = line.p1.y; y <= line.p2.y; y++ )
 			{
 				if( y >= height )
 					break;
 
-				screen[ x + width * y ] = 0x0000FF;
+				screen[ x + width * y ] = color;
 
 				if( D > 0 )
 				{
@@ -316,7 +317,7 @@ namespace bgl
 		}
 
 		/*	Draw a line on viewport. */
-		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line )
+		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
 			{
@@ -341,30 +342,30 @@ namespace bgl
 			{
 				if( line.p1.x > line.p2.x )
 				{
-					DrawLineLow( viewport, -l );
+					DrawLineLow( viewport, -l, color );
 				}
 				else
 				{
-					DrawLineLow( viewport, l );
+					DrawLineLow( viewport, l, color );
 				}
 			}
 			else
 			{
 				if( line.p1.y > line.p2.y )
 				{
-					DrawLineHigh( viewport, -l );
+					DrawLineHigh( viewport, -l, color );
 				}
 				else
 				{
-					DrawLineHigh( viewport, l );
+					DrawLineHigh( viewport, l, color );
 				}
 			}
 		}
 
 		/*	Draw a line between pixel positions on viewport */
-		static void DrawLine( BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2 )
+		static void DrawLine( BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2, const Color32Bit color )
 		{
-			DrawLine( viewport, BLine< BPixelPos >( p1, p2 ) );
+			DrawLine( viewport, BLine< BPixelPos >( p1, p2 ), color );
 		}
 
 		// [comment]

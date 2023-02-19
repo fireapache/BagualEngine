@@ -46,8 +46,8 @@ namespace bgl
 
 		GLFWwindow* GetGLFW_Window();
 
-		uint32& GetglTex();
+		uint32_t& GetglTex();
 
-		void SetglTex( uint32 index );
+		void SetglTex( uint32_t index );
 	};
 } // namespace bgl

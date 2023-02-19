@@ -102,7 +102,7 @@ namespace bgl
 		// Setting window starting position on the first monitor
 		if( settings.x == BGL_WINDOW_CENTRALIZED && settings.y == BGL_WINDOW_CENTRALIZED )
 		{
-			int32 monitorCount;
+			int32_t monitorCount;
 			auto monitors = glfwGetMonitors( &monitorCount );
 			GLFWmonitor* monitor = monitors[ 0 ];
 
@@ -188,12 +188,12 @@ namespace bgl
 		return glfwWindow;
 	}
 
-	uint32& BGenericPlatformWindow::GetglTex()
+	uint32_t& BGenericPlatformWindow::GetglTex()
 	{
 		return glTex;
 	}
 
-	void BGenericPlatformWindow::SetglTex( uint32 index )
+	void BGenericPlatformWindow::SetglTex( uint32_t index )
 	{
 		glTex = index;
 	}
