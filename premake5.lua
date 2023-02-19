@@ -39,6 +39,11 @@ workspace "BagualEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/"
 
+newoption {
+	trigger = "unity",
+	description = "Enabled unity build configuration."
+}
+
 group "Dependencies"
 
 project "GLAD"
@@ -256,9 +261,11 @@ project "BagualEngine"
 	language "C++"
 	targetdir ("Intermediate/%{prj.name}-" .. outputdir)
 	objdir ("Intermediate/%{prj.name}-" .. outputdir)
-	defines { "BGL_UNITY_BUILD=0" }
 	
 	-- define OBJL_CONSOLE_OUTPUT for loading geometry information
+	
+	pchheader "Bagual.pch.h"
+	pchsource "Source/BagualEngine/src/Bagual.pch.cpp"
 
 	includedirs
 	{
@@ -287,7 +294,14 @@ project "BagualEngine"
 		"%{prj.location}/include/**.h",
 		"%{prj.location}/src/**.cpp"
 	}
-
+	
+	removefiles "%{prj.location}/src/Bagual.unity.cpp"
+	
+	filter "options:unity"
+		removefiles "%{prj.location}/src/**.cpp"
+		files { "%{prj.location}/src/Bagual.unity.cpp", "%{prj.location}/src/Bagual.pch.cpp" }
+		defines { "BGL_UNITY_BUILD" }
+	
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"

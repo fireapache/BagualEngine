@@ -1,4 +1,4 @@
-@ECHO OFF
+@ECHO off
 
 ECHO.
 ECHO ==========================================================
@@ -19,10 +19,16 @@ IF NOT EXIST "premake5.exe" (
 	ECHO.
 )
 
+IF "%1" == "--unity" (
+	set buildtype=--unity
+) ELSE (
+	set buildtype=""
+)
+
 IF EXIST "premake5.exe" (
 	ECHO Running premake5 ...
 	ECHO.
-	CALL premake5.exe vs2022
+	CALL premake5.exe vs2022 %buildtype%
 	ECHO.
 ) ELSE (
 	ECHO Could not run premake5.exe, please get it manually from https://github.com/premake/premake-core/releases/

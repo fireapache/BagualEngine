@@ -3,7 +3,7 @@
 #include "Bagual.pch.h"
 // clang-format on
 
-#if BGL_UNITY_BUILD == 1
+#if defined( BGL_UNITY_BUILD )
 
 #include "BagualEngine.cpp"
 #include "Camera.cpp"
