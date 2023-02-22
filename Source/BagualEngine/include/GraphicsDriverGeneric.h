@@ -70,7 +70,8 @@ namespace bgl
 		~BGraphicsDriverGeneric();
 
 		static void RenderLines( BViewport* viewport, const uint32_t renderThreadIndex );
-		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color );
+		static void Draw3DLine( BViewport* viewport, const BLine< BVec3f >& line, const Color32Bit color );
+		static void Draw2DLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color );
 		static void PaintPixel(
 			BViewport* viewportPtr,
 			const BERenderSpeed renderSpeed,
@@ -79,6 +80,11 @@ namespace bgl
 			const uint32_t rgb );
 
 		void SwapFrames() override;
+		static void composeFinalFrame(
+			Color32Bit* colorPtr,
+			Color32Bit* wireframePtr,
+			Color32Bit* destBuffer,
+			const Color32Bit* bufferEnd );
 		void RenderGameFrame() override;
 		void SwapUIFrame() override;
 		void SwapGameFrame() override;

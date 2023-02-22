@@ -137,11 +137,6 @@ namespace bgl
 		m_fov = fov;
 	}
 
-	void BCamera::AddLine2DBuffer( const BLine< BPixelPos >& line )
-	{
-		m_line2DBuffer.Add( line );
-	}
-
 	BViewport* BCamera::GetViewport()
 	{
 		BViewport* result = nullptr;
@@ -169,6 +164,11 @@ namespace bgl
 		}
 	}
 
+	void BCamera::AddLine2DBuffer( const BLine< BPixelPos >& line )
+	{
+		m_line2DBuffer.Add( line );
+	}
+
 	BArray< BLine< BPixelPos > >& BCamera::GetLine2DBuffer()
 	{
 		return m_line2DBuffer;
@@ -177,6 +177,21 @@ namespace bgl
 	void BCamera::ClearLine2DBuffer()
 	{
 		m_line2DBuffer.Clear();
+	}
+
+	void BCamera::AddLine3DBuffer( const BLine< BVec3f >& line )
+	{
+		m_line3DBuffer.Add( line );
+	}
+
+	BArray< BLine< BVec3f > >& BCamera::GetLine3DBuffer()
+	{
+		return m_line3DBuffer;
+	}
+
+	void BCamera::ClearLine3DBuffer()
+	{
+		m_line3DBuffer.Clear();
 	}
 
 	BTransform< float >& BCamera::GetTransform_Mutable()

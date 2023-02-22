@@ -15,7 +15,6 @@
 #include "Settings.h"
 #include "ThreadPool.h"
 #include "Viewport.h"
-
 #include <imgui.h>
 #include <limits>
 #include <thread>
@@ -70,6 +69,25 @@ namespace bgl
 		}
 	}
 
+	void BGraphicsDriverGeneric::composeFinalFrame( Color32Bit* colorPtr, Color32Bit* wireframePtr, Color32Bit* destBuffer, const Color32Bit* bufferEnd )
+	{
+		while( colorPtr < bufferEnd )
+		{
+			if( *wireframePtr > 0 /*&& zBufferData*/ )
+			{
+				*destBuffer = *wireframePtr;
+			}
+			else
+			{
+				*destBuffer = *colorPtr;
+			}
+			wireframePtr++;
+			colorPtr++;
+			destBuffer++;
+			//zBufferData++;
+		}
+	}
+
 	void BGraphicsDriverGeneric::RenderGameFrame()
 	{
 		BGraphicsDriverBase::RenderGameFrame();
@@ -111,63 +129,67 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region Rendering Geometry Tasks
-
-			canvas->ResetZBuffer();
+			// Getting thread pool ready
 			const auto renderThreadMode = camera->GetRenderThreadMode();
 			const bool bUseHyperThread = renderThreadMode == BERenderThreadMode::HyperThread;
 			const auto processorCount = std::thread::hardware_concurrency() * ( bUseHyperThread ? 2 : 1 );
 			uint32_t renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
 			thread_pool renderThreadPool( renderThreadCount );
 
-			for( uint32_t t = 0; t < processorCount; t++ )
+#pragma region Pushing Geometry Tasks
+
 			{
-				renderThreadPool.push_task( RenderLines, viewport, t );
-			}
+				canvas->ResetZBuffer();
 
-#pragma endregion
-
-			canvas->ResetWireframeBuffer();
-
-#pragma region Rendering 3D Lines
-
-			for( const auto meshComponent : BMeshComponent::g_meshComponents )
-			{
-				if( meshComponent == nullptr )
-					continue;
-				if( meshComponent->getShowWireframe() == false )
-					continue;
-
-				const Color32Bit lineColor = meshComponent->getColor().getRGB();
-				auto& edges = meshComponent->getMeshData().edges;
-
-				for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
+				for( uint32_t t = 0; t < processorCount; t++ )
 				{
-					BPixelPos pp0, pp1;
-					const bool bPp0 = BDraw::ProjectPoint( viewport, edge->p1, pp0 );
-					const bool bPp1 = BDraw::ProjectPoint( viewport, edge->p2, pp1 );
-					if( bPp0 && bPp1 )
-					{
-						renderThreadPool.push_task( DrawLine, viewport, BLine< BPixelPos >( pp0, pp1 ), lineColor );
-					}
+					renderThreadPool.push_task( RenderLines, viewport, t );
 				}
 			}
-			
+
 #pragma endregion
+			
+#pragma region Pushing 2D and 3D Lines Tasks
 
-#pragma region Rendering 2D Line Tasks
-
-			auto& lines2D = camera->GetLine2DBuffer();
-
-			for( auto& line2D : lines2D )
 			{
-				renderThreadPool.push_task( DrawLine, viewport, line2D, BSettings::lineColor );
+				canvas->ResetWireframeBuffer();
+
+				for( const auto meshComponent : BMeshComponent::g_meshComponents )
+				{
+					if( meshComponent == nullptr || meshComponent->getShowWireframe() == false )
+						continue;
+
+					const Color32Bit lineColor = meshComponent->getColor().getRGB();
+					auto& edges = meshComponent->getMeshData().edges;
+
+					for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
+					{
+						renderThreadPool.push_task( Draw3DLine, viewport, *edge, lineColor );
+					}
+				}
+
+				auto& lines3D = camera->GetLine3DBuffer();
+
+				for( auto& line3D : lines3D )
+				{
+					renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
+				}
+
+				camera->ClearLine3DBuffer();
+
+				auto& lines2D = camera->GetLine2DBuffer();
+
+				for( auto& line2D : lines2D )
+				{
+					renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
+				}
+
+				camera->ClearLine2DBuffer();
 			}
 
-			camera->ClearLine2DBuffer();
-			
 #pragma endregion
 
+			// syncing all threads
 			renderThreadPool.wait_for_tasks();
 
 			auto& wireframeBuffer = canvas->GetWireframeBuffer();
@@ -181,25 +203,30 @@ namespace bgl
 			//auto& zBuffer = canvas->GetZBuffer();
 			//DepthDataType* zBufferData = zBuffer.GetData();
 
-			while( colorBufferData < colorBuffer.GetData() + colorBuffer.Length() )
+			const size_t bufferTotalSize = colorBuffer.Length();
+			const size_t threadPixelLength = bufferTotalSize / renderThreadCount;
+
+			for( size_t i = 0; i < renderThreadCount; i++ )
 			{
-				if( *wireframdeBufferData > 0 /*&& zBufferData*/ )
-				{
-					*readyFrameBufferData = *wireframdeBufferData;
-				}
-				else
-				{
-					*readyFrameBufferData = *colorBufferData;
-				}
-				wireframdeBufferData++;
-				colorBufferData++;
-				readyFrameBufferData++;
-				//zBufferData++;
+				size_t memOffset = threadPixelLength * i;
+				Color32Bit* colorPtr = colorBufferData + memOffset;
+				Color32Bit* wireframePtr = wireframdeBufferData + memOffset;
+				Color32Bit* destBuffer = readyFrameBufferData + memOffset;
+				const Color32Bit* colorBufferEnd = colorBufferData + bufferTotalSize;
+				renderThreadPool.push_task( composeFinalFrame, colorPtr, wireframePtr, destBuffer, colorBufferEnd );
 			}
+			
+			// syncing all threads one last time to have final composed frame
+			renderThreadPool.wait_for_tasks();
 		}
 	}
 
-	void BGraphicsDriverGeneric::DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
+	void BGraphicsDriverGeneric::Draw3DLine( BViewport* viewport, const BLine< BVec3f >& line, const Color32Bit color )
+	{
+		BDraw::DrawLine( viewport, line, color );
+	}
+
+	void BGraphicsDriverGeneric::Draw2DLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 	{
 		BDraw::DrawLine( viewport, line, color );
 	}

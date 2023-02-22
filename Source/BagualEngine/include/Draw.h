@@ -38,7 +38,7 @@ namespace bgl
 		}
 
 		// not optimal solution but it works, need optimization
-		inline static bool ProjectPoint(
+		static bool ProjectPoint(
 			const BViewport* viewport,
 			const BVec3f& point,
 			BPixelPos& pixelPos,
@@ -119,7 +119,7 @@ namespace bgl
 		 *	It returns false in case the line completely misses the visible
 		 *	area of the camera's viewport.
 		 */
-		inline static bool ClampViewportLine( BViewport* viewport, BLine< BPixelPos >& line )
+		static bool ClampViewportLine( BViewport* viewport, BLine< BPixelPos >& line )
 		{
 			if( viewport == nullptr )
 			{
@@ -218,7 +218,7 @@ namespace bgl
 			return isValid;
 		}
 
-		inline static void DrawLineLow( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
+		static void DrawLineLow( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
 			{
@@ -266,7 +266,7 @@ namespace bgl
 			}
 		}
 
-		inline static void DrawLineHigh( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
+		static void DrawLineHigh( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
 			{
@@ -316,7 +316,18 @@ namespace bgl
 			}
 		}
 
-		/*	Draw a line on viewport. */
+		static void DrawLine( BViewport* viewport, const BLine< BVec3f >& line, const Color32Bit color )
+		{
+			BPixelPos pp0, pp1;
+			const bool bPp0 = ProjectPoint( viewport, line.p1, pp0 );
+			const bool bPp1 = ProjectPoint( viewport, line.p2, pp1 );
+			if( bPp0 && bPp1 )
+			{
+				DrawLine( viewport, BLine< BPixelPos >( pp0, pp1 ), color );
+			}
+		}
+
+		/*	Draw a 2D line on viewport. */
 		static void DrawLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color )
 		{
 			if( viewport == nullptr )
@@ -362,7 +373,7 @@ namespace bgl
 			}
 		}
 
-		/*	Draw a line between pixel positions on viewport */
+		/*	Draw a 2D line between pixel positions on viewport */
 		static void DrawLine( BViewport* viewport, const BPixelPos& p1, const BPixelPos& p2, const Color32Bit color )
 		{
 			DrawLine( viewport, BLine< BPixelPos >( p1, p2 ), color );

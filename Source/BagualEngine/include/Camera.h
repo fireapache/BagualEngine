@@ -16,6 +16,7 @@ namespace bgl
 	class BCamera
 	{
 		BArray< BLine< BPixelPos > > m_line2DBuffer;
+		BArray< BLine< BVec3f > > m_line3DBuffer;
 		float m_fov = 90.f;
 		BCameraComponent* m_owner = nullptr;
 		BTransform< float > m_detachedTransform;
@@ -59,16 +60,17 @@ namespace bgl
 		const float GetFOV() const;
 		float& GetFOV_Mutable();
 		void SetFOV( const float fov );
-
-		// Line to be render on top of everything during camera render loop in the Renderer
-		void AddLine2DBuffer( const BLine< BPixelPos >& line );
-
+		
 		BViewport* GetViewport();
 		void SetViewport( BViewport* viewport );
 
+		void AddLine2DBuffer( const BLine< BPixelPos >& line );
 		BArray< BLine< BPixelPos > >& GetLine2DBuffer();
-
 		void ClearLine2DBuffer();
+
+		void AddLine3DBuffer( const BLine< BVec3f >& line );
+		BArray< BLine< BVec3f > >& GetLine3DBuffer();
+		void ClearLine3DBuffer();
 
 		BTransform< float >& GetTransform_Mutable();
 		const BTransform< float > GetTransform() const;
