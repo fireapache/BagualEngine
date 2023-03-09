@@ -17,8 +17,8 @@ namespace bgl
 		BPlatformGeneric();
 		~BPlatformGeneric();
 
-		virtual BPlatformWindow* CreateWindow() override;
-		virtual BPlatformWindow* CreateWindow( const FWindowSettings& settings ) override;
+		virtual BPlatformWindow* createWindow() override;
+		virtual BPlatformWindow* createWindow( const FWindowSettings& settings ) override;
 
 		ImGuiIO* GetImguiConfig();
 	};
@@ -31,11 +31,11 @@ namespace bgl
 		uint32_t glTex = UINT32_MAX;
 
 	protected:
-		virtual void ApplySettings() override;
+		virtual void applySettings() override;
 
-		virtual void Create() override;
+		virtual void create() override;
 
-		virtual void Destroy() override;
+		virtual void destroy() override;
 
 	public:
 		BGenericPlatformWindow() = delete;

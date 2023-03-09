@@ -198,7 +198,7 @@ namespace bgl
 	{
 		if( m_owner )
 		{
-			return m_owner->GetTransform_Mutable();
+			return m_owner->getTransform_mutable();
 		}
 
 		return m_detachedTransform;
@@ -208,7 +208,7 @@ namespace bgl
 	{
 		if( m_owner )
 		{
-			return m_owner->GetTransform();
+			return m_owner->getTransform();
 		}
 
 		return m_detachedTransform;

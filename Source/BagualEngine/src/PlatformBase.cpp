@@ -13,50 +13,62 @@ namespace bgl
 	BPlatformWindow::BPlatformWindow( const FWindowSettings& windowSettings )
 	{
 		settings = windowSettings;
-		Create();
+		create();
 	}
 
-	FWindowSettings BPlatformWindow::GetSettings() const
+	FWindowSettings BPlatformWindow::getSettings() const
 	{
 		return settings;
 	}
 
-	void BPlatformWindow::SetWindow( const FWindowSettings& newSettings )
+	void BPlatformWindow::setWindow( const FWindowSettings& newSettings )
 	{
 		settings = newSettings;
-		ApplySettings();
+		applySettings();
 	}
 
-	BCanvas* BPlatformWindow::GetCanvas()
+	BCanvas* BPlatformWindow::getCanvas()
 	{
 		return m_canvas.get();
 	}
 
-	void BPlatformWindow::SetGuiTickFunc( GuiTickFuncType func )
+	void BPlatformWindow::addGuiTickFunc( GuiTickFuncType* func )
 	{
-		m_guiTickFunc = func;
+		m_guiTickFuncs.Add( func );
 	}
 
-	BPlatformWindow::GuiTickFuncType BPlatformWindow::GetGuiTickFunc()
+	BArray< GuiTickFuncType* >& BPlatformWindow::getGuiTickFuncs()
 	{
-		return m_guiTickFunc;
+		return m_guiTickFuncs;
 	}
 
-	void BPlatformWindow::ApplySettings()
-	{
-		BGL_NEED_IMPLEMENTATION
-	}
-
-	void BPlatformWindow::Create()
+	void BPlatformWindow::applySettings()
 	{
 		BGL_NEED_IMPLEMENTATION
 	}
 
-	void BPlatformWindow::Destroy(){ BGL_NEED_IMPLEMENTATION }
+	void BPlatformWindow::create()
+	{
+		BGL_NEED_IMPLEMENTATION
+	}
 
-	BArray< std::shared_ptr< BPlatformWindow > >& BPlatformBase::GetWindows()
+	void BPlatformWindow::destroy()
+	{
+		BGL_NEED_IMPLEMENTATION
+	}
+
+	BArray< std::shared_ptr< BPlatformWindow > >& BPlatformBase::getWindows()
 	{
 		return windows;
 	}
 
+	BPlatformWindow* BPlatformBase::getWindow( const uint32_t index )
+	{
+		if( windows.Size() < index )
+		{
+			return windows[ index ].get();
+		}
+
+		return nullptr;
+	}
 } // namespace bgl

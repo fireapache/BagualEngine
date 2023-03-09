@@ -20,21 +20,18 @@ namespace bgl
 
 	class BPlatformWindow
 	{
-	public:
-		typedef std::function< void() > GuiTickFuncType;
-
 	protected:
 		std::unique_ptr< BCanvas > m_canvas;
 
 		FWindowSettings settings;
 
-		virtual void ApplySettings();
+		virtual void applySettings();
 
-		virtual void Create();
+		virtual void create();
 
-		virtual void Destroy();
+		virtual void destroy();
 
-		GuiTickFuncType m_guiTickFunc;
+		BArray< GuiTickFuncType* > m_guiTickFuncs;
 
 	public:
 		BPlatformWindow(){};
@@ -42,14 +39,14 @@ namespace bgl
 
 		virtual bool Tick() = 0;
 
-		virtual FWindowSettings GetSettings() const;
+		virtual FWindowSettings getSettings() const;
 
-		virtual void SetWindow( const FWindowSettings& newSettings );
+		virtual void setWindow( const FWindowSettings& newSettings );
 
-		virtual BCanvas* GetCanvas();
+		virtual BCanvas* getCanvas();
 
-		void SetGuiTickFunc( GuiTickFuncType func );
-		GuiTickFuncType GetGuiTickFunc();
+		void addGuiTickFunc( GuiTickFuncType* func );
+		BArray< GuiTickFuncType* >& getGuiTickFuncs();
 	};
 
 	class BPlatformBase
@@ -58,10 +55,11 @@ namespace bgl
 		BArray< std::shared_ptr< BPlatformWindow > > windows;
 
 	public:
-		virtual BPlatformWindow* CreateWindow() = 0;
-		virtual BPlatformWindow* CreateWindow( const FWindowSettings& settings ) = 0;
+		virtual BPlatformWindow* createWindow() = 0;
+		virtual BPlatformWindow* createWindow( const FWindowSettings& settings ) = 0;
 
-		BArray< std::shared_ptr< BPlatformWindow > >& GetWindows();
+		BArray< std::shared_ptr< BPlatformWindow > >& getWindows();
+		BPlatformWindow* getWindow( const uint32_t index );
 	};
 
 } // namespace bgl

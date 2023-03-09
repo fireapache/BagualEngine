@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <stdint.h>
 #include <limits>
 
@@ -13,6 +14,7 @@ namespace bgl
 	
 	typedef uint32_t Color32Bit;
 	typedef double DepthDataType;
+	typedef std::function< void() > GuiTickFuncType;
 
 	constexpr auto DEFAULT_CANVAS_VALUE = static_cast< Color32Bit >( 0 );
 	constexpr auto DEFAULT_DEPTH_VALUE = static_cast< DepthDataType >( 9999999999999 );

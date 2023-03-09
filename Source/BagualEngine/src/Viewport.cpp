@@ -39,8 +39,8 @@ namespace bgl
 
 		m_bounds.p1.x = 0;
 		m_bounds.p1.y = 0;
-		m_bounds.p2.x = canvas->GetWidth() - 1;
-		m_bounds.p2.y = canvas->GetHeight() - 1;
+		m_bounds.p2.x = canvas->getWidth() - 1;
+		m_bounds.p2.y = canvas->getHeight() - 1;
 
 		UpdateLimits();
 	}
@@ -83,7 +83,7 @@ namespace bgl
 	{
 		BGL_ASSERT( m_canvas != nullptr && "Got null canvas pointer when setting new normalized size to viewport!" );
 
-		BSize canvasRes( m_canvas->GetWidth(), m_canvas->GetHeight() );
+		BSize canvasRes( m_canvas->getWidth(), m_canvas->getHeight() );
 
 		m_normalSize = normalizedSize;
 
@@ -136,8 +136,8 @@ namespace bgl
 			return m_dummyData;
 		}
 
-		const uint16_t width = m_canvas->GetWidth();
-		auto& colorBuffer = m_canvas->GetColorBuffer();
+		const uint16_t width = m_canvas->getWidth();
+		auto& colorBuffer = m_canvas->getColorBuffer();
 		const size_t index = ( m_bounds.p1.x + x ) + width * ( m_bounds.p1.y + y );
 		const size_t lastIndex = colorBuffer.Length() - 1;
 		if( index <= lastIndex )
@@ -158,8 +158,8 @@ namespace bgl
 			return DepthDataType();
 		}
 
-		auto width = m_canvas->GetWidth();
-		auto& zBuffer = m_canvas->GetZBuffer();
+		auto width = m_canvas->getWidth();
+		auto& zBuffer = m_canvas->getZBuffer();
 		return zBuffer[ ( m_bounds.p1.x + x ) + width * ( m_bounds.p1.y + y ) ];
 	}
 
@@ -171,8 +171,8 @@ namespace bgl
 			return;
 		}
 
-		const auto width = m_canvas->GetWidth();
-		auto& zBuffer = m_canvas->GetZBuffer();
+		const auto width = m_canvas->getWidth();
+		auto& zBuffer = m_canvas->getZBuffer();
 		zBuffer[ ( m_bounds.p1.x + x ) + width * ( m_bounds.p1.y + y ) ] = value;
 	}
 
@@ -180,7 +180,7 @@ namespace bgl
 	{
 		if( m_canvas )
 		{
-			m_canvas->ResetZBuffer();
+			m_canvas->resetZBuffer();
 		}
 		else
 		{

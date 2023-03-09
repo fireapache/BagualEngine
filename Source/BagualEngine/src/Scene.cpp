@@ -8,8 +8,8 @@
 #include "BagualEngine.h"
 #include "Camera.h"
 #include "CameraManager.h"
+#include "Module.h"
 #include "Viewport.h"
-
 #include <obj_parse.h>
 
 namespace bgl
@@ -18,9 +18,10 @@ namespace bgl
 	BArray< BArray< BTriangle< float > >* > BMeshComponent::g_meshComponentTriangles;
 	BArray< BMeshComponent* > BMeshComponent::g_meshComponents;
 
-	BNode::BNode( BNode* parent, const char* name )
+	BNode::BNode( BNode* parent, const char* name, BModule* owningModule )
 	{
 		m_parent = parent;
+		m_module = owningModule;
 
 		if( name )
 		{
@@ -28,100 +29,135 @@ namespace bgl
 		}
 	}
 
-	BNode* BNode::GetParent()
+	BNode* BNode::getParent()
 	{
 		return m_parent;
 	}
 
-	BArray< BNode* >& BNode::GetChilds()
+	BArray< BNode* > BNode::getChildren( const bool recursive ) const
 	{
-		return m_childs;
+		if( recursive )
+		{
+			BArray< BNode* > allChildren{ m_children };
+			for( const auto& node : m_children )
+			{
+				allChildren.Add( node->getChildren( true ) );
+			}
+			return allChildren;
+		}
+
+		return m_children;
 	}
 
-	BArray< std::shared_ptr< BComponent > >& BNode::GetComponents()
+	BArray< BComponent* > BNode::getComponents( bool recursive ) const
 	{
+		if( recursive )
+		{
+			const BArray< BNode* > childNodes = getChildren( true );
+			BArray< BComponent* > allComponents = m_components;
+
+			for( auto& childNode : childNodes )
+			{
+				allComponents.Add( childNode->getComponents() );
+			}
+
+			return allComponents;
+		}
+
 		return m_components;
 	}
 
-	const bool BNode::IsVisible() const
+	bool BNode::hasChildren() const
 	{
-		if( m_parent )
-		{
-			return m_parent->IsVisible() && !m_bHidden;
-		}
-
-		return !m_bHidden;
+		return m_children.Size() > 0;
 	}
 
-	void BNode::SetHidden( const bool bHidden )
+	bool BNode::isVisible() const
+	{
+		const bool bModuleHidden = m_module ? m_module->isHidden() : false;
+		const bool bHidden = !m_bHidden && !bModuleHidden;
+
+		if( m_parent )
+		{
+			return m_parent->isVisible() && bHidden;
+		}
+
+		return bHidden;
+	}
+
+	void BNode::setHidden( bool bHidden )
 	{
 		m_bHidden = bHidden;
 	}
 
-	BTransform< float >& BNode::GetTransform_Mutable()
+	BTransform< float >& BNode::getTransform_mutable()
 	{
 		return m_transform;
 	}
 
-	const BTransform< float > BNode::GetTransform() const
+	const BTransform< float > BNode::getTransform() const
 	{
 		return m_transform;
 	}
 
-	const BVec3f BNode::GetLocation() const
+	const BVec3f BNode::getLocation() const
 	{
 		return m_transform.translation;
 	}
 
-	const BRotf BNode::GetRotation() const
+	const BRotf BNode::getRotation() const
 	{
 		return m_transform.rotation;
 	}
 
-	const BVec3f BNode::GetScale() const
+	const BVec3f BNode::getScale() const
 	{
 		return m_transform.scale;
 	}
 
-	void BNode::SetTransform( const BTransform< float >& transform )
+	void BNode::setTransform( const BTransform< float >& transform )
 	{
 		m_transform = transform;
 	}
 
-	void BNode::SetLocation( const BVec3f& location )
+	void BNode::setLocation( const BVec3f& location )
 	{
 		m_transform.translation = location;
 	}
 
-	void BNode::SetRotation( const BRotf& rotation )
+	void BNode::setRotation( const BRotf& rotation )
 	{
 		m_transform.rotation = rotation;
 	}
 
-	void BNode::SetScale( const BVec3f& scale )
+	void BNode::setScale( const BVec3f& scale )
 	{
 		m_transform.scale = scale;
 	}
 
-	void BNode::SetParent( BNode* node )
+	void BNode::setParent( BNode* node )
 	{
 		if( m_parent )
 		{
-			m_parent->RemoveChild( this );
+			m_parent->removeChild( this );
 		}
 
 		m_parent = node;
-		node->AddChild( this );
+
+		if( m_parent )
+		{
+			node->addChild( this );
+		}
 	}
 
-	void BNode::AddChild( BNode* node )
+	void BNode::addChild( BNode* node )
 	{
-		m_childs.Add( node );
+		m_children.Add( node );
 	}
 
-	void BNode::RemoveChild( BNode* node )
+	void BNode::removeChild( BNode* node )
 	{
-		m_childs.Remove( node );
+		m_children.Remove( node );
 	}
 
 	BMeshComponent::BMeshComponent(
@@ -130,7 +166,7 @@ namespace bgl
 		const char* assetPath /*= nullptr*/ )
 		: BComponent( owner, name )
 	{
-		g_meshComponentTriangles.Add( &m_MeshData.triangles );
+		g_meshComponentTriangles.Add( &m_meshData.triangles );
 		g_meshComponents.Add( this );
 		if( assetPath )
 			LoadMesh( assetPath );
@@ -138,13 +174,13 @@ namespace bgl
 
 	BMeshComponent::~BMeshComponent()
 	{
-		g_meshComponentTriangles.Remove( &m_MeshData.triangles );
+		g_meshComponentTriangles.Remove( &m_meshData.triangles );
 		g_meshComponents.Remove( this );
 	}
 
 	void BMeshComponent::addUniqueEdge( const BLine< BVec3f >& line )
 	{
-		auto& edges = m_MeshData.edges;
+		auto& edges = m_meshData.edges;
 		bool bUnique = true;
 		for( auto* curEdge = edges.data(); curEdge < edges.data() + edges.Size(); curEdge++ )
 		{
@@ -163,7 +199,7 @@ namespace bgl
 
 	void BMeshComponent::addUniqueTriEdges( const BTriangle< float >& tri )
 	{
-		auto& edges = m_MeshData.edges;
+		auto& edges = m_meshData.edges;
 		addUniqueEdge( BLine< BVec3f >( tri.v0, tri.v1 ) );
 		addUniqueEdge( BLine< BVec3f >( tri.v0, tri.v2 ) );
 		addUniqueEdge( BLine< BVec3f >( tri.v1, tri.v2 ) );
@@ -203,136 +239,166 @@ namespace bgl
 			triCache.v2.y = vert2.Position.Y;
 			triCache.v2.z = vert2.Position.Z;
 
-			m_MeshData.triangles.Add( triCache );
+			m_meshData.triangles.Add( triCache );
 
 			addUniqueTriEdges( triCache );
 
-			m_MeshData.triangles_SIMD.v0.x.Add( triCache.v0.x );
-			m_MeshData.triangles_SIMD.v0.y.Add( triCache.v0.y );
-			m_MeshData.triangles_SIMD.v0.z.Add( triCache.v0.z );
-			m_MeshData.triangles_SIMD.v1.x.Add( triCache.v1.x );
-			m_MeshData.triangles_SIMD.v1.y.Add( triCache.v1.y );
-			m_MeshData.triangles_SIMD.v1.z.Add( triCache.v1.z );
-			m_MeshData.triangles_SIMD.v2.x.Add( triCache.v2.x );
-			m_MeshData.triangles_SIMD.v2.y.Add( triCache.v2.y );
-			m_MeshData.triangles_SIMD.v2.z.Add( triCache.v2.z );
+			m_meshData.triangles_SIMD.v0.x.Add( triCache.v0.x );
+			m_meshData.triangles_SIMD.v0.y.Add( triCache.v0.y );
+			m_meshData.triangles_SIMD.v0.z.Add( triCache.v0.z );
+			m_meshData.triangles_SIMD.v1.x.Add( triCache.v1.x );
+			m_meshData.triangles_SIMD.v1.y.Add( triCache.v1.y );
+			m_meshData.triangles_SIMD.v1.z.Add( triCache.v1.z );
+			m_meshData.triangles_SIMD.v2.x.Add( triCache.v2.x );
+			m_meshData.triangles_SIMD.v2.y.Add( triCache.v2.y );
+			m_meshData.triangles_SIMD.v2.z.Add( triCache.v2.z );
 		}
 
-		const size_t simdFillerCount = ( 8 - m_MeshData.triangles_SIMD.v0.x.Size() % 8 ) % 8;
+		const size_t simdFillerCount = ( 8 - m_meshData.triangles_SIMD.v0.x.Size() % 8 ) % 8;
 
 		for( size_t i = 0; i < simdFillerCount; i++ )
 		{
 			constexpr float dummy = 0.f;
-			m_MeshData.triangles_SIMD.v0.x.Add( dummy );
-			m_MeshData.triangles_SIMD.v0.y.Add( dummy );
-			m_MeshData.triangles_SIMD.v0.z.Add( dummy );
-			m_MeshData.triangles_SIMD.v1.x.Add( dummy );
-			m_MeshData.triangles_SIMD.v1.y.Add( dummy );
-			m_MeshData.triangles_SIMD.v1.z.Add( dummy );
-			m_MeshData.triangles_SIMD.v2.x.Add( dummy );
-			m_MeshData.triangles_SIMD.v2.y.Add( dummy );
-			m_MeshData.triangles_SIMD.v2.z.Add( dummy );
+			m_meshData.triangles_SIMD.v0.x.Add( dummy );
+			m_meshData.triangles_SIMD.v0.y.Add( dummy );
+			m_meshData.triangles_SIMD.v0.z.Add( dummy );
+			m_meshData.triangles_SIMD.v1.x.Add( dummy );
+			m_meshData.triangles_SIMD.v1.y.Add( dummy );
+			m_meshData.triangles_SIMD.v1.z.Add( dummy );
+			m_meshData.triangles_SIMD.v2.x.Add( dummy );
+			m_meshData.triangles_SIMD.v2.y.Add( dummy );
+			m_meshData.triangles_SIMD.v2.z.Add( dummy );
 		}
 	}
 
 	bool BMeshComponent::getShowWireframe() const
 	{
-		return m_ShowWireframe;
+		return m_showWireframe;
 	}
 
 	bool& BMeshComponent::getShowWireframe_Mutable()
 	{
-		return m_ShowWireframe;
+		return m_showWireframe;
 	}
 
 	void BMeshComponent::setShowWireframe( const bool bValue )
 	{
-		m_ShowWireframe = bValue;
+		m_showWireframe = bValue;
 	}
 
-	bgl::BArray< bgl::BTriangle< float > >& BMeshComponent::GetTriangles()
+	bgl::BArray< bgl::BTriangle< float > >& BMeshComponent::getTriangles()
 	{
-		return m_MeshData.triangles;
+		return m_meshData.triangles;
 	}
 
-	BTriangle< BArray< float > >& BMeshComponent::GetTriangles_SIMD()
+	BTriangle< BArray< float > >& BMeshComponent::getTriangles_SIMD()
 	{
-		return m_MeshData.triangles_SIMD;
+		return m_meshData.triangles_SIMD;
 	}
 
-	void BMeshComponent::AddTriangles( const BArray< BTriangle< float > >& triangles )
+	void BMeshComponent::addTriangles( const BArray< BTriangle< float > >& triangles )
 	{
-		m_MeshData.triangles.Add( triangles );
+		m_meshData.triangles.Add( triangles );
 
 		for( auto& tri : triangles )
 		{
 			addUniqueTriEdges( tri );
 
-			m_MeshData.triangles_SIMD.v0.x.Add( tri.v0.x );
-			m_MeshData.triangles_SIMD.v0.y.Add( tri.v0.y );
-			m_MeshData.triangles_SIMD.v0.z.Add( tri.v0.z );
+			m_meshData.triangles_SIMD.v0.x.Add( tri.v0.x );
+			m_meshData.triangles_SIMD.v0.y.Add( tri.v0.y );
+			m_meshData.triangles_SIMD.v0.z.Add( tri.v0.z );
 
-			m_MeshData.triangles_SIMD.v1.x.Add( tri.v1.x );
-			m_MeshData.triangles_SIMD.v1.y.Add( tri.v1.y );
-			m_MeshData.triangles_SIMD.v1.z.Add( tri.v1.z );
+			m_meshData.triangles_SIMD.v1.x.Add( tri.v1.x );
+			m_meshData.triangles_SIMD.v1.y.Add( tri.v1.y );
+			m_meshData.triangles_SIMD.v1.z.Add( tri.v1.z );
 
-			m_MeshData.triangles_SIMD.v2.x.Add( tri.v2.x );
-			m_MeshData.triangles_SIMD.v2.y.Add( tri.v2.y );
-			m_MeshData.triangles_SIMD.v2.z.Add( tri.v2.z );
+			m_meshData.triangles_SIMD.v2.x.Add( tri.v2.x );
+			m_meshData.triangles_SIMD.v2.y.Add( tri.v2.y );
+			m_meshData.triangles_SIMD.v2.z.Add( tri.v2.z );
 		}
 	}
 
 	BScene::BScene()
 	{
-		m_sceneRoot = std::make_unique< BNode >( nullptr, "Scene Root Actor" );
+		m_sceneRoot = std::make_unique< BNode >( nullptr, "Scene Root" );
 	}
 
-	BNode* BScene::CreateNode( const char* name /*= "None"*/ )
+	BNode* BScene::addNode( const char* name /*= "None"*/ )
 	{
-		m_nodes.push_back( std::make_shared< BNode >( m_sceneRoot.get(), name ) );
-		BNode* rawPtr = m_nodes.back().get();
-		m_sceneRoot->AddChild( rawPtr );
-		return rawPtr;
+		return addNode( *m_sceneRoot, name );
 	}
 
-	BNode* BScene::CreateNode( BNode& parent, const char* name /*= "None"*/ )
+	BNode* BScene::addNode( BNode& parent, const char* name /*= "None"*/ )
 	{
-		m_nodes.push_back( std::make_shared< BNode >( &parent, name ) );
-		BNode* rawPtr = m_nodes.back().get();
-		m_sceneRoot->AddChild( rawPtr );
-		return rawPtr;
+		BModule* moduleContext = BEngine::Instance().getModuleContext();
+		BNode* newNodePtr = new BNode( &parent, name, moduleContext );
+		m_nodes.push_back( newNodePtr );
+		parent.addChild( newNodePtr );
+		if( moduleContext )
+		{
+			moduleContext->getNodes().Add( newNodePtr );
+		}
+		return newNodePtr;
+	}
+
+	void BScene::deleteNode( BNode* node )
+	{
+		if( node )
+		{
+			if( BNode* parentNode = node->getParent() )
+			{
+				parentNode->removeChild( node );
+			}
+
+			node->setParent( nullptr );
+
+			BArray< BComponent* > allComponents = node->getComponents();
+
+			const auto childNodes = node->getChildren( true );
+
+			for( const auto childNode : childNodes )
+			{
+				allComponents.Add( childNode->getComponents() );
+				m_nodes.Remove( childNode );
+				delete childNode;
+			}
+
+			for( const auto component : allComponents )
+			{
+				m_components.Remove( component );
+				delete component;
+			}
+
+			m_nodes.Remove( node );
+		}
 	}
 
 	BComponent::BComponent( BNode* owner, const char* name )
 	{
-		SetOwner( owner );
+		setOwner( owner );
 		m_name = std::string( name );
 	}
-
-	BComponent::~BComponent()
-	{
-	}
-
-	const bool BComponent::IsVisible() const
+	
+	const bool BComponent::isVisible() const
 	{
 		if( m_owner )
 		{
-			return m_owner->IsVisible() && !m_bHidden;
+			return m_owner->isVisible() && !m_bHidden;
 		}
 
 		return !m_bHidden;
 	}
 
-	void BComponent::SetOwner( BNode* owner )
+	void BComponent::setOwner( BNode* owner )
 	{
 		m_owner = owner;
 	}
 
-	BTransform< float >& BComponent::GetTransform_Mutable()
+	BTransform< float >& BComponent::getTransform_mutable()
 	{
 		if( m_owner )
 		{
-			return m_owner->GetTransform_Mutable();
+			return m_owner->getTransform_mutable();
 		}
 		else
 		{
@@ -342,49 +408,49 @@ namespace bgl
 		return m_dummyTransform;
 	}
 
-	const BTransform< float > BComponent::GetTransform() const
+	const BTransform< float > BComponent::getTransform() const
 	{
 		if( m_owner )
 		{
-			return m_owner->GetTransform();
+			return m_owner->getTransform();
 		}
 
 		return BTransform< float >();
 	}
 
-	const BVec3f BComponent::GetLocation() const
+	const BVec3f BComponent::getLocation() const
 	{
-		return GetTransform().translation;
+		return getTransform().translation;
 	}
 
-	const BRotf BComponent::GetRotation() const
+	const BRotf BComponent::getRotation() const
 	{
-		return GetTransform().rotation;
+		return getTransform().rotation;
 	}
 
-	const BVec3f BComponent::GetScale() const
+	const BVec3f BComponent::getScale() const
 	{
-		return GetTransform().scale;
+		return getTransform().scale;
 	}
 
-	void BComponent::SetTransform( const BTransform< float >& transform )
+	void BComponent::setTransform( const BTransform< float >& transform )
 	{
-		GetTransform_Mutable() = transform;
+		getTransform_mutable() = transform;
 	}
 
-	void BComponent::SetLocation( const BVec3f& location )
+	void BComponent::setLocation( const BVec3f& location )
 	{
-		GetTransform_Mutable().translation = location;
+		getTransform_mutable().translation = location;
 	}
 
-	void BComponent::SetRotation( const BRotf& rotation )
+	void BComponent::setRotation( const BRotf& rotation )
 	{
-		GetTransform_Mutable().rotation = rotation;
+		getTransform_mutable().rotation = rotation;
 	}
 
-	void BComponent::SetScale( const BVec3f& scale )
+	void BComponent::setScale( const BVec3f& scale )
 	{
-		GetTransform_Mutable().scale = scale;
+		getTransform_mutable().scale = scale;
 	}
 
 	BCameraComponent::BCameraComponent( BNode* owner, const char* name, BViewport* viewport )
@@ -399,7 +465,7 @@ namespace bgl
 		BCameraManager::RemoveCamera( m_camera.get() );
 	}
 
-	BViewport* BCameraComponent::GetViewport() const
+	BViewport* BCameraComponent::getViewport() const
 	{
 		if( m_camera )
 		{
@@ -409,7 +475,7 @@ namespace bgl
 		return nullptr;
 	}
 
-	void BCameraComponent::SetViewport( BViewport* viewport )
+	void BCameraComponent::setViewport( BViewport* viewport )
 	{
 		if( m_camera )
 		{
@@ -417,7 +483,7 @@ namespace bgl
 		}
 	}
 
-	BCamera* BCameraComponent::GetCamera() const
+	BCamera* BCameraComponent::getCamera() const
 	{
 		return m_camera.get();
 	}

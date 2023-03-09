@@ -234,8 +234,8 @@ namespace bgl
 				return;
 			}
 
-			auto& screen = canvas->GetWireframeBuffer();
-			const int32_t width = canvas->GetWidth();
+			auto& screen = canvas->getWireframeBuffer();
+			const int32_t width = canvas->getWidth();
 			int32_t dx = line.p2.x - line.p1.x;
 			int32_t dy = line.p2.y - line.p1.y;
 			int32_t yi = 1;
@@ -282,8 +282,8 @@ namespace bgl
 				return;
 			}
 
-			auto& screen = canvas->GetWireframeBuffer();
-			const int32_t width = canvas->GetWidth();
+			auto& screen = canvas->getWireframeBuffer();
+			const int32_t width = canvas->getWidth();
 			int32_t dx = line.p2.x - line.p1.x;
 			int32_t dy = line.p2.y - line.p1.y;
 			int32_t xi = 1;
@@ -297,7 +297,7 @@ namespace bgl
 			int32_t D = 2 * dx - dy;
 			int32_t x = line.p1.x;
 
-			const int32_t height = canvas->GetHeight();
+			const int32_t height = canvas->getHeight();
 
 			for( int32_t y = line.p1.y; y <= line.p2.y; y++ )
 			{

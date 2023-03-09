@@ -5,7 +5,7 @@
 
 #include "Module.h"
 
-namespace Modules
+namespace bgl
 {
 
 }

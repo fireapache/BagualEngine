@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Types.h"
-
 #include <memory>
 
 namespace bgl
@@ -9,6 +8,7 @@ namespace bgl
 	class BNode;
 	class BViewport;
 	class BCamera;
+	class BModule;
 } // namespace bgl
 
 namespace bgl
@@ -16,7 +16,7 @@ namespace bgl
 	class BObject
 	{
 	protected:
-		std::string m_name;
+		std::string m_name{ "" };
 
 	public:
 		BObject( const char* name = "None" )
@@ -24,17 +24,17 @@ namespace bgl
 			m_name = std::string( name );
 		}
 
-		const std::string& GetName() const
+		const std::string& getName() const
 		{
 			return m_name;
 		}
 
-		void SetName( const std::string& name )
+		void setName( const std::string& name )
 		{
 			m_name = name;
 		}
 
-		void SetName( const char* name )
+		void setName( const char* name )
 		{
 			if( name )
 			{
@@ -47,28 +47,29 @@ namespace bgl
 	{
 		BTransform< float > m_dummyTransform;
 
-		bool m_bHidden = false;
+		bool m_bHidden{ false };
 
 	protected:
-		BNode* m_owner;
+		BNode* m_owner{ nullptr };
+		BModule* m_module{ nullptr };
 
 	public:
 		BComponent( BNode* owner = nullptr, const char* name = "None" );
-		~BComponent();
+		virtual ~BComponent() = default;
 
-		const bool IsVisible() const;
-		void SetOwner( BNode* owner );
+		const bool isVisible() const;
+		void setOwner( BNode* owner );
 
-		BTransform< float >& GetTransform_Mutable();
-		const BTransform< float > GetTransform() const;
-		const BVec3f GetLocation() const;
-		const BRotf GetRotation() const;
-		const BVec3f GetScale() const;
+		BTransform< float >& getTransform_mutable();
+		const BTransform< float > getTransform() const;
+		const BVec3f getLocation() const;
+		const BRotf getRotation() const;
+		const BVec3f getScale() const;
 
-		void SetTransform( const BTransform< float >& transform );
-		void SetLocation( const BVec3f& locations );
-		void SetRotation( const BRotf& rotation );
-		void SetScale( const BVec3f& scale );
+		void setTransform( const BTransform< float >& transform );
+		void setLocation( const BVec3f& locations );
+		void setRotation( const BRotf& rotation );
+		void setScale( const BVec3f& scale );
 	};
 
 	class BRawMeshData
@@ -92,9 +93,9 @@ namespace bgl
 		void addUniqueEdge( const BLine< BVec3f >& line );
 
 		//BRawMeshData m_sourceMeshData;
-		BRawMeshData m_MeshData;
+		BRawMeshData m_meshData;
 
-		bool m_ShowWireframe = false;
+		bool m_showWireframe{ false };
 
 		BColor color;
 
@@ -121,15 +122,15 @@ namespace bgl
 			this->color = newColor;
 		}
 
-		BArray< BTriangle< float > >& GetTriangles();
-		BTriangle< BArray< float > >& GetTriangles_SIMD();
+		BArray< BTriangle< float > >& getTriangles();
+		BTriangle< BArray< float > >& getTriangles_SIMD();
 
 		[[nodiscard]] const BRawMeshData& getMeshData() const
 		{
-			return m_MeshData;
+			return m_meshData;
 		}
 
-		void AddTriangles( const BArray< BTriangle< float > >& triangles );
+		void addTriangles( const BArray< BTriangle< float > >& triangles );
 	};
 
 	class BCameraComponent : public BComponent
@@ -142,84 +143,107 @@ namespace bgl
 		BCameraComponent( BNode* owner = nullptr, const char* name = "None", BViewport* viewport = nullptr );
 		~BCameraComponent();
 
-		BViewport* GetViewport() const;
-		void SetViewport( BViewport* viewport );
+		BViewport* getViewport() const;
+		void setViewport( BViewport* viewport );
 
-		BCamera* GetCamera() const;
+		BCamera* getCamera() const;
 	};
 
 	class BNode : public BObject
 	{
+		friend class BScene;
+
 	protected:
-		BNode* m_parent;
-		BArray< BNode* > m_childs;
-		BArray< std::shared_ptr< BComponent > > m_components;
+		BNode* m_parent{ nullptr };
+		BArray< BNode* > m_children;
+		BArray< BComponent* > m_components;
+		BModule* m_module{ nullptr };
 
 		BTransform< float > m_transform;
 
-		bool m_bHidden = false;
+		bool m_bHidden{ false };
 
 	public:
-		BNode( BNode* parent = nullptr, const char* name = "None" );
+		BNode( BNode* parent = nullptr, const char* name = "None", BModule* owningModule = nullptr );
 
-		BNode* GetParent();
-		BArray< BNode* >& GetChilds();
-		BArray< std::shared_ptr< BComponent > >& GetComponents();
+		BNode* getParent();
+		[[nodiscard]] BArray< BNode* > getChildren( bool recursive = false ) const;
+		[[nodiscard]] BArray< BComponent* > getComponents( bool recursive = false ) const;
 
-		const bool IsVisible() const;
-		void SetHidden( const bool bHidden );
+		[[nodiscard]] bool hasChildren() const;
 
-		template< class T, typename... P >
-		T* CreateComponent( P... args )
-		{
-			static_assert( std::is_base_of< BComponent, T >::value, "Type should inherit from BComponent" );
-			m_components.push_back( std::make_shared< T >( this, args... ) );
-			return static_cast< T* >( m_components.back().get() );
-		}
+		bool isVisible() const;
+		void setHidden( bool bHidden );
 
-		BTransform< float >& GetTransform_Mutable();
-		const BTransform< float > GetTransform() const;
-		const BVec3f GetLocation() const;
-		const BRotf GetRotation() const;
-		const BVec3f GetScale() const;
+		BTransform< float >& getTransform_mutable();
+		const BTransform< float > getTransform() const;
+		const BVec3f getLocation() const;
+		const BRotf getRotation() const;
+		const BVec3f getScale() const;
 
-		void SetTransform( const BTransform< float >& transform );
-		void SetLocation( const BVec3f& location );
-		void SetRotation( const BRotf& rotation );
-		void SetScale( const BVec3f& scale );
+		void setTransform( const BTransform< float >& transform );
+		void setLocation( const BVec3f& location );
+		void setRotation( const BRotf& rotation );
+		void setScale( const BVec3f& scale );
 
-		void SetParent( BNode* node );
-		void AddChild( BNode* node );
-		void RemoveChild( BNode* node );
+		void setParent( BNode* node );
+		void addChild( BNode* node );
+		void removeChild( BNode* node );
 	};
 
 	class BScene
 	{
-		std::shared_ptr< BNode > m_sceneRoot;
-		BArray< std::shared_ptr< BNode > > m_nodes;
+		std::unique_ptr< BNode > m_sceneRoot;
+		BArray< BNode* > m_nodes;
+		BArray< BComponent* > m_components;
 
 	public:
 		BScene();
 
-		BArray< BArray< BTriangle< float > >* >& GetMeshComponentTriangles()
+		~BScene()
+		{
+			for( const auto node : m_nodes )
+			{
+				delete node;
+			}
+
+			for( const auto component : m_components )
+			{
+				delete component;
+			}
+		}
+
+		static BArray< BArray< BTriangle< float > >* >& getMeshComponentTriangles()
 		{
 			return BMeshComponent::g_meshComponentTriangles;
 		}
 
-		BArray< BMeshComponent* >& GetMeshComponents()
+		static BArray< BMeshComponent* >& getMeshComponents()
 		{
 			return BMeshComponent::g_meshComponents;
 		}
 
-		BNode* CreateNode( const char* name = "None" );
-		BNode* CreateNode( BNode& parent, const char* name = "None" );
+		template< class T, typename... P >
+		T* addComponent( BNode* node, P... args )
+		{
+			static_assert( std::is_base_of< BComponent, T >::value, "Type should inherit from BComponent" );
+			T* newComponent = new T( node, args... );
+			m_components.push_back( newComponent );
+			node->m_components.Add( newComponent );
+			return newComponent;
+		}
 
-		BNode* GetRootNode()
+		BNode* addNode( const char* name = "None" );
+		BNode* addNode( BNode& parent, const char* name = "None" );
+
+		void deleteNode( BNode* node );
+
+		BNode* getRootNode() const
 		{
 			return m_sceneRoot.get();
 		}
 
-		BArray< std::shared_ptr< BNode > >& GetNodes()
+		BArray< BNode* >& getNodes()
 		{
 			return m_nodes;
 		}

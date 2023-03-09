@@ -24,7 +24,7 @@ namespace bgl
 
 		m_platform = std::make_unique< BPlatformGeneric >();
 		m_graphicsPlatform = std::make_unique< BGraphicsPlatform >();
-		m_modules = std::make_unique< BArray< std::shared_ptr< BIModule > > >();
+		m_modules = std::make_unique< BArray< std::shared_ptr< BModule > > >();
 		m_scene = std::make_unique< BScene >();
 
 		RegisterModules();
@@ -47,8 +47,11 @@ namespace bgl
 
 			for( auto& module : *m_modules.get() )
 			{
-				module->Init();
+				m_moduleContext = module.get();
+				module->init();
 			}
+
+			m_moduleContext = nullptr;
 		}
 	}
 
@@ -107,7 +110,7 @@ namespace bgl
 			{
 				TickWindows();
 
-				if( m_platform->GetWindows().Size() <= 0 )
+				if( m_platform->getWindows().Size() <= 0 )
 				{
 					SetState( EBEngineState::Quitting );
 					continue;
@@ -126,7 +129,7 @@ namespace bgl
 	void BEngine::TickWindows()
 	{
 		// Ticking windows to check if need to be destroyed
-		auto& windows = m_platform->GetWindows();
+		auto& windows = m_platform->getWindows();
 
 		for( uint32_t i = 0; i < windows.Size(); i++ )
 		{
@@ -142,7 +145,7 @@ namespace bgl
 	{
 		for( size_t i = 0; i < m_modules->Size(); i++ )
 		{
-			( *m_modules )[ i ]->Tick();
+			( *m_modules )[ i ]->tick();
 		}
 	}
 
@@ -194,4 +197,8 @@ namespace bgl
 		return *Instance().m_scene.get();
 	}
 
+	BModule* BEngine::getModuleContext()
+	{
+		return m_moduleContext;
+	}
 } // namespace bgl

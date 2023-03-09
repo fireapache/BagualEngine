@@ -6,7 +6,7 @@ namespace bgl
 {
 	class BGraphicsPlatform;
 	class BPlatformBase;
-	class BIModule;
+	class BModule;
 	class BScene;
 } // namespace bgl
 
@@ -33,18 +33,20 @@ namespace bgl
 		friend std::unique_ptr< BEngine > std::make_unique< BEngine >();
 		friend std::unique_ptr< BGraphicsPlatform > std::make_unique< BGraphicsPlatform >();
 		friend std::unique_ptr< BPlatformBase > std::make_unique< BPlatformBase >();
-		friend std::unique_ptr< BArray< std::shared_ptr< BIModule > > > std::make_unique<
-			BArray< std::shared_ptr< BIModule > > >();
+		friend std::unique_ptr< BArray< std::shared_ptr< BModule > > > std::make_unique<
+			BArray< std::shared_ptr< BModule > > >();
 		friend std::unique_ptr< BScene > std::make_unique< BScene >();
 #pragma endregion
 
 		static std::unique_ptr< BEngine > m_instance;
 		std::unique_ptr< BGraphicsPlatform > m_graphicsPlatform;
 		std::unique_ptr< BPlatformBase > m_platform;
-		std::unique_ptr< BArray< std::shared_ptr< BIModule > > > m_modules;
+		std::unique_ptr< BArray< std::shared_ptr< BModule > > > m_modules;
 		std::unique_ptr< BScene > m_scene;
 
 		EBEngineState m_engineState;
+
+		BModule* m_moduleContext = nullptr;
 
 		void Init();
 		void LoadData();
@@ -74,6 +76,7 @@ namespace bgl
 		static BGraphicsPlatform& GraphicsPlatform();
 		static BPlatformBase& Platform();
 		static BScene& Scene();
+		BModule* getModuleContext();
 	};
 
 } // namespace bgl

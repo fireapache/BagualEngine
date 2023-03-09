@@ -30,24 +30,24 @@ namespace bgl
 	public:
 		BCanvas( BPlatformWindow* window, uint16_t width, uint16_t height );
 
-		[[nodiscard]] uint16_t GetWidth() const;
-		[[nodiscard]] uint16_t GetHeight() const;
+		[[nodiscard]] uint16_t getWidth() const;
+		[[nodiscard]] uint16_t getHeight() const;
 
-		void AllocateBuffers();
-		void ResetZBuffer();
-		void ResetWireframeBuffer();
+		void allocateBuffers();
+		void resetZBuffer();
+		void resetWireframeBuffer();
 
-		[[nodiscard]] const BLine< BPixelPos >* GetEdges() const;
-		[[nodiscard]] const BLine< BPixelPos >& GetEdge( BEBoxEdge edge ) const;
+		[[nodiscard]] const BLine< BPixelPos >* getEdges() const;
+		[[nodiscard]] const BLine< BPixelPos >& getEdge( BEBoxEdge edge ) const;
 
-		[[nodiscard]] BBuffer< Color32Bit >& GetColorBuffer() const;
-		[[nodiscard]] BBuffer< DepthDataType >& GetZBuffer() const;
-		[[nodiscard]] BBuffer< Color32Bit >& GetWireframeBuffer() const;
-		[[nodiscard]] BBuffer< Color32Bit >& GetReadyFrameBuffer() const;
+		[[nodiscard]] BBuffer< Color32Bit >& getColorBuffer() const;
+		[[nodiscard]] BBuffer< DepthDataType >& getZBuffer() const;
+		[[nodiscard]] BBuffer< Color32Bit >& getWireframeBuffer() const;
+		[[nodiscard]] BBuffer< Color32Bit >& getReadyFrameBuffer() const;
 
-		[[nodiscard]] BPlatformWindow* GetWindow() const;
-		[[nodiscard]] BArray< BViewport* > GetViewports() const;
+		[[nodiscard]] BPlatformWindow* getWindow() const;
+		[[nodiscard]] BArray< BViewport* > getViewports() const;
 
-		void SetSize( const uint16_t newWidth, const uint16_t newHeight );
+		void setSize( const uint16_t newWidth, const uint16_t newHeight );
 	};
 } // namespace bgl

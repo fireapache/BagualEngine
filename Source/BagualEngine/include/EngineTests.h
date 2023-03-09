@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Camera.h"
 #include "Common.h"
+#include "GraphicsDriverGeneric.h"
 #include "Module.h"
+#include "PlatformBase.h"
 
 namespace bgl
 {
 	class BPlatformWindow;
 	class BViewport;
 	class BCanvas;
+	class BCamera;
 	class BNode;
 	class BCameraComponent;
 	class BMeshComponent;
@@ -16,22 +18,23 @@ namespace bgl
 
 namespace bgl
 {
-	class BEngineTestBase : public BModuleBase
+	class BEngineTestBase : public BModule
 	{
 	public:
-		FWindowSettings windowSettings;
+		BEngineTestBase( const char* name )
+			: BModule( name ){};
 
-		BPlatformWindow* window = nullptr;
-		BMeshComponent* roomMeshComp = nullptr;
-		BMeshComponent* objectsMeshComp = nullptr;
-		BMeshComponent* charMeshComp = nullptr;
-		BCameraComponent* cameraComp = nullptr;
-		BViewport* viewport = nullptr;
-		BCanvas* canvas = nullptr;
-		BCamera* camera = nullptr;
-		float defaultDepthDist;
+		BPlatformWindow* window{ nullptr };
+		BViewport* viewport{ nullptr };
+		BCanvas* canvas{ nullptr };
+		BNode* cameraNode{ nullptr };
+		BCameraComponent* cameraComp{ nullptr };
+		BCamera* camera{ nullptr };
+		float defaultDepthDist{ FLT_MAX };
 
-		void CreateStandardWindow( const char* windowTitle = nullptr );
+		GuiTickFuncType guiTickFunc;
+
+		void CreateTestWindowAndScene();
 	};
 
 	class BEngineTest_FundamentalRendering : public BEngineTestBase
@@ -39,48 +42,77 @@ namespace bgl
 		void QueueCameraLineDraw( class BCamera* camera );
 
 	public:
-		void Init() override;
-		void Tick() override;
-		void Term() override;
+		BNode* trisNode{ nullptr };
+
+		BEngineTest_FundamentalRendering()
+			: BEngineTestBase( "Fundamental Rendering Module" ){};
+
+		void init() override;
+		void tick() override;
+		bool initialized() const override;
+		void destroy() override;
 	};
 
 	class BEngineTest_CubeProjection : public BEngineTestBase
 	{
 	public:
-		BVec3f points[ 8 ];
+		BEngineTest_CubeProjection()
+			: BEngineTestBase( "Cube Projection Module" ){};
 
-		void Init() override;
-		void Tick() override;
-		void Term() override;
+		BVec3f points[ 8 ];
+		BNode* cubeNode;
+
+		void init() override;
+		void tick() override;
+		bool initialized() const override;
+		void destroy() override;
 	};
 
 	class BEngineTest_RoomRendering : public BEngineTestBase
 	{
 	public:
-		BESceneSetup sceneSetup = BESceneSetup::ObjectsCharacter;
+		BNode* roomRootNode{ nullptr };
+		BMeshComponent* roomMeshComp{ nullptr };
+		BMeshComponent* objectsMeshComp{ nullptr };
+		BMeshComponent* charMeshComp{ nullptr };
 
-		void Init() override;
-		void Tick() override;
-		void Term() override;
+		BEngineTest_RoomRendering()
+			: BEngineTestBase( "Room Rendering Module" ){};
+
+		BESceneSetup sceneSetup{ BESceneSetup::ObjectsCharacter };
+
+		void init() override;
+		void tick() override;
+		bool initialized() const override;
+		void destroy() override;
 	};
 
 	class BEngineTest_NodeEditor : public BEngineTestBase
 	{
-		void* nodeEditorContext = nullptr;
+		void* nodeEditorContext{ nullptr };
 
 	public:
-		void Init() override;
-		void Term() override;
+		BEngineTest_NodeEditor()
+			: BEngineTestBase( "Node Editor Module" ){};
+
+		void init() override;
+		bool initialized() const override;
+		void destroy() override;
 	};
 
 	class BEngineTest_AABBTests : public BEngineTestBase
 	{
 	public:
-		BMeshComponent* cubeMeshComp = nullptr;
-		
-		void Init() override;
-		void Tick() override;
-		void Term() override;
+		BEngineTest_AABBTests()
+			: BEngineTestBase( "AABB Tests Module" ){};
+
+		BMeshComponent* cubeMeshComp{ nullptr };
+		BNode* cubeNode;
+
+		void init() override;
+		void tick() override;
+		bool initialized() const override;
+		void destroy() override;
 	};
 
 } // namespace bgl

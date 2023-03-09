@@ -49,13 +49,13 @@ namespace bgl
 	{
 	}
 
-	BPlatformWindow* BPlatformGeneric::CreateWindow( const FWindowSettings& settings )
+	BPlatformWindow* BPlatformGeneric::createWindow( const FWindowSettings& settings )
 	{
 		windows.Add( std::make_shared< BGenericPlatformWindow >( settings ) );
 		return windows.back().get();
 	}
 
-	BPlatformWindow* BPlatformGeneric::CreateWindow()
+	BPlatformWindow* BPlatformGeneric::createWindow()
 	{
 		windows.Add( std::make_shared< BGenericPlatformWindow >( FWindowSettings() ) );
 		return windows.back().get();
@@ -69,10 +69,10 @@ namespace bgl
 	BGenericPlatformWindow::BGenericPlatformWindow( const FWindowSettings& windowSettings )
 	{
 		settings = windowSettings;
-		Create();
+		create();
 	}
 
-	void BGenericPlatformWindow::ApplySettings()
+	void BGenericPlatformWindow::applySettings()
 	{
 		if( glfwWindow )
 		{
@@ -81,7 +81,7 @@ namespace bgl
 		}
 	}
 
-	void BGenericPlatformWindow::Create()
+	void BGenericPlatformWindow::create()
 	{
 		BGL_ASSERT( glfwWindow == nullptr && "This window was already created!" );
 
@@ -137,7 +137,7 @@ namespace bgl
 		ImGui_ImplOpenGL3_Init( glsl_version );
 	}
 
-	void BGenericPlatformWindow::Destroy()
+	void BGenericPlatformWindow::destroy()
 	{
 		if( glfwWindow )
 		{
@@ -148,7 +148,7 @@ namespace bgl
 
 	BGenericPlatformWindow::~BGenericPlatformWindow()
 	{
-		Destroy();
+		destroy();
 	}
 
 	bool BGenericPlatformWindow::Tick()
@@ -160,7 +160,7 @@ namespace bgl
 
 		if( glfwWindowShouldClose( glfwWindow ) )
 		{
-			Destroy();
+			destroy();
 			return false;
 		}
 
@@ -176,7 +176,7 @@ namespace bgl
 				BGL_LOG( "Resizing window" );
 				settings.width = width;
 				settings.height = height;
-				m_canvas->SetSize( width, height );
+				m_canvas->setSize( width, height );
 			}
 		}
 

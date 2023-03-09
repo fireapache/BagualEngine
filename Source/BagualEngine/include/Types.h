@@ -63,7 +63,11 @@ namespace bgl
 
 		inline void Remove( const T& item )
 		{
-			auto result = std::remove( begin(), end(), item );
+			auto found = std::find( begin(), end(), item );
+			if( found != end() )
+			{
+				erase( found );
+			}
 		}
 
 		inline void MoveAdd( const BArray< T >& list )
@@ -334,9 +338,7 @@ namespace bgl
 				Normalize();
 		}
 
-		~BVector3()
-		{
-		}
+		~BVector3() = default;
 
 		BVector3< T >& Sum( const BVector3< T >& p )
 		{

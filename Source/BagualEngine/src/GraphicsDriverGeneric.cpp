@@ -52,7 +52,7 @@ namespace bgl
 	void BGraphicsDriverGeneric::SwapFrames()
 	{
 		auto& platform = BEngine::Platform();
-		auto& windows = platform.GetWindows();
+		auto& windows = platform.getWindows();
 
 		for( auto& window : windows )
 		{
@@ -69,7 +69,11 @@ namespace bgl
 		}
 	}
 
-	void BGraphicsDriverGeneric::composeFinalFrame( Color32Bit* colorPtr, Color32Bit* wireframePtr, Color32Bit* destBuffer, const Color32Bit* bufferEnd )
+	void BGraphicsDriverGeneric::composeFinalFrame(
+		Color32Bit* colorPtr,
+		Color32Bit* wireframePtr,
+		Color32Bit* destBuffer,
+		const Color32Bit* bufferEnd )
 	{
 		while( colorPtr < bufferEnd )
 		{
@@ -117,7 +121,7 @@ namespace bgl
 
 			BGL_ASSERT( canvas != nullptr && "Got null canvas during render!" );
 
-			auto window = canvas->GetWindow();
+			auto window = canvas->getWindow();
 
 			BGL_ASSERT( window != nullptr && "Got null window during render!" );
 
@@ -139,7 +143,7 @@ namespace bgl
 #pragma region Pushing Geometry Tasks
 
 			{
-				canvas->ResetZBuffer();
+				canvas->resetZBuffer();
 
 				for( uint32_t t = 0; t < processorCount; t++ )
 				{
@@ -148,11 +152,11 @@ namespace bgl
 			}
 
 #pragma endregion
-			
+
 #pragma region Pushing 2D and 3D Lines Tasks
 
 			{
-				canvas->ResetWireframeBuffer();
+				canvas->resetWireframeBuffer();
 
 				for( const auto meshComponent : BMeshComponent::g_meshComponents )
 				{
@@ -192,11 +196,11 @@ namespace bgl
 			// syncing all threads
 			renderThreadPool.wait_for_tasks();
 
-			auto& wireframeBuffer = canvas->GetWireframeBuffer();
+			auto& wireframeBuffer = canvas->getWireframeBuffer();
 			Color32Bit* wireframdeBufferData = wireframeBuffer.GetData();
-			auto& colorBuffer = canvas->GetColorBuffer();
+			auto& colorBuffer = canvas->getColorBuffer();
 			Color32Bit* colorBufferData = colorBuffer.GetData();
-			auto& readyFrameBuffer = canvas->GetReadyFrameBuffer();
+			auto& readyFrameBuffer = canvas->getReadyFrameBuffer();
 			Color32Bit* readyFrameBufferData = readyFrameBuffer.GetData();
 
 			// TODO: make wireframe work with zbuffer
@@ -215,7 +219,7 @@ namespace bgl
 				const Color32Bit* colorBufferEnd = colorBufferData + bufferTotalSize;
 				renderThreadPool.push_task( composeFinalFrame, colorPtr, wireframePtr, destBuffer, colorBufferEnd );
 			}
-			
+
 			// syncing all threads one last time to have final composed frame
 			renderThreadPool.wait_for_tasks();
 		}
@@ -320,24 +324,24 @@ namespace bgl
 
 				// Getting scene triangles
 
-				auto meshComponents = BEngine::Scene().GetMeshComponents();
+				auto meshComponents = BEngine::Scene().getMeshComponents();
 
 				for( const auto meshComp : meshComponents )
 				{
 					// Skipping not visible components
-					if( meshComp->IsVisible() == false )
+					if( meshComp->isVisible() == false )
 					{
 						continue;
 					}
 
 					if( intrinsicsMode == BEIntrinsicsMode::Off )
 					{
-						auto& compTris = meshComp->GetTriangles();
+						auto& compTris = meshComp->getTriangles();
 						ScanTriangles_Sequential( compTris, triangleScanParams );
 					}
 					else if( intrinsicsMode == BEIntrinsicsMode::AVX )
 					{
-						auto& compTris = meshComp->GetTriangles_SIMD();
+						auto& compTris = meshComp->getTriangles_SIMD();
 						ScanTriangles_SIMD( compTris, triangleScanParams );
 					}
 				}
@@ -567,9 +571,9 @@ namespace bgl
 
 			// Executing GUI tick func if assigned
 			{
-				auto guiTickFunc = m_cachedPlatformWindowPtr->GetGuiTickFunc();
+				auto guiTickFuncs = m_cachedPlatformWindowPtr->getGuiTickFuncs();
 
-				if( guiTickFunc )
+				if( guiTickFuncs.Size() > 0 )
 				{
 					// Start the Dear ImGui frame
 					ImGui_ImplOpenGL3_NewFrame();
@@ -577,8 +581,10 @@ namespace bgl
 					ImGui::NewFrame();
 
 					// User code
-					//GuiTickPtr();
-					guiTickFunc();
+					for( const auto guiTickFunc : guiTickFuncs )
+					{
+						( *guiTickFunc )();
+					}
 
 					ImGui::Render();
 					ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
@@ -617,8 +623,8 @@ namespace bgl
 			glfwMakeContextCurrent( glfwWindow );
 			glClear( GL_COLOR_BUFFER_BIT );
 
-			const GLfloat windowWidth = m_cachedPlatformWindowPtr->GetCanvas()->GetWidth();
-			const GLfloat windowHeight = m_cachedPlatformWindowPtr->GetCanvas()->GetHeight();
+			const GLfloat windowWidth = m_cachedPlatformWindowPtr->getCanvas()->getWidth();
+			const GLfloat windowHeight = m_cachedPlatformWindowPtr->getCanvas()->getHeight();
 
 			GLuint& tex = m_cachedPlatformWindowPtr->GetglTex();
 
@@ -641,7 +647,7 @@ namespace bgl
 					0,
 					GL_RGBA,
 					GL_UNSIGNED_BYTE,
-					m_cachedPlatformWindowPtr->GetCanvas()->GetReadyFrameBuffer().GetData() );
+					m_cachedPlatformWindowPtr->getCanvas()->getReadyFrameBuffer().GetData() );
 				glBindTexture( GL_TEXTURE_2D, 0 );
 				m_bGameFrameReady = false;
 			}

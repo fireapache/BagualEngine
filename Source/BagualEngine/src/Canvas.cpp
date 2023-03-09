@@ -14,7 +14,7 @@ namespace bgl
 		: width( width )
 		, height( height )
 	{
-		AllocateBuffers();
+		allocateBuffers();
 		this->window = window;
 		UpdateEdges();
 	}
@@ -42,17 +42,17 @@ namespace bgl
 		this->edges[ 3 ] = BLine< BPixelPos >( edge3_0, edge3_1 );
 	}
 
-	uint16_t BCanvas::GetWidth() const
+	uint16_t BCanvas::getWidth() const
 	{
 		return width;
 	}
 
-	uint16_t BCanvas::GetHeight() const
+	uint16_t BCanvas::getHeight() const
 	{
 		return height;
 	}
 
-	void BCanvas::AllocateBuffers()
+	void BCanvas::allocateBuffers()
 	{
 		const size_t frameBufferLength = static_cast< size_t >( width ) * static_cast< size_t >( height );
 		this->colorBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
@@ -61,57 +61,57 @@ namespace bgl
 		this->readyFrameBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
 	}
 
-	void BCanvas::ResetZBuffer()
+	void BCanvas::resetZBuffer()
 	{
 		this->zBuffer->SetBufferValue( DEFAULT_DEPTH_VALUE );
 	}
 
-	void BCanvas::ResetWireframeBuffer()
+	void BCanvas::resetWireframeBuffer()
 	{
 		this->wireframeBuffer->SetBufferValue( DEFAULT_CANVAS_VALUE );
 	}
 
-	const BLine< BPixelPos >* BCanvas::GetEdges() const
+	const BLine< BPixelPos >* BCanvas::getEdges() const
 	{
 		return edges;
 	}
 
-	const BLine< BPixelPos >& BCanvas::GetEdge( BEBoxEdge edge ) const
+	const BLine< BPixelPos >& BCanvas::getEdge( BEBoxEdge edge ) const
 	{
 		return edges[ static_cast< int32_t >( edge ) ];
 	}
 
-	BBuffer< Color32Bit >& BCanvas::GetColorBuffer() const
+	BBuffer< Color32Bit >& BCanvas::getColorBuffer() const
 	{
 		return *colorBuffer;
 	}
 
-	BBuffer< DepthDataType >& BCanvas::GetZBuffer() const
+	BBuffer< DepthDataType >& BCanvas::getZBuffer() const
 	{
 		return *zBuffer;
 	}
 
-	BBuffer< Color32Bit >& BCanvas::GetWireframeBuffer() const
+	BBuffer< Color32Bit >& BCanvas::getWireframeBuffer() const
 	{
 		return *wireframeBuffer;
 	}
 
-	BBuffer< Color32Bit >& BCanvas::GetReadyFrameBuffer() const
+	BBuffer< Color32Bit >& BCanvas::getReadyFrameBuffer() const
 	{
 		return *readyFrameBuffer;
 	}
 
-	BPlatformWindow* BCanvas::GetWindow() const
+	BPlatformWindow* BCanvas::getWindow() const
 	{
 		return window;
 	}
 
-	inline BArray< BViewport* > BCanvas::GetViewports() const
+	BArray< BViewport* > BCanvas::getViewports() const
 	{
 		return m_viewports;
 	}
 
-	void BCanvas::SetSize( const uint16_t newWidth, const uint16_t newHeight )
+	void BCanvas::setSize( const uint16_t newWidth, const uint16_t newHeight )
 	{
 		width = newWidth;
 		height = newHeight;

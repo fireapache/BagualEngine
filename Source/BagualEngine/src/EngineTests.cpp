@@ -10,91 +10,68 @@
 #include "GraphicsPlatform.h"
 #include "PlatformBase.h"
 #include "Scene.h"
-#include "Settings.h"
 #include "Viewport.h"
-
 #include <Draw.h>
 #include <imgui.h>
-
 #include <imgui_node_editor.h>
 #include <imgui_node_editor_internal.h>
 
 namespace bgl
 {
-
-	void BEngineTestBase::CreateStandardWindow( const char* windowTitle )
+	void BEngineTestBase::CreateTestWindowAndScene()
 	{
-		// Keeping the same window if already created by another standard test module
-		if( window )
+		const auto nWindows = BEngine::Platform().getWindows().Size();
+
+		if( nWindows > 0 )
+		{
+			window = BEngine::Platform().getWindows()[ 0 ].get();
+			canvas = window->getCanvas();
+			viewport = canvas->getViewports()[ 0 ];
 			return;
+		}
 
-		// Creating application window
-		windowSettings.Title = windowTitle ? windowTitle : "Bagual Engine Test";
-		windowSettings.width = 1280;
-		windowSettings.height = 720;
+		FWindowSettings windowSettings{ BGL_WINDOW_CENTRALIZED, BGL_WINDOW_CENTRALIZED, 1280, 720, "Bagual Engine Test" };
 
-		window = BEngine::Platform().CreateWindow( windowSettings );
+		window = BEngine::Platform().createWindow( windowSettings );
 
 		BGL_ASSERT( window != nullptr && "Could not create window!" );
 
-		// Setting viewport and camera
-		canvas = window->GetCanvas();
+		canvas = window->getCanvas();
 		viewport = BEngine::GraphicsPlatform().CreateViewport( canvas );
+
+		auto& scene = BEngine::Scene();
+		cameraNode = scene.addNode( "Camera" );
+		cameraComp = scene.addComponent< BCameraComponent >( cameraNode, "CameraComp", viewport );
+		camera = cameraComp->getCamera();
 	}
 
 #pragma region Fundamental Rendering
 
-	void BEngineTest_FundamentalRendering::Init()
+	void BEngineTest_FundamentalRendering::init()
 	{
-		CreateStandardWindow( "Bagual Engine Test #1 (Fundamental Rendering)" );
+		CreateTestWindowAndScene();
 
 		// Creating 8 simple triangles
 		BArray< BTriangle< float > > tris;
 
 		constexpr float z = 5.f;
 
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, -0.25f, z ), 
-			BVec3f( 1.f, -0.25f, z ), 
-			BVec3f( 0.f, -2.25f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -3.f, 1.f, z ), 
-			BVec3f( -1.f, 1.f, z ), 
-			BVec3f( -2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( 1.f, 1.f, z ), 
-			BVec3f( 3.f, 1.f, z ), 
-			BVec3f( 2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, 2.25f, z ), 
-			BVec3f( 1.f, 2.25f, z ), 
-			BVec3f( 0.f, 0.25f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
 
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, -0.25f, z ), 
-			BVec3f( 1.f, -0.25f, z ), 
-			BVec3f( 0.f, -2.25f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -3.f, 1.f, z ), 
-			BVec3f( -1.f, 1.f, z ), 
-			BVec3f( -2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( 1.f, 1.f, z ), 
-			BVec3f( 3.f, 1.f, z ), 
-			BVec3f( 2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( 
-			BVec3f( -1.f, 2.25f, z ), 
-			BVec3f( 1.f, 2.25f, z ), 
-			BVec3f( 0.f, 0.25f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
+		tris.Add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
 
-		auto trisNode = BEngine::Scene().CreateNode( "SimpleTriangles" );
-		auto meshComp = trisNode->CreateComponent< BMeshComponent >( "Triangles" );
-		meshComp->AddTriangles( tris );
+		auto& scene = BEngine::Scene();
+
+		trisNode = scene.addNode( "SimpleTriangles" );
+		auto meshComp = scene.addComponent< BMeshComponent >( trisNode, "Triangles" );
+		meshComp->addTriangles( tris );
 		meshComp->setShowWireframe( true );
-
-		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
-		auto cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
-		auto camera = cameraComp->GetCamera();
 
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
@@ -102,11 +79,11 @@ namespace bgl
 		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 	}
 
-	void BEngineTest_FundamentalRendering::Term()
+	void BEngineTest_FundamentalRendering::destroy()
 	{
 	}
 
-	void BEngineTest_FundamentalRendering::Tick()
+	void BEngineTest_FundamentalRendering::tick()
 	{
 		auto cameras = BCameraManager::GetCameras();
 
@@ -126,14 +103,21 @@ namespace bgl
 		}
 	}
 
+	bool BEngineTest_FundamentalRendering::initialized() const
+	{
+		return trisNode;
+	}
+
 	void BEngineTest_FundamentalRendering::QueueCameraLineDraw( BCamera* camera )
 	{
 		if( camera )
 		{
-			const int x1 = rand() % ( windowSettings.width + 500 ) - 250;
-			const int y1 = rand() % ( windowSettings.height + 500 ) - 250;
-			const int x2 = rand() % ( windowSettings.width + 500 ) - 250;
-			const int y2 = rand() % ( windowSettings.height + 500 ) - 250;
+			const int32_t width = canvas->getWidth();
+			const int32_t height = canvas->getHeight();
+			const int x1 = rand() % ( width + 500 ) - 250;
+			const int y1 = rand() % ( height + 500 ) - 250;
+			const int x2 = rand() % ( width + 500 ) - 250;
+			const int y2 = rand() % ( height + 500 ) - 250;
 
 			const BPixelPos p1( x1, y1 );
 			const BPixelPos p2( x2, y2 );
@@ -146,23 +130,25 @@ namespace bgl
 
 #pragma region Room Rendering
 
-	void BEngineTest_RoomRendering::Init()
+	void BEngineTest_RoomRendering::init()
 	{
-		CreateStandardWindow( "Bagual Engine Test #2 (Room Rendering)" );
+		CreateTestWindowAndScene();
+
+		auto& scene = BEngine::Scene();
+
+		roomRootNode = scene.addNode( "Room Rendering Root" );
 
 		// Creating scene nodes
-		auto roomNode = BEngine::Scene().CreateNode( "Room" );
-		auto objectsNode = BEngine::Scene().CreateNode( "Objects" );
-		auto charNode = BEngine::Scene().CreateNode( "Character" );
+		auto roomNode = scene.addNode( *roomRootNode, "Room" );
+		auto objectsNode = scene.addNode( *roomRootNode, "Objects" );
+		auto charNode = scene.addNode( *roomRootNode, "Character" );
 
 		// Creating mesh components and loading geometry from disk
-		roomMeshComp = roomNode->CreateComponent< BMeshComponent >( "RoomMesh", "./assets/basemap/basemap.obj" );
-		objectsMeshComp = objectsNode->CreateComponent< BMeshComponent >( "ObjectsMesh", "./assets/basemap/basemap_objects.obj" );
-		charMeshComp = charNode->CreateComponent< BMeshComponent >( "CharMesh", "./assets/basemesh/basemesh.obj" );
+		roomMeshComp = scene.addComponent< BMeshComponent >( roomNode, "RoomMesh", "./assets/basemap/basemap.obj" );
+		objectsMeshComp
+			= scene.addComponent< BMeshComponent >( objectsNode, "ObjectsMesh", "./assets/basemap/basemap_objects.obj" );
+		charMeshComp = scene.addComponent< BMeshComponent >( charNode, "CharMesh", "./assets/basemesh/basemesh.obj" );
 
-		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
-		cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
-		camera = cameraComp->GetCamera();
 		camera->SetLocation( BVec3f( -1.33f, 2.f, -4.f ) );
 		camera->SetRotation( BRotf( 8.19f, 20.f, 0.f ) );
 		camera->SetDepthDistance( 800.f );
@@ -171,14 +157,14 @@ namespace bgl
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
 		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
 
-		defaultDepthDist = cameraComp->GetCamera()->GetDepthDistance();
+		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
 		// Ways to access scene nodes
-		auto rootNode = BEngine::Scene().GetRootNode();
-		auto sceneNodes = BEngine::Scene().GetNodes();
+		auto rootNode = BEngine::Scene().getRootNode();
+		auto& sceneNodes = BEngine::Scene().getNodes();
 
 		// Setting a ImGui window
-		auto guiTick = [ this ]()
+		guiTickFunc = [ this ]()
 		{
 			IM_ASSERT( ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!" );
 
@@ -206,7 +192,7 @@ namespace bgl
 
 					if( canvas )
 					{
-						canvas->GetColorBuffer().SetBufferValue( 0 );
+						canvas->getColorBuffer().SetBufferValue( 0 );
 					}
 				}
 			}
@@ -217,7 +203,7 @@ namespace bgl
 			ImGui::SameLine();
 			ImGui::Checkbox( "Show Character Wireframe", &( charMeshComp->getShowWireframe_Mutable() ) );
 
-			auto camera = cameraComp->GetCamera();
+			auto camera = cameraComp->getCamera();
 
 			auto& renderOutputMode = camera->GetRenderOutputType_Mutable();
 			const char* renderOutputOptions[] = { "Pixel Depth", "UV Color" };
@@ -228,11 +214,11 @@ namespace bgl
 				IM_ARRAYSIZE( renderOutputOptions ) );
 
 			const float positionRange = 10.f;
-			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			BVec3f& camPos = cameraComp->getTransform_mutable().translation;
 			ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
 
 			const float rotRange = 20.f;
-			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
+			BRotf& camRot = cameraComp->getTransform_mutable().rotation;
 			ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
 			auto& depthDist = camera->GetDepthDistance_Mutable();
@@ -273,17 +259,17 @@ namespace bgl
 					sceneSetupOptions,
 					IM_ARRAYSIZE( sceneSetupOptions ) ) )
 			{
-				auto& sceneNodes = BEngine::Scene().GetNodes();
+				auto& sceneNodes = BEngine::Scene().getNodes();
 
 				for( auto& node : sceneNodes )
 				{
-					if( node->GetName() == "Objects" )
+					if( node->getName() == "Objects" )
 					{
-						node->SetHidden( sceneSetup < BESceneSetup::WithObjects );
+						node->setHidden( sceneSetup < BESceneSetup::WithObjects );
 					}
-					else if( node->GetName() == "Character" )
+					else if( node->getName() == "Character" )
 					{
-						node->SetHidden( sceneSetup < BESceneSetup::ObjectsCharacter );
+						node->setHidden( sceneSetup < BESceneSetup::ObjectsCharacter );
 					}
 				}
 			}
@@ -298,30 +284,37 @@ namespace bgl
 		};
 
 		// Gui update procedure
-		window->SetGuiTickFunc( guiTick );
+		window->addGuiTickFunc( &guiTickFunc );
 	}
 
-	void BEngineTest_RoomRendering::Tick()
+	void BEngineTest_RoomRendering::tick()
 	{
 	}
 
-	void BEngineTest_RoomRendering::Term()
+	bool BEngineTest_RoomRendering::initialized() const
 	{
+		return roomMeshComp;
+	}
+
+	void BEngineTest_RoomRendering::destroy()
+	{
+		auto& scene = BEngine::Scene();
+		scene.deleteNode( roomRootNode );
 	}
 
 #pragma endregion
 
 #pragma region Node Editor
 
-	void BEngineTest_NodeEditor::Init()
+	void BEngineTest_NodeEditor::init()
 	{
-		CreateStandardWindow( "Bagual Engine Test #3 (Node Editor)" );
+		CreateTestWindowAndScene();
 
 		// Setting up ImGui node editor context
 		nodeEditorContext = ImGuiNE::CreateEditor();
 
 		// Setting up ImGui
-		auto guiTick = [ this ]()
+		guiTickFunc = [ this ]()
 		{
 			ImGuiNE::SetCurrentEditor( static_cast< ImGuiNE::EditorContext* >( nodeEditorContext ) );
 
@@ -344,10 +337,15 @@ namespace bgl
 			ImGuiNE::End();
 		};
 
-		window->SetGuiTickFunc( guiTick );
+		window->addGuiTickFunc( &guiTickFunc );
 	}
 
-	void BEngineTest_NodeEditor::Term()
+	bool BEngineTest_NodeEditor::initialized() const
+	{
+		return nodeEditorContext;
+	}
+
+	void BEngineTest_NodeEditor::destroy()
 	{
 		ImGuiNE::DestroyEditor( static_cast< ImGuiNE::EditorContext* >( nodeEditorContext ) );
 	}
@@ -356,19 +354,18 @@ namespace bgl
 
 #pragma region Cube Projection
 
-	void BEngineTest_CubeProjection::Init()
+	void BEngineTest_CubeProjection::init()
 	{
-		CreateStandardWindow( "Bagual Engine Test #4 (Cube Projection)" );
+		CreateTestWindowAndScene();
+
+		auto& scene = BEngine::Scene();
 
 		// Creating scene nodes
-		auto cubeNode = BEngine::Scene().CreateNode( "Cube" );
+		cubeNode = BEngine::Scene().addNode( "Cube" );
 
 		// Creating mesh components and loading geometry from disk
-		cubeNode->CreateComponent< BMeshComponent >( "CubeMesh", "./assets/basemap/basemap_cube.obj" );
+		scene.addComponent< BMeshComponent >( cubeNode, "CubeMesh", "./assets/basemap/basemap_cube.obj" );
 
-		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
-		cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
-		camera = cameraComp->GetCamera();
 		camera->SetLocation( BVec3f( 0.f, 0.f, 0.f ) );
 		camera->SetRotation( BRotf( 0.f, 0.f, 0.f ) );
 		camera->SetDepthDistance( 800.f );
@@ -389,7 +386,7 @@ namespace bgl
 		points[ 6 ] = BVec3f( 1.f, -1.f, 7.f );
 		points[ 7 ] = BVec3f( -1.f, -1.f, 7.f );
 
-		auto guiTick = [ this ]()
+		guiTickFunc = [ this ]()
 		{
 			IM_ASSERT( ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!" );
 
@@ -409,21 +406,21 @@ namespace bgl
 			ImGui::PushItemWidth( ImGui::GetFontSize() * -12 );
 
 			const float positionRange = 10.f;
-			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			BVec3f& camPos = cameraComp->getTransform_mutable().translation;
 			ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
 
 			const float rotRange = 20.f;
-			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
+			BRotf& camRot = cameraComp->getTransform_mutable().rotation;
 			ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
 			ImGui::End();
 		};
 
 		// Gui update procedure
-		window->SetGuiTickFunc( guiTick );
+		window->addGuiTickFunc( &guiTickFunc );
 	}
 
-	void BEngineTest_CubeProjection::Tick()
+	void BEngineTest_CubeProjection::tick()
 	{
 		//if (camera)
 		//{
@@ -457,7 +454,12 @@ namespace bgl
 		//}
 	}
 
-	void BEngineTest_CubeProjection::Term()
+	bool BEngineTest_CubeProjection::initialized() const
+	{
+		return cubeNode;
+	}
+
+	void BEngineTest_CubeProjection::destroy()
 	{
 	}
 
@@ -465,19 +467,18 @@ namespace bgl
 
 #pragma region AABB Tests
 
-	void BEngineTest_AABBTests::Init()
+	void BEngineTest_AABBTests::init()
 	{
-		CreateStandardWindow( "Bagual Engine Test #4 (AABB Tests)" );
+		CreateTestWindowAndScene();
+
+		auto& scene = BEngine::Scene();
 
 		// Creating scene nodes
-		auto cubeNode = BEngine::Scene().CreateNode( "Cube" );
+		cubeNode = BEngine::Scene().addNode( "Cube" );
 
 		// Creating mesh components and loading geometry from disk
-		cubeMeshComp = cubeNode->CreateComponent< BMeshComponent >( "CubeMesh", "./assets/basemap/basemap_cube.obj" );
+		cubeMeshComp = scene.addComponent< BMeshComponent >( cubeNode, "CubeMesh", "./assets/basemap/basemap_cube.obj" );
 
-		auto cameraNode = BEngine::Scene().CreateNode( "Camera" );
-		cameraComp = cameraNode->CreateComponent< BCameraComponent >( "CameraComp", viewport );
-		camera = cameraComp->GetCamera();
 		camera->SetLocation( BVec3f( 0.f, 0.f, 0.f ) );
 		camera->SetRotation( BRotf( 0.f, 0.f, 0.f ) );
 		camera->SetDepthDistance( 800.f );
@@ -487,8 +488,8 @@ namespace bgl
 		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
 
 		BCubef cube;
-		
-		auto guiTick = [ this ]()
+
+		guiTickFunc = [ this ]()
 		{
 			IM_ASSERT( ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!" );
 
@@ -512,26 +513,30 @@ namespace bgl
 			ImGui::ColorEdit3( "Wireframe Color", cubeMeshComp->getColorMutable().value );
 
 			const float positionRange = 10.f;
-			BVec3f& camPos = cameraComp->GetTransform_Mutable().translation;
+			BVec3f& camPos = cameraComp->getTransform_mutable().translation;
 			ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
 
 			const float rotRange = 20.f;
-			BRotf& camRot = cameraComp->GetTransform_Mutable().rotation;
+			BRotf& camRot = cameraComp->getTransform_mutable().rotation;
 			ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
 			ImGui::End();
 		};
 
 		// Gui update procedure
-		window->SetGuiTickFunc( guiTick );
+		window->addGuiTickFunc( &guiTickFunc );
 	}
 
-	void BEngineTest_AABBTests::Tick()
+	void BEngineTest_AABBTests::tick()
 	{
-		
 	}
 
-	void BEngineTest_AABBTests::Term()
+	bool BEngineTest_AABBTests::initialized() const
+	{
+		return cubeNode;
+	}
+
+	void BEngineTest_AABBTests::destroy()
 	{
 	}
 
