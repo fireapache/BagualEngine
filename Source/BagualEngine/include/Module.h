@@ -31,7 +31,7 @@ namespace bgl
 		{
 			m_name = mod.getName();
 		}
-
+		
 		virtual ~BModule() = default;
 
 		virtual void init(){};
@@ -56,6 +56,13 @@ namespace bgl
 			}
 		}
 
+		struct PendingTasks
+		{
+			bool bInitialize{ false };
+		};
+
+		PendingTasks pendingTasks;
+
 		virtual void tick(){};
 
 		[[nodiscard]] const char* getName() const
@@ -68,6 +75,16 @@ namespace bgl
 			return false;
 		}
 
+		[[nodiscard]] virtual bool autoInit() const
+		{
+			return false;
+		}
+
+		[[nodiscard]] virtual bool autoShow() const
+		{
+			return false;
+		}
+
 		[[nodiscard]] bool isHidden() const
 		{
 			return m_hidden;
@@ -76,6 +93,11 @@ namespace bgl
 		[[nodiscard]] bool& isHidden_mutable()
 		{
 			return m_hidden;
+		}
+
+		[[nodiscard]] virtual bool showOnModuleManager() const
+		{
+			return true;
 		}
 
 		[[nodiscard]] BArray< BNode* >& getNodes()

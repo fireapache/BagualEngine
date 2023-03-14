@@ -5,6 +5,7 @@
 
 #include "BagualEngine.h"
 
+#include "EngineModules.h"
 #include "EngineTests.h"
 #include "GraphicsPlatform.h"
 #include "Module.h"
@@ -20,7 +21,7 @@ namespace bgl
 	void BEngine::Init()
 	{
 		// Initializing stuff
-		m_engineState = EBEngineState::Initializing;
+		m_engineState = EEngineState::Initializing;
 
 		m_platform = std::make_unique< BPlatformGeneric >();
 		m_graphicsPlatform = std::make_unique< BGraphicsPlatform >();
@@ -36,19 +37,26 @@ namespace bgl
 
 	void BEngine::RegisterModules()
 	{
-		m_engineState = EBEngineState::RegisteringModules;
+		m_engineState = EEngineState::RegisteringModules;
 
 		if( m_modules )
 		{
-			//m_modules->Add( std::make_shared< BEngineTest_FundamentalRendering >() );
-			m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
-			//m_modules->Add( std::make_shared< BEngineTest_CubeProjection >() );
-			//m_modules->Add( std::make_shared< BEngineTest_AABBTests >() );
+			m_modules->Add( std::make_shared< BModuleManager >() );
 
-			for( auto& module : *m_modules.get() )
+			m_modules->Add( std::make_shared< BEngineTest_WindowAndScene >() );
+			m_modules->Add( std::make_shared< BEngineTest_FundamentalRendering >() );
+			m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
+			m_modules->Add( std::make_shared< BEngineTest_CubeProjection >() );
+			m_modules->Add( std::make_shared< BEngineTest_AABBTests >() );
+
+			for( auto& module : *m_modules )
 			{
 				m_moduleContext = module.get();
-				module->init();
+
+				if( module->autoInit() )
+				{
+					module->init();
+				}
 			}
 
 			m_moduleContext = nullptr;
@@ -57,7 +65,7 @@ namespace bgl
 
 	void BEngine::BeginPlay()
 	{
-		m_engineState = EBEngineState::BeginPlaying;
+		m_engineState = EEngineState::BeginPlaying;
 
 		// Starting rendering thread
 		m_graphicsPlatform->SetEnabled( true );
@@ -65,7 +73,7 @@ namespace bgl
 
 	void BEngine::EndPlay()
 	{
-		m_engineState = EBEngineState::EndPlaying;
+		m_engineState = EEngineState::EndPlaying;
 
 		// Stopping rendering thread
 		m_graphicsPlatform->SetEnabled( false );
@@ -73,11 +81,13 @@ namespace bgl
 
 	void BEngine::Term()
 	{
-		m_engineState = EBEngineState::Quitting;
+		m_engineState = EEngineState::Quitting;
 	}
 
 	void BEngine::ProcessInput()
 	{
+		m_mainLoopState = EMainLoopState::Input;
+
 		/*SDL_Event ev;
 
 		while (SDL_PollEvent(&ev))
@@ -99,20 +109,23 @@ namespace bgl
 
 	void BEngine::MainLoop()
 	{
-		m_engineState = EBEngineState::Ticking;
+		m_engineState = EEngineState::MainLoop;
 
-		while( m_engineState != EBEngineState::Quitting )
+		while( m_engineState != EEngineState::Quitting )
 		{
+			m_mainLoopState = EMainLoopState::None;
+
 			ProcessInput();
 			ModulesLoop();
+			TickWindows();
 
-			if( m_engineState != EBEngineState::Paused )
+			m_mainLoopState = EMainLoopState::Graphics;
+
+			if( m_engineState != EEngineState::Paused )
 			{
-				TickWindows();
-
 				if( m_platform->getWindows().Size() <= 0 )
 				{
-					SetState( EBEngineState::Quitting );
+					SetState( EEngineState::Quitting );
 					continue;
 				}
 
@@ -128,6 +141,8 @@ namespace bgl
 
 	void BEngine::TickWindows()
 	{
+		m_mainLoopState = EMainLoopState::Windows;
+
 		// Ticking windows to check if need to be destroyed
 		auto& windows = m_platform->getWindows();
 
@@ -143,13 +158,28 @@ namespace bgl
 
 	void BEngine::ModulesLoop()
 	{
-		for( size_t i = 0; i < m_modules->Size(); i++ )
+		m_mainLoopState = EMainLoopState::Modules;
+
+		for( const auto& module : *m_modules )
 		{
-			( *m_modules )[ i ]->tick();
+			const bool bInitialized = module->initialized();
+
+			if( !bInitialized && module->pendingTasks.bInitialize )
+			{
+				m_moduleContext = module.get();
+				module->init();
+			}
+
+			m_moduleContext = nullptr;
+
+			if( !module->isHidden() )
+			{
+				module->tick();
+			}
 		}
 	}
 
-	void BEngine::SetState( EBEngineState newState )
+	void BEngine::SetState( EEngineState newState )
 	{
 		if( m_engineState != newState )
 		{
@@ -159,7 +189,7 @@ namespace bgl
 	}
 
 	BEngine::BEngine()
-		: m_engineState( EBEngineState::None )
+		: m_engineState( EEngineState::None )
 	{
 		BSettings::width = 320;
 		BSettings::height = 240;
@@ -201,4 +231,24 @@ namespace bgl
 	{
 		return m_moduleContext;
 	}
+
+	BArray< std::shared_ptr< BModule > >& BEngine::getModules() const
+	{
+		return *m_modules;
+	}
+
+	void BEngine::registerGuiTickFunc( GuiTickFuncType* func )
+	{
+		const auto found = std::find( m_guiTickFuncs.begin(), m_guiTickFuncs.end(), func );
+		if( found == m_guiTickFuncs.end() )
+		{
+			m_guiTickFuncs.Add( func );
+		}
+	}
+
+	BArray< GuiTickFuncType* >& BEngine::getGuiTickFuncs()
+	{
+		return m_guiTickFuncs;
+	}
+
 } // namespace bgl

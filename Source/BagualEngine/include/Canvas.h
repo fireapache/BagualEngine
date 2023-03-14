@@ -46,7 +46,7 @@ namespace bgl
 		[[nodiscard]] BBuffer< Color32Bit >& getReadyFrameBuffer() const;
 
 		[[nodiscard]] BPlatformWindow* getWindow() const;
-		[[nodiscard]] BArray< BViewport* > getViewports() const;
+		[[nodiscard]] BArray< BViewport* >& getViewports();
 
 		void setSize( const uint16_t newWidth, const uint16_t newHeight );
 	};

@@ -14,27 +14,33 @@ namespace bgl
 {
 	class BEngine
 	{
-#pragma region Private Types
-		enum class EBEngineState : uint8_t
+		enum class EEngineState : uint8_t
 		{
 			None,
 			Initializing,
 			RegisteringModules,
 			BeginPlaying,
-			Ticking,
+			MainLoop,
 			Paused,
 			EndPlaying,
 			EndingModules,
 			Quitting
 		};
-#pragma endregion
+
+		enum class EMainLoopState : uint8_t
+		{
+			None,
+			Input,
+			Modules,
+			Windows,
+			Graphics
+		};
 
 #pragma region std::unique_ptr "permissions"
 		friend std::unique_ptr< BEngine > std::make_unique< BEngine >();
 		friend std::unique_ptr< BGraphicsPlatform > std::make_unique< BGraphicsPlatform >();
 		friend std::unique_ptr< BPlatformBase > std::make_unique< BPlatformBase >();
-		friend std::unique_ptr< BArray< std::shared_ptr< BModule > > > std::make_unique<
-			BArray< std::shared_ptr< BModule > > >();
+		friend std::unique_ptr< BArray< std::shared_ptr< BModule > > > std::make_unique< BArray< std::shared_ptr< BModule > > >();
 		friend std::unique_ptr< BScene > std::make_unique< BScene >();
 #pragma endregion
 
@@ -44,9 +50,12 @@ namespace bgl
 		std::unique_ptr< BArray< std::shared_ptr< BModule > > > m_modules;
 		std::unique_ptr< BScene > m_scene;
 
-		EBEngineState m_engineState;
+		EEngineState m_engineState{ EEngineState::None };
+		EMainLoopState m_mainLoopState{ EMainLoopState::None };
 
 		BModule* m_moduleContext = nullptr;
+
+		BArray< GuiTickFuncType* > m_guiTickFuncs;
 
 		void Init();
 		void LoadData();
@@ -61,7 +70,7 @@ namespace bgl
 
 		void ModulesLoop();
 
-		void SetState( EBEngineState newState );
+		void SetState( EEngineState newState );
 
 		BEngine();
 
@@ -77,6 +86,10 @@ namespace bgl
 		static BPlatformBase& Platform();
 		static BScene& Scene();
 		BModule* getModuleContext();
+		[[nodiscard]] BArray< std::shared_ptr< BModule > >& getModules() const;
+
+		void registerGuiTickFunc( GuiTickFuncType* func );
+		BArray< GuiTickFuncType* >& getGuiTickFuncs();
 	};
 
 } // namespace bgl

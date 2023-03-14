@@ -57,14 +57,14 @@ namespace bgl
 		BComponent( BNode* owner = nullptr, const char* name = "None" );
 		virtual ~BComponent() = default;
 
-		const bool isVisible() const;
+		bool isVisible() const;
 		void setOwner( BNode* owner );
 
 		BTransform< float >& getTransform_mutable();
-		const BTransform< float > getTransform() const;
-		const BVec3f getLocation() const;
-		const BRotf getRotation() const;
-		const BVec3f getScale() const;
+		BTransform< float > getTransform() const;
+		BVec3f getLocation() const;
+		BRotf getRotation() const;
+		BVec3f getScale() const;
 
 		void setTransform( const BTransform< float >& transform );
 		void setLocation( const BVec3f& locations );
@@ -135,9 +135,7 @@ namespace bgl
 
 	class BCameraComponent : public BComponent
 	{
-		friend std::unique_ptr< BCamera > std::make_unique< BCamera >();
-
-		std::unique_ptr< BCamera > m_camera;
+		BCamera* m_camera;
 
 	public:
 		BCameraComponent( BNode* owner = nullptr, const char* name = "None", BViewport* viewport = nullptr );
@@ -171,6 +169,19 @@ namespace bgl
 		[[nodiscard]] BArray< BComponent* > getComponents( bool recursive = false ) const;
 
 		[[nodiscard]] bool hasChildren() const;
+
+		[[nodiscard]] BComponent* getComponent( const char* componentName ) const
+		{
+			for( const auto component : m_components )
+			{
+				if( std::strcmp( componentName, component->getName().c_str() ) == 0 )
+				{
+					return component;
+				}
+			}
+
+			return nullptr;
+		}
 
 		bool isVisible() const;
 		void setHidden( bool bHidden );
@@ -247,5 +258,19 @@ namespace bgl
 		{
 			return m_nodes;
 		}
+
+		BNode* getNode( const char* nodeName ) const
+		{
+			for( BNode* node : m_nodes )
+			{
+				if( std::strcmp( nodeName, node->getName().c_str() ) == 0 )
+				{
+					return node;
+				}
+			}
+
+			return nullptr;
+		}
+		
 	};
 } // namespace bgl

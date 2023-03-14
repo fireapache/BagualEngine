@@ -3,7 +3,6 @@
 #include "Assertions.h"
 #include "Definitions.h"
 #include "Logger.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -19,49 +18,61 @@ namespace bgl
 		//std::vector<T, aloc> stdContainer;
 
 	public:
-		inline void ZeroAll()
+		void ZeroAll()
 		{
 			std::fill( begin(), end(), T( 0 ) );
 		}
 
-		inline void Reserve( size_t size )
+		void Reserve( size_t size )
 		{
 			reserve( size );
 		}
 
-		inline void Resize( size_t size )
+		void Resize( size_t size )
 		{
 			resize( size );
 		}
 
-		inline T& operator[]( size_t index )
+		T& operator[]( size_t index )
+		{
+			//assert( index < Size() );
+			return at( index );
+		}
+
+		const T& operator[]( size_t index ) const
 		{
 			assert( index < Size() );
 			return at( index );
 		}
 
-		inline const T& operator[]( size_t index ) const
+		[[nodiscard]] T* first()
 		{
-			assert( index < Size() );
-			return at( index );
+			if( Size() > 0 )
+			{
+				return &( at( 0 ) );
+			}
+			else
+			{
+				return nullptr;
+			}
 		}
 
-		inline size_t Size() const
+		size_t Size() const
 		{
 			return size();
 		}
 
-		inline void Add( const T& item )
+		void Add( const T& item )
 		{
 			push_back( item );
 		}
 
-		inline void Add( const BArray< T >& list )
+		void Add( const BArray< T >& list )
 		{
 			insert( end(), list.begin(), list.end() );
 		}
 
-		inline void Remove( const T& item )
+		void Remove( const T& item )
 		{
 			auto found = std::find( begin(), end(), item );
 			if( found != end() )
@@ -70,12 +81,12 @@ namespace bgl
 			}
 		}
 
-		inline void MoveAdd( const BArray< T >& list )
+		void MoveAdd( const BArray< T >& list )
 		{
 			splice( end(), list );
 		}
 
-		inline void Clear()
+		void Clear()
 		{
 			clear();
 		}

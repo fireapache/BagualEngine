@@ -379,8 +379,13 @@ namespace bgl
 		m_name = std::string( name );
 	}
 	
-	const bool BComponent::isVisible() const
+	bool BComponent::isVisible() const
 	{
+		if( m_module && m_module->isHidden() )
+		{
+			return false;
+		}
+
 		if( m_owner )
 		{
 			return m_owner->isVisible() && !m_bHidden;
@@ -408,7 +413,7 @@ namespace bgl
 		return m_dummyTransform;
 	}
 
-	const BTransform< float > BComponent::getTransform() const
+	BTransform< float > BComponent::getTransform() const
 	{
 		if( m_owner )
 		{
@@ -418,17 +423,17 @@ namespace bgl
 		return BTransform< float >();
 	}
 
-	const BVec3f BComponent::getLocation() const
+	BVec3f BComponent::getLocation() const
 	{
 		return getTransform().translation;
 	}
 
-	const BRotf BComponent::getRotation() const
+	BRotf BComponent::getRotation() const
 	{
 		return getTransform().rotation;
 	}
 
-	const BVec3f BComponent::getScale() const
+	BVec3f BComponent::getScale() const
 	{
 		return getTransform().scale;
 	}
@@ -456,13 +461,14 @@ namespace bgl
 	BCameraComponent::BCameraComponent( BNode* owner, const char* name, BViewport* viewport )
 		: BComponent( owner, name )
 	{
-		m_camera = std::make_unique< BCamera >( viewport, this );
-		BCameraManager::AddCamera( m_camera.get() );
+		m_camera = new BCamera( viewport, this );
+		BCameraManager::AddCamera( m_camera );
 	}
 
 	BCameraComponent::~BCameraComponent()
 	{
-		BCameraManager::RemoveCamera( m_camera.get() );
+		BCameraManager::RemoveCamera( m_camera );
+		delete m_camera;
 	}
 
 	BViewport* BCameraComponent::getViewport() const
@@ -485,7 +491,7 @@ namespace bgl
 
 	BCamera* BCameraComponent::getCamera() const
 	{
-		return m_camera.get();
+		return m_camera;
 	}
 
 } // namespace bgl

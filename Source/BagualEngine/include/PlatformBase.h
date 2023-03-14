@@ -31,8 +31,6 @@ namespace bgl
 
 		virtual void destroy();
 
-		BArray< GuiTickFuncType* > m_guiTickFuncs;
-
 	public:
 		BPlatformWindow(){};
 		BPlatformWindow( const FWindowSettings& windowSettings );
@@ -44,9 +42,7 @@ namespace bgl
 		virtual void setWindow( const FWindowSettings& newSettings );
 
 		virtual BCanvas* getCanvas();
-
-		void addGuiTickFunc( GuiTickFuncType* func );
-		BArray< GuiTickFuncType* >& getGuiTickFuncs();
+		
 	};
 
 	class BPlatformBase

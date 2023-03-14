@@ -160,7 +160,9 @@ namespace bgl
 
 				for( const auto meshComponent : BMeshComponent::g_meshComponents )
 				{
-					if( meshComponent == nullptr || meshComponent->getShowWireframe() == false )
+					if( meshComponent == nullptr
+						|| meshComponent->getShowWireframe() == false
+						|| meshComponent->isVisible() == false )
 						continue;
 
 					const Color32Bit lineColor = meshComponent->getColor().getRGB();
@@ -563,53 +565,38 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::SwapUIFrame()
 	{
-		if( m_cachedPlatformWindowPtr )
+		// Updating ImGui frames if assigned
+		auto guiTickFuncs = BEngine::Instance().getGuiTickFuncs();
+
+		if( guiTickFuncs.Size() > 0 )
 		{
-#pragma region Rendering ImGui
+			// Start the Dear ImGui frame
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
-			auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
-
-			// Executing GUI tick func if assigned
+			// User code
+			for( const auto guiTickFunc : guiTickFuncs )
 			{
-				auto guiTickFuncs = m_cachedPlatformWindowPtr->getGuiTickFuncs();
-
-				if( guiTickFuncs.Size() > 0 )
-				{
-					// Start the Dear ImGui frame
-					ImGui_ImplOpenGL3_NewFrame();
-					ImGui_ImplGlfw_NewFrame();
-					ImGui::NewFrame();
-
-					// User code
-					for( const auto guiTickFunc : guiTickFuncs )
-					{
-						( *guiTickFunc )();
-					}
-
-					ImGui::Render();
-					ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-
-					auto plat = static_cast< BPlatformGeneric* >( &BEngine::Instance().Platform() );
-					ImGuiIO& io = *plat->GetImguiConfig();
-
-					// Update and Render additional Platform Windows
-					// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-					//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-					if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
-					{
-						GLFWwindow* backup_current_context = glfwGetCurrentContext();
-						ImGui::UpdatePlatformWindows();
-						ImGui::RenderPlatformWindowsDefault();
-						glfwMakeContextCurrent( backup_current_context );
-					}
-				}
+				( *guiTickFunc )();
 			}
 
-#pragma endregion
-		}
-		else
-		{
-			//BGL_LOG("Could not get generic window!");
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+
+			auto plat = static_cast< BPlatformGeneric* >( &BEngine::Instance().Platform() );
+			ImGuiIO& io = *plat->GetImguiConfig();
+
+			// Update and Render additional Platform Windows
+			// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+			//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+			if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+			{
+				GLFWwindow* backup_current_context = glfwGetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				glfwMakeContextCurrent( backup_current_context );
+			}
 		}
 	}
 

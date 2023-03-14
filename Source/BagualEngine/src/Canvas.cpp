@@ -106,7 +106,7 @@ namespace bgl
 		return window;
 	}
 
-	BArray< BViewport* > BCanvas::getViewports() const
+	BArray< BViewport* >& BCanvas::getViewports()
 	{
 		return m_viewports;
 	}

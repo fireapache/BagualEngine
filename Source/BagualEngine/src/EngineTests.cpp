@@ -24,9 +24,17 @@ namespace bgl
 
 		if( nWindows > 0 )
 		{
-			window = BEngine::Platform().getWindows()[ 0 ].get();
-			canvas = window->getCanvas();
-			viewport = canvas->getViewports()[ 0 ];
+			const auto foundWindow = BEngine::Platform().getWindows().first();
+			window = foundWindow ? foundWindow->get() : nullptr;
+			canvas = window ? window->getCanvas() : nullptr;
+			const auto foundViewport = canvas ? canvas->getViewports().first() : nullptr;
+			viewport = foundViewport ? *foundViewport : nullptr;
+			
+			auto& scene = BEngine::Scene();
+			cameraNode = scene.getNode( "CameraNode" );
+			cameraComp = cameraNode ? dynamic_cast< BCameraComponent* >( cameraNode->getComponent( "CameraComp" ) ) : nullptr;
+			camera = cameraComp ? cameraComp->getCamera() : nullptr;
+
 			return;
 		}
 
@@ -40,10 +48,24 @@ namespace bgl
 		viewport = BEngine::GraphicsPlatform().CreateViewport( canvas );
 
 		auto& scene = BEngine::Scene();
-		cameraNode = scene.addNode( "Camera" );
+		cameraNode = scene.addNode( "CameraNode" );
 		cameraComp = scene.addComponent< BCameraComponent >( cameraNode, "CameraComp", viewport );
 		camera = cameraComp->getCamera();
 	}
+
+#pragma region Window & Scene
+
+	void BEngineTest_WindowAndScene::init()
+	{
+		CreateTestWindowAndScene();
+	}
+
+	void BEngineTest_WindowAndScene::destroy()
+	{
+		
+	}
+
+#pragma endregion
 
 #pragma region Fundamental Rendering
 
@@ -73,10 +95,19 @@ namespace bgl
 		meshComp->addTriangles( tris );
 		meshComp->setShowWireframe( true );
 
-		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetRenderSpeed( BERenderSpeed::Normal );
-		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
-		//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
+		if( cameraNode )
+		{
+			cameraNode->setLocation( { 0.f, 0.f, 0.f } );
+			cameraNode->setRotation( { 0.f, 0.f, 0.f } );
+		}
+
+		if( camera )
+		{
+			camera->SetRenderOutputType( BERenderOutputType::UvColor );
+			camera->SetRenderSpeed( BERenderSpeed::Normal );
+			camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
+			//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
+		}
 	}
 
 	void BEngineTest_FundamentalRendering::destroy()
@@ -110,7 +141,7 @@ namespace bgl
 
 	void BEngineTest_FundamentalRendering::QueueCameraLineDraw( BCamera* camera )
 	{
-		if( camera )
+		if( camera && canvas )
 		{
 			const int32_t width = canvas->getWidth();
 			const int32_t height = canvas->getHeight();
@@ -284,7 +315,7 @@ namespace bgl
 		};
 
 		// Gui update procedure
-		window->addGuiTickFunc( &guiTickFunc );
+		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
 	void BEngineTest_RoomRendering::tick()
@@ -337,7 +368,7 @@ namespace bgl
 			ImGuiNE::End();
 		};
 
-		window->addGuiTickFunc( &guiTickFunc );
+		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
 	bool BEngineTest_NodeEditor::initialized() const
@@ -417,7 +448,7 @@ namespace bgl
 		};
 
 		// Gui update procedure
-		window->addGuiTickFunc( &guiTickFunc );
+		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
 	void BEngineTest_CubeProjection::tick()
@@ -524,7 +555,7 @@ namespace bgl
 		};
 
 		// Gui update procedure
-		window->addGuiTickFunc( &guiTickFunc );
+		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
 	void BEngineTest_AABBTests::tick()

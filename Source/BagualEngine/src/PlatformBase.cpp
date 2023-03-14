@@ -31,17 +31,7 @@ namespace bgl
 	{
 		return m_canvas.get();
 	}
-
-	void BPlatformWindow::addGuiTickFunc( GuiTickFuncType* func )
-	{
-		m_guiTickFuncs.Add( func );
-	}
-
-	BArray< GuiTickFuncType* >& BPlatformWindow::getGuiTickFuncs()
-	{
-		return m_guiTickFuncs;
-	}
-
+	
 	void BPlatformWindow::applySettings()
 	{
 		BGL_NEED_IMPLEMENTATION

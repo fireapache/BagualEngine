@@ -37,6 +37,31 @@ namespace bgl
 		void CreateTestWindowAndScene();
 	};
 
+	class BEngineTest_WindowAndScene : public BEngineTestBase
+	{
+	public:
+		BEngineTest_WindowAndScene()
+			: BEngineTestBase( "Test Window and Scene" ){};
+
+		void init() override;
+		void destroy() override;
+
+		bool autoInit() const override
+		{
+			return true;
+		}
+
+		bool initialized() const override
+		{
+			return window;
+		}
+
+		bool showOnModuleManager() const override
+		{
+			return false;
+		}
+	};
+
 	class BEngineTest_FundamentalRendering : public BEngineTestBase
 	{
 		void QueueCameraLineDraw( class BCamera* camera );
@@ -45,7 +70,7 @@ namespace bgl
 		BNode* trisNode{ nullptr };
 
 		BEngineTest_FundamentalRendering()
-			: BEngineTestBase( "Fundamental Rendering Module" ){};
+			: BEngineTestBase( "Fundamental Rendering" ){};
 
 		void init() override;
 		void tick() override;
@@ -57,10 +82,10 @@ namespace bgl
 	{
 	public:
 		BEngineTest_CubeProjection()
-			: BEngineTestBase( "Cube Projection Module" ){};
+			: BEngineTestBase( "Cube Projection" ){};
 
 		BVec3f points[ 8 ];
-		BNode* cubeNode;
+		BNode* cubeNode{ nullptr };
 
 		void init() override;
 		void tick() override;
@@ -77,7 +102,7 @@ namespace bgl
 		BMeshComponent* charMeshComp{ nullptr };
 
 		BEngineTest_RoomRendering()
-			: BEngineTestBase( "Room Rendering Module" ){};
+			: BEngineTestBase( "Room Rendering" ){};
 
 		BESceneSetup sceneSetup{ BESceneSetup::ObjectsCharacter };
 
@@ -93,7 +118,7 @@ namespace bgl
 
 	public:
 		BEngineTest_NodeEditor()
-			: BEngineTestBase( "Node Editor Module" ){};
+			: BEngineTestBase( "Node Editor" ){};
 
 		void init() override;
 		bool initialized() const override;
@@ -107,7 +132,7 @@ namespace bgl
 			: BEngineTestBase( "AABB Tests Module" ){};
 
 		BMeshComponent* cubeMeshComp{ nullptr };
-		BNode* cubeNode;
+		BNode* cubeNode{ nullptr };
 
 		void init() override;
 		void tick() override;
