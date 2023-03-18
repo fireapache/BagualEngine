@@ -20,9 +20,9 @@ namespace bgl
 		{
 			auto viewport = std::make_shared< BViewport >( args... );
 			BGL_ASSERT( viewport != nullptr && "Failed creating viewport!" );
-			m_viewports.Add( viewport );
+			m_viewports.add( viewport );
 			auto viewportRaw = viewport.get();
-			m_viewportsRaw.Add( viewportRaw );
+			m_viewportsRaw.add( viewportRaw );
 			return viewportRaw;
 		}
 

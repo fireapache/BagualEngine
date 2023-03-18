@@ -41,7 +41,7 @@ namespace bgl
 			BArray< BNode* > allChildren{ m_children };
 			for( const auto& node : m_children )
 			{
-				allChildren.Add( node->getChildren( true ) );
+				allChildren.add( node->getChildren( true ) );
 			}
 			return allChildren;
 		}
@@ -58,7 +58,7 @@ namespace bgl
 
 			for( auto& childNode : childNodes )
 			{
-				allComponents.Add( childNode->getComponents() );
+				allComponents.add( childNode->getComponents() );
 			}
 
 			return allComponents;
@@ -69,7 +69,7 @@ namespace bgl
 
 	bool BNode::hasChildren() const
 	{
-		return m_children.Size() > 0;
+		return m_children.size() > 0;
 	}
 
 	bool BNode::isVisible() const
@@ -152,12 +152,12 @@ namespace bgl
 
 	void BNode::addChild( BNode* node )
 	{
-		m_children.Add( node );
+		m_children.add( node );
 	}
 
 	void BNode::removeChild( BNode* node )
 	{
-		m_children.Remove( node );
+		m_children.remove( node );
 	}
 
 	BMeshComponent::BMeshComponent(
@@ -166,23 +166,23 @@ namespace bgl
 		const char* assetPath /*= nullptr*/ )
 		: BComponent( owner, name )
 	{
-		g_meshComponentTriangles.Add( &m_meshData.triangles );
-		g_meshComponents.Add( this );
+		g_meshComponentTriangles.add( &m_meshData.triangles );
+		g_meshComponents.add( this );
 		if( assetPath )
 			LoadMesh( assetPath );
 	}
 
 	BMeshComponent::~BMeshComponent()
 	{
-		g_meshComponentTriangles.Remove( &m_meshData.triangles );
-		g_meshComponents.Remove( this );
+		g_meshComponentTriangles.remove( &m_meshData.triangles );
+		g_meshComponents.remove( this );
 	}
 
 	void BMeshComponent::addUniqueEdge( const BLine< BVec3f >& line )
 	{
 		auto& edges = m_meshData.edges;
 		bool bUnique = true;
-		for( auto* curEdge = edges.data(); curEdge < edges.data() + edges.Size(); curEdge++ )
+		for( auto* curEdge = edges.data(); curEdge < edges.data() + edges.size(); curEdge++ )
 		{
 			if( *curEdge == line )
 			{
@@ -239,35 +239,35 @@ namespace bgl
 			triCache.v2.y = vert2.Position.Y;
 			triCache.v2.z = vert2.Position.Z;
 
-			m_meshData.triangles.Add( triCache );
+			m_meshData.triangles.add( triCache );
 
 			addUniqueTriEdges( triCache );
 
-			m_meshData.triangles_SIMD.v0.x.Add( triCache.v0.x );
-			m_meshData.triangles_SIMD.v0.y.Add( triCache.v0.y );
-			m_meshData.triangles_SIMD.v0.z.Add( triCache.v0.z );
-			m_meshData.triangles_SIMD.v1.x.Add( triCache.v1.x );
-			m_meshData.triangles_SIMD.v1.y.Add( triCache.v1.y );
-			m_meshData.triangles_SIMD.v1.z.Add( triCache.v1.z );
-			m_meshData.triangles_SIMD.v2.x.Add( triCache.v2.x );
-			m_meshData.triangles_SIMD.v2.y.Add( triCache.v2.y );
-			m_meshData.triangles_SIMD.v2.z.Add( triCache.v2.z );
+			m_meshData.triangles_SIMD.v0.x.add( triCache.v0.x );
+			m_meshData.triangles_SIMD.v0.y.add( triCache.v0.y );
+			m_meshData.triangles_SIMD.v0.z.add( triCache.v0.z );
+			m_meshData.triangles_SIMD.v1.x.add( triCache.v1.x );
+			m_meshData.triangles_SIMD.v1.y.add( triCache.v1.y );
+			m_meshData.triangles_SIMD.v1.z.add( triCache.v1.z );
+			m_meshData.triangles_SIMD.v2.x.add( triCache.v2.x );
+			m_meshData.triangles_SIMD.v2.y.add( triCache.v2.y );
+			m_meshData.triangles_SIMD.v2.z.add( triCache.v2.z );
 		}
 
-		const size_t simdFillerCount = ( 8 - m_meshData.triangles_SIMD.v0.x.Size() % 8 ) % 8;
+		const size_t simdFillerCount = ( 8 - m_meshData.triangles_SIMD.v0.x.size() % 8 ) % 8;
 
 		for( size_t i = 0; i < simdFillerCount; i++ )
 		{
 			constexpr float dummy = 0.f;
-			m_meshData.triangles_SIMD.v0.x.Add( dummy );
-			m_meshData.triangles_SIMD.v0.y.Add( dummy );
-			m_meshData.triangles_SIMD.v0.z.Add( dummy );
-			m_meshData.triangles_SIMD.v1.x.Add( dummy );
-			m_meshData.triangles_SIMD.v1.y.Add( dummy );
-			m_meshData.triangles_SIMD.v1.z.Add( dummy );
-			m_meshData.triangles_SIMD.v2.x.Add( dummy );
-			m_meshData.triangles_SIMD.v2.y.Add( dummy );
-			m_meshData.triangles_SIMD.v2.z.Add( dummy );
+			m_meshData.triangles_SIMD.v0.x.add( dummy );
+			m_meshData.triangles_SIMD.v0.y.add( dummy );
+			m_meshData.triangles_SIMD.v0.z.add( dummy );
+			m_meshData.triangles_SIMD.v1.x.add( dummy );
+			m_meshData.triangles_SIMD.v1.y.add( dummy );
+			m_meshData.triangles_SIMD.v1.z.add( dummy );
+			m_meshData.triangles_SIMD.v2.x.add( dummy );
+			m_meshData.triangles_SIMD.v2.y.add( dummy );
+			m_meshData.triangles_SIMD.v2.z.add( dummy );
 		}
 	}
 
@@ -298,23 +298,23 @@ namespace bgl
 
 	void BMeshComponent::addTriangles( const BArray< BTriangle< float > >& triangles )
 	{
-		m_meshData.triangles.Add( triangles );
+		m_meshData.triangles.add( triangles );
 
 		for( auto& tri : triangles )
 		{
 			addUniqueTriEdges( tri );
 
-			m_meshData.triangles_SIMD.v0.x.Add( tri.v0.x );
-			m_meshData.triangles_SIMD.v0.y.Add( tri.v0.y );
-			m_meshData.triangles_SIMD.v0.z.Add( tri.v0.z );
+			m_meshData.triangles_SIMD.v0.x.add( tri.v0.x );
+			m_meshData.triangles_SIMD.v0.y.add( tri.v0.y );
+			m_meshData.triangles_SIMD.v0.z.add( tri.v0.z );
 
-			m_meshData.triangles_SIMD.v1.x.Add( tri.v1.x );
-			m_meshData.triangles_SIMD.v1.y.Add( tri.v1.y );
-			m_meshData.triangles_SIMD.v1.z.Add( tri.v1.z );
+			m_meshData.triangles_SIMD.v1.x.add( tri.v1.x );
+			m_meshData.triangles_SIMD.v1.y.add( tri.v1.y );
+			m_meshData.triangles_SIMD.v1.z.add( tri.v1.z );
 
-			m_meshData.triangles_SIMD.v2.x.Add( tri.v2.x );
-			m_meshData.triangles_SIMD.v2.y.Add( tri.v2.y );
-			m_meshData.triangles_SIMD.v2.z.Add( tri.v2.z );
+			m_meshData.triangles_SIMD.v2.x.add( tri.v2.x );
+			m_meshData.triangles_SIMD.v2.y.add( tri.v2.y );
+			m_meshData.triangles_SIMD.v2.z.add( tri.v2.z );
 		}
 	}
 
@@ -336,7 +336,7 @@ namespace bgl
 		parent.addChild( newNodePtr );
 		if( moduleContext )
 		{
-			moduleContext->getNodes().Add( newNodePtr );
+			moduleContext->getNodes().add( newNodePtr );
 		}
 		return newNodePtr;
 	}
@@ -358,18 +358,18 @@ namespace bgl
 
 			for( const auto childNode : childNodes )
 			{
-				allComponents.Add( childNode->getComponents() );
-				m_nodes.Remove( childNode );
+				allComponents.add( childNode->getComponents() );
+				m_nodes.remove( childNode );
 				delete childNode;
 			}
 
 			for( const auto component : allComponents )
 			{
-				m_components.Remove( component );
+				m_components.remove( component );
 				delete component;
 			}
 
-			m_nodes.Remove( node );
+			m_nodes.remove( node );
 		}
 	}
 

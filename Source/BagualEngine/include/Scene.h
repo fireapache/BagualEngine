@@ -240,7 +240,7 @@ namespace bgl
 			static_assert( std::is_base_of< BComponent, T >::value, "Type should inherit from BComponent" );
 			T* newComponent = new T( node, args... );
 			m_components.push_back( newComponent );
-			node->m_components.Add( newComponent );
+			node->m_components.add( newComponent );
 			return newComponent;
 		}
 

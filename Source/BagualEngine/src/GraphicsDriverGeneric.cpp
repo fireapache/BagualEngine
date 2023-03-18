@@ -304,7 +304,7 @@ namespace bgl
 				const float unitY = static_cast< float >( j ) / static_cast< float >( height - 1 ) - 0.5f;
 
 				BVec3f vRayDir( sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance );
-				vRayDir.Normalize();
+				vRayDir.normalize();
 
 				BVec3f vUp( BVec3f::up() );
 				BVec3f vRight( BVec3f::right() );
@@ -381,9 +381,33 @@ namespace bgl
 		}
 	}
 
+#pragma region AVX Specialization
+
+	__m256 operator-( const __m256& p1, const __m256 p2 )
+	{
+		return _mm256_sub_ps( p1, p2 );
+	}
+
+	__m256 operator+( const __m256& p1, const __m256 p2 )
+	{
+		return _mm256_add_ps( p1, p2 );
+	}
+
+	__m256 operator*( const __m256& p1, const __m256 p2 )
+	{
+		return _mm256_mul_ps( p1, p2 );
+	}
+
+	__m256 operator/( const __m256& p1, const __m256 p2 )
+	{
+		return _mm256_div_ps( p1, p2 );
+	}
+
+#pragma endregion
+
 	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD( BTriangle< BArray< float > >& compTris, BFTriangleScanParams& p )
 	{
-		const size_t triCount = compTris.v0.x.Size();
+		const size_t triCount = compTris.v0.x.size();
 		const size_t notSimdTriCount = triCount % 8;
 
 		// Stacking data and variables
@@ -568,7 +592,7 @@ namespace bgl
 		// Updating ImGui frames if assigned
 		auto guiTickFuncs = BEngine::Instance().getGuiTickFuncs();
 
-		if( guiTickFuncs.Size() > 0 )
+		if( guiTickFuncs.size() > 0 )
 		{
 			// Start the Dear ImGui frame
 			ImGui_ImplOpenGL3_NewFrame();

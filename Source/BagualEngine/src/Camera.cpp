@@ -166,7 +166,7 @@ namespace bgl
 
 	void BCamera::AddLine2DBuffer( const BLine< BPixelPos >& line )
 	{
-		m_line2DBuffer.Add( line );
+		m_line2DBuffer.add( line );
 	}
 
 	BArray< BLine< BPixelPos > >& BCamera::GetLine2DBuffer()
@@ -176,12 +176,12 @@ namespace bgl
 
 	void BCamera::ClearLine2DBuffer()
 	{
-		m_line2DBuffer.Clear();
+		m_line2DBuffer.clear();
 	}
 
 	void BCamera::AddLine3DBuffer( const BLine< BVec3f >& line )
 	{
-		m_line3DBuffer.Add( line );
+		m_line3DBuffer.add( line );
 	}
 
 	BArray< BLine< BVec3f > >& BCamera::GetLine3DBuffer()
@@ -191,7 +191,7 @@ namespace bgl
 
 	void BCamera::ClearLine3DBuffer()
 	{
-		m_line3DBuffer.Clear();
+		m_line3DBuffer.clear();
 	}
 
 	BTransform< float >& BCamera::GetTransform_Mutable()

@@ -41,13 +41,13 @@ namespace bgl
 
 		if( m_modules )
 		{
-			m_modules->Add( std::make_shared< BModuleManager >() );
+			m_modules->add( std::make_shared< BModuleManager >() );
 
-			m_modules->Add( std::make_shared< BEngineTest_WindowAndScene >() );
-			m_modules->Add( std::make_shared< BEngineTest_FundamentalRendering >() );
-			m_modules->Add( std::make_shared< BEngineTest_RoomRendering >() );
-			m_modules->Add( std::make_shared< BEngineTest_CubeProjection >() );
-			m_modules->Add( std::make_shared< BEngineTest_AABBTests >() );
+			m_modules->add( std::make_shared< BEngineTest_WindowAndScene >() );
+			m_modules->add( std::make_shared< BEngineTest_FundamentalRendering >() );
+			m_modules->add( std::make_shared< BEngineTest_RoomRendering >() );
+			m_modules->add( std::make_shared< BEngineTest_CubeProjection >() );
+			m_modules->add( std::make_shared< BEngineTest_AABBTests >() );
 
 			for( auto& module : *m_modules )
 			{
@@ -123,7 +123,7 @@ namespace bgl
 
 			if( m_engineState != EEngineState::Paused )
 			{
-				if( m_platform->getWindows().Size() <= 0 )
+				if( m_platform->getWindows().size() <= 0 )
 				{
 					SetState( EEngineState::Quitting );
 					continue;
@@ -146,7 +146,7 @@ namespace bgl
 		// Ticking windows to check if need to be destroyed
 		auto& windows = m_platform->getWindows();
 
-		for( uint32_t i = 0; i < windows.Size(); i++ )
+		for( uint32_t i = 0; i < windows.size(); i++ )
 		{
 			if( windows[ i ]->Tick() == false )
 			{
@@ -242,7 +242,7 @@ namespace bgl
 		const auto found = std::find( m_guiTickFuncs.begin(), m_guiTickFuncs.end(), func );
 		if( found == m_guiTickFuncs.end() )
 		{
-			m_guiTickFuncs.Add( func );
+			m_guiTickFuncs.add( func );
 		}
 	}
 

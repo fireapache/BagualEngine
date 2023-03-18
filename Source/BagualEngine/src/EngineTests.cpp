@@ -20,7 +20,7 @@ namespace bgl
 {
 	void BEngineTestBase::CreateTestWindowAndScene()
 	{
-		const auto nWindows = BEngine::Platform().getWindows().Size();
+		const auto nWindows = BEngine::Platform().getWindows().size();
 
 		if( nWindows > 0 )
 		{
@@ -78,15 +78,15 @@ namespace bgl
 
 		constexpr float z = 5.f;
 
-		tris.Add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
 
-		tris.Add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
-		tris.Add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -1.f, -0.25f, z ), BVec3f( 1.f, -0.25f, z ), BVec3f( 0.f, -2.25f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -3.f, 1.f, z ), BVec3f( -1.f, 1.f, z ), BVec3f( -2.f, -1.f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( 1.f, 1.f, z ), BVec3f( 3.f, 1.f, z ), BVec3f( 2.f, -1.f, z ) ) );
+		tris.add( BTriangle< float >( BVec3f( -1.f, 2.25f, z ), BVec3f( 1.f, 2.25f, z ), BVec3f( 0.f, 0.25f, z ) ) );
 
 		auto& scene = BEngine::Scene();
 

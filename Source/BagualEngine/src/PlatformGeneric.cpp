@@ -51,13 +51,13 @@ namespace bgl
 
 	BPlatformWindow* BPlatformGeneric::createWindow( const FWindowSettings& settings )
 	{
-		windows.Add( std::make_shared< BGenericPlatformWindow >( settings ) );
+		windows.add( std::make_shared< BGenericPlatformWindow >( settings ) );
 		return windows.back().get();
 	}
 
 	BPlatformWindow* BPlatformGeneric::createWindow()
 	{
-		windows.Add( std::make_shared< BGenericPlatformWindow >( FWindowSettings() ) );
+		windows.add( std::make_shared< BGenericPlatformWindow >( FWindowSettings() ) );
 		return windows.back().get();
 	}
 

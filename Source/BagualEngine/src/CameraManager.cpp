@@ -14,12 +14,12 @@ namespace bgl
 
 	void BCameraManager::AddCamera( BCamera* camera )
 	{
-		m_cameras.Add( camera );
+		m_cameras.add( camera );
 	}
 
 	void BCameraManager::RemoveCamera( BCamera* camera )
 	{
-		m_cameras.Remove( camera );
+		m_cameras.remove( camera );
 	}
 
 	BArray< BCamera* >& BCameraManager::GetCameras()

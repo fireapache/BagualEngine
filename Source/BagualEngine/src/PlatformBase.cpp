@@ -54,7 +54,7 @@ namespace bgl
 
 	BPlatformWindow* BPlatformBase::getWindow( const uint32_t index )
 	{
-		if( windows.Size() < index )
+		if( windows.size() < index )
 		{
 			return windows[ index ].get();
 		}
