@@ -67,6 +67,28 @@ namespace bgl
 	{
 		m_engineState = EEngineState::BeginPlaying;
 
+		m_simulationThread = std::thread(
+			[ this ]()
+			{
+				while( m_engineState != EEngineState::Quitting )
+				{
+					Scene().sceneSemaphore.acquire();
+
+					const auto startTime = std::chrono::system_clock::now();
+					const auto duration = std::chrono::duration< double >( BSettings::simulationFrequency );
+					const auto endTime = startTime + duration;
+
+					//std::cout << "sim: " << simulationCount << std::endl;
+
+					ModulesLoop();
+					ProcessInput();
+
+					std::this_thread::sleep_until( endTime );
+					Scene().sceneSemaphore.release();
+					simulationCount++;
+				}
+			} );
+
 		// Starting rendering thread
 		m_graphicsPlatform->SetEnabled( true );
 	}
@@ -113,29 +135,12 @@ namespace bgl
 
 		while( m_engineState != EEngineState::Quitting )
 		{
-			m_mainLoopState = EMainLoopState::None;
-
-			ProcessInput();
-			ModulesLoop();
 			TickWindows();
 
-			m_mainLoopState = EMainLoopState::Graphics;
-
-			if( m_engineState != EEngineState::Paused )
+			if( m_graphicsPlatform )
 			{
-				if( m_platform->getWindows().size() <= 0 )
-				{
-					SetState( EEngineState::Quitting );
-					continue;
-				}
-
-				if( m_graphicsPlatform )
-				{
-					m_graphicsPlatform->SwapFrames();
-				}
+				m_graphicsPlatform->SwapFrames();
 			}
-
-			//m_graphicsPlatform->Delay(1);
 		}
 	}
 
@@ -168,9 +173,8 @@ namespace bgl
 			{
 				m_moduleContext = module.get();
 				module->init();
+				m_moduleContext = nullptr;
 			}
-
-			m_moduleContext = nullptr;
 
 			if( !module->isHidden() )
 			{
@@ -186,13 +190,6 @@ namespace bgl
 			m_engineState = newState;
 			// TODO: Broadcast new engine state through an event
 		}
-	}
-
-	BEngine::BEngine()
-		: m_engineState( EEngineState::None )
-	{
-		BSettings::width = 320;
-		BSettings::height = 240;
 	}
 
 	BEngine& BEngine::Instance()

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common.h"
-
 #include <thread>
 
 namespace bgl
@@ -42,6 +41,9 @@ namespace bgl
 	public:
 		BGraphicsDriverBase();
 		~BGraphicsDriverBase();
+
+		uint64_t frameCount{ 0 };
+		double lastRenderTime{ 0.0 };
 
 		virtual void SetEnabled( const bool bValue );
 		virtual bool IsEnabled() const;

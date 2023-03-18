@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include <thread>
 
 namespace bgl
 {
@@ -55,6 +56,9 @@ namespace bgl
 
 		BModule* m_moduleContext = nullptr;
 
+		std::thread m_simulationThread;
+		uint64_t simulationCount{ 0 };
+
 		BArray< GuiTickFuncType* > m_guiTickFuncs;
 
 		void Init();
@@ -72,7 +76,7 @@ namespace bgl
 
 		void SetState( EEngineState newState );
 
-		BEngine();
+		BEngine() = default;
 
 	public:
 		BEngine( const BEngine& ) = delete;

@@ -2,6 +2,8 @@
 
 #include "Types.h"
 #include <memory>
+#include <mutex>
+#include <semaphore>
 
 namespace bgl
 {
@@ -223,6 +225,8 @@ namespace bgl
 				delete component;
 			}
 		}
+		
+		std::counting_semaphore< 2 > sceneSemaphore{ 2 };
 
 		static BArray< BArray< BTriangle< float > >* >& getMeshComponentTriangles()
 		{
@@ -271,6 +275,5 @@ namespace bgl
 
 			return nullptr;
 		}
-		
 	};
 } // namespace bgl

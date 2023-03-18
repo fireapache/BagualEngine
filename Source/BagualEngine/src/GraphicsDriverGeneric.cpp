@@ -94,7 +94,11 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::RenderGameFrame()
 	{
-		BGraphicsDriverBase::RenderGameFrame();
+		BEngine::Scene().sceneSemaphore.acquire();
+
+		//std::cout << "frame: " << frameCount << std::endl;
+
+		const auto renderStartTime = std::chrono::system_clock::now();
 
 		auto viewports = BEngine::GraphicsPlatform().GetViewports();
 
@@ -160,8 +164,7 @@ namespace bgl
 
 				for( const auto meshComponent : BMeshComponent::g_meshComponents )
 				{
-					if( meshComponent == nullptr
-						|| meshComponent->getShowWireframe() == false
+					if( meshComponent == nullptr || meshComponent->getShowWireframe() == false
 						|| meshComponent->isVisible() == false )
 						continue;
 
@@ -225,6 +228,14 @@ namespace bgl
 			// syncing all threads one last time to have final composed frame
 			renderThreadPool.wait_for_tasks();
 		}
+
+		const auto renderEndTime = std::chrono::system_clock::now();
+		const auto renderDuration = renderEndTime - renderStartTime;
+
+		lastRenderTime = static_cast< double >( renderDuration.count() );
+
+		BEngine::Scene().sceneSemaphore.release();
+		frameCount++;
 	}
 
 	void BGraphicsDriverGeneric::Draw3DLine( BViewport* viewport, const BLine< BVec3f >& line, const Color32Bit color )

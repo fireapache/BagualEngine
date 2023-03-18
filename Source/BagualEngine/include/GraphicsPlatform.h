@@ -16,7 +16,7 @@ namespace bgl
 		BArray< BViewport* > m_viewportsRaw;
 
 		template< typename... P >
-		inline BViewport* RegisterViewport( P&... args )
+		BViewport* RegisterViewport( P&... args )
 		{
 			auto viewport = std::make_shared< BViewport >( args... );
 			BGL_ASSERT( viewport != nullptr && "Failed creating viewport!" );

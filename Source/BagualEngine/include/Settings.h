@@ -11,14 +11,9 @@ namespace bgl
 		static int width;
 		static int height;
 
-		// Pointer to the main engine window object
-		static void* window;
-
-		// Screen edges information
-		static BLine< BPixelPos > screenEdges[ 4 ];
-		static void* surface;
-		static void* pixels;
-
+		static double simulationFrequency;
+		static double renderingFrequency;
+		
 		// Current wireframe line drawing color
 		static Color32Bit lineColor;
 	};
