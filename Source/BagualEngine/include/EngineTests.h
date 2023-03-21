@@ -104,6 +104,13 @@ namespace bgl
 		BEngineTest_RoomRendering()
 			: BEngineTestBase( "Room Rendering" ){};
 
+		enum class BESceneSetup : uint8_t
+		{
+			Empty,
+			WithObjects,
+			ObjectsCharacter
+		};
+
 		BESceneSetup sceneSetup{ BESceneSetup::ObjectsCharacter };
 
 		void init() override;

@@ -29,7 +29,7 @@ namespace bgl
 			canvas = window ? window->getCanvas() : nullptr;
 			const auto foundViewport = canvas ? canvas->getViewports().first() : nullptr;
 			viewport = foundViewport ? *foundViewport : nullptr;
-			
+
 			auto& scene = BEngine::Scene();
 			cameraNode = scene.getNode( "CameraNode" );
 			cameraComp = cameraNode ? dynamic_cast< BCameraComponent* >( cameraNode->getComponent( "CameraComp" ) ) : nullptr;
@@ -53,7 +53,7 @@ namespace bgl
 		camera = cameraComp->getCamera();
 	}
 
-#pragma region Window & Scene
+#pragma region Window& Scene
 
 	void BEngineTest_WindowAndScene::init()
 	{
@@ -62,7 +62,6 @@ namespace bgl
 
 	void BEngineTest_WindowAndScene::destroy()
 	{
-		
 	}
 
 #pragma endregion
@@ -228,60 +227,78 @@ namespace bgl
 				}
 			}
 
-			ImGui::Checkbox( "Show Room Wireframe", &( roomMeshComp->getShowWireframe_Mutable() ) );
-			ImGui::SameLine();
-			ImGui::Checkbox( "Show Object Wireframe", &( objectsMeshComp->getShowWireframe_Mutable() ) );
-			ImGui::SameLine();
-			ImGui::Checkbox( "Show Character Wireframe", &( charMeshComp->getShowWireframe_Mutable() ) );
+			if( roomMeshComp )
+			{
+				ImGui::Checkbox( "Show Room Wireframe", &( roomMeshComp->getShowWireframe_Mutable() ) );
+			}
 
-			auto camera = cameraComp->getCamera();
+			if( objectsMeshComp )
+			{
+				ImGui::SameLine();
+				ImGui::Checkbox( "Show Object Wireframe", &( objectsMeshComp->getShowWireframe_Mutable() ) );
+			}
 
-			auto& renderOutputMode = camera->GetRenderOutputType_Mutable();
-			const char* renderOutputOptions[] = { "Pixel Depth", "UV Color" };
-			ImGui::Combo(
-				"Render Output",
-				reinterpret_cast< int* >( &renderOutputMode ),
-				renderOutputOptions,
-				IM_ARRAYSIZE( renderOutputOptions ) );
+			if( charMeshComp )
+			{
+				ImGui::SameLine();
+				ImGui::Checkbox( "Show Character Wireframe", &( charMeshComp->getShowWireframe_Mutable() ) );
+			}
 
-			const float positionRange = 10.f;
-			BVec3f& camPos = cameraComp->getTransform_mutable().translation;
-			ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
+			if( cameraComp && cameraComp->getCamera() )
+			{
+				BCamera* camera = cameraComp->getCamera();
 
-			const float rotRange = 20.f;
-			BRotf& camRot = cameraComp->getTransform_mutable().rotation;
-			ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
+				auto& renderOutputMode = camera->GetRenderOutputType_Mutable();
+				const char* renderOutputOptions[] = { "Pixel Depth", "UV Color" };
+				ImGui::Combo(
+					"Render Output",
+					reinterpret_cast< int* >( &renderOutputMode ),
+					renderOutputOptions,
+					IM_ARRAYSIZE( renderOutputOptions ) );
 
-			auto& depthDist = camera->GetDepthDistance_Mutable();
-			const float depthDistRange = 500.f;
-			ImGui::SliderFloat( "Scene Depth", &depthDist, defaultDepthDist - depthDistRange, defaultDepthDist + depthDistRange );
+				const float positionRange = 10.f;
+				BVec3f& camPos = cameraComp->getTransform_mutable().translation;
+				ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
 
-			auto& sensorSize = camera->GetSensorSize_Mutable();
-			ImGui::InputFloat2( "Sensor Size", reinterpret_cast< float* >( &sensorSize ) );
+				const float rotRange = 20.f;
+				BRotf& camRot = cameraComp->getTransform_mutable().rotation;
+				ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
-			auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
-			const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
-			ImGui::Combo(
-				"Render Thread Mode",
-				reinterpret_cast< int* >( &renderThreadMode ),
-				renderThreadOptions,
-				IM_ARRAYSIZE( renderThreadOptions ) );
+				auto& depthDist = camera->GetDepthDistance_Mutable();
+				const float depthDistRange = 500.f;
+				ImGui::SliderFloat(
+					"Scene Depth",
+					&depthDist,
+					defaultDepthDist - depthDistRange,
+					defaultDepthDist + depthDistRange );
 
-			auto& renderMode = camera->GetIntrinsicsMode_Mutable();
-			const char* renderModeOptions[] = { "Off", "AVX" };
-			ImGui::Combo(
-				"Intrinsics",
-				reinterpret_cast< int* >( &renderMode ),
-				renderModeOptions,
-				IM_ARRAYSIZE( renderModeOptions ) );
+				auto& sensorSize = camera->GetSensorSize_Mutable();
+				ImGui::InputFloat2( "Sensor Size", reinterpret_cast< float* >( &sensorSize ) );
 
-			auto& renderSpeed = camera->GetRenderSpeed_Mutable();
-			const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
-			ImGui::Combo(
-				"Render Speed",
-				reinterpret_cast< int* >( &renderSpeed ),
-				renderSpeedOptions,
-				IM_ARRAYSIZE( renderSpeedOptions ) );
+				auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
+				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
+				ImGui::Combo(
+					"Render Thread Mode",
+					reinterpret_cast< int* >( &renderThreadMode ),
+					renderThreadOptions,
+					IM_ARRAYSIZE( renderThreadOptions ) );
+
+				auto& renderMode = camera->GetIntrinsicsMode_Mutable();
+				const char* renderModeOptions[] = { "Off", "AVX" };
+				ImGui::Combo(
+					"Intrinsics",
+					reinterpret_cast< int* >( &renderMode ),
+					renderModeOptions,
+					IM_ARRAYSIZE( renderModeOptions ) );
+
+				auto& renderSpeed = camera->GetRenderSpeed_Mutable();
+				const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
+				ImGui::Combo(
+					"Render Speed",
+					reinterpret_cast< int* >( &renderSpeed ),
+					renderSpeedOptions,
+					IM_ARRAYSIZE( renderSpeedOptions ) );
+			}
 
 			const char* sceneSetupOptions[] = { "Empty", "With Objects", "Objects and Character" };
 			if( ImGui::Combo(
@@ -329,8 +346,13 @@ namespace bgl
 
 	void BEngineTest_RoomRendering::destroy()
 	{
+		BEngine::Instance().unregisterGuiTickFunc( &guiTickFunc );
 		auto& scene = BEngine::Scene();
 		scene.deleteNode( roomRootNode );
+		roomRootNode = nullptr;
+		roomMeshComp = nullptr;
+		objectsMeshComp = nullptr;
+		charMeshComp = nullptr;
 	}
 
 #pragma endregion

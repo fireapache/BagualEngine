@@ -19,12 +19,25 @@ namespace bgl
 	constexpr auto DEFAULT_CANVAS_VALUE = static_cast< Color32Bit >( 0 );
 	constexpr auto DEFAULT_DEPTH_VALUE = static_cast< DepthDataType >( 9999999999999 );
 
+	enum class BERenderOutputType : uint8_t
+	{
+		Depth,
+		UvColor
+	};
+
 	enum class EBAxis : uint8_t
 	{
 		X = 0,
 		Y = 1,
 		Z = 2,
 		DIMENSIONS = 3
+	};
+
+	enum DebugFlags
+	{
+		DBF_None = 0,
+		DBF_SceneConstruction = 1,
+		DBF_ThreadsTick = 1 << 1
 	};
 
 } // namespace bgl

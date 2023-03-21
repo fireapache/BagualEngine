@@ -23,13 +23,7 @@ namespace bgl
 		virtual void Delay( const uint32_t&& ms ) = 0;
 		virtual void Delay( const uint32_t& ms ) = 0;
 	};
-
-	enum class BERenderOutputType
-	{
-		Depth,
-		UvColor
-	};
-
+	
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
 	protected:

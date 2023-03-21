@@ -74,6 +74,8 @@ namespace bgl
 
 		void ModulesLoop();
 
+		void updateScene();
+
 		void SetState( EEngineState newState );
 
 		BEngine() = default;
@@ -93,6 +95,7 @@ namespace bgl
 		[[nodiscard]] BArray< std::shared_ptr< BModule > >& getModules() const;
 
 		void registerGuiTickFunc( GuiTickFuncType* func );
+		void unregisterGuiTickFunc( GuiTickFuncType* func );
 		BArray< GuiTickFuncType* >& getGuiTickFuncs();
 	};
 

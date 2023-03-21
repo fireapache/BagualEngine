@@ -5,6 +5,7 @@
 namespace bgl
 {
 	class BNode;
+	class BMeshComponent;
 	class BComponent;
 } // namespace bgl
 
@@ -36,14 +37,24 @@ namespace bgl
 
 		virtual void init(){};
 
+		void setSceneDirty();
+
 		virtual void show()
 		{
-			m_hidden = false;
+			if( m_hidden )
+			{
+				m_hidden = false;
+				setSceneDirty();
+			}
 		}
 
 		virtual void hide()
 		{
-			m_hidden = true;
+			if( !m_hidden )
+			{
+				m_hidden = true;
+				setSceneDirty();
+			}
 		}
 
 		virtual void destroy(){};
@@ -59,6 +70,7 @@ namespace bgl
 		struct PendingTasks
 		{
 			bool bInitialize{ false };
+			bool bTerminate{ false };
 		};
 
 		PendingTasks pendingTasks;
@@ -105,7 +117,7 @@ namespace bgl
 			return m_nodes;
 		}
 
-		[[nodiscard]] BArray< BComponent* > getComponents()
+		[[nodiscard]] BArray< BComponent* >& getComponents()
 		{
 			return m_components;
 		}

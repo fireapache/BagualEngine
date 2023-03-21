@@ -58,7 +58,7 @@ namespace bgl
 		{
 			m_vec::insert( m_vec::end(), list.begin(), list.end() );
 		}
-
+		
 		void remove( const T& item )
 		{
 			auto found = std::find( m_vec::begin(), m_vec::end(), item );

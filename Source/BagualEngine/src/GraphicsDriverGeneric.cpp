@@ -96,11 +96,22 @@ namespace bgl
 	{
 		BEngine::Scene().sceneSemaphore.acquire();
 
-		//std::cout << "frame: " << frameCount << std::endl;
+		const auto renderStage = BEngine::Scene().getNextRenderStage();
+
+		if( !renderStage )
+		{
+			BEngine::Scene().sceneSemaphore.release();
+			return;
+		}
+
+		if( BSettings::isDebugFlagsSet( DBF_ThreadsTick ) )
+		{
+			std::cout << "frame: " << frameCount << std::endl;
+		}
 
 		const auto renderStartTime = std::chrono::system_clock::now();
 
-		auto viewports = BEngine::GraphicsPlatform().GetViewports();
+		const auto viewports = BEngine::GraphicsPlatform().GetViewports();
 
 		// Rendering each viewport
 		for( auto viewport : viewports )
@@ -151,7 +162,7 @@ namespace bgl
 
 				for( uint32_t t = 0; t < processorCount; t++ )
 				{
-					renderThreadPool.push_task( RenderLines, viewport, t );
+					renderThreadPool.push_task( RenderLines, renderStage, viewport, t );
 				}
 			}
 
@@ -159,42 +170,42 @@ namespace bgl
 
 #pragma region Pushing 2D and 3D Lines Tasks
 
-			{
-				canvas->resetWireframeBuffer();
+			//{
+			//	canvas->resetWireframeBuffer();
 
-				for( const auto meshComponent : BMeshComponent::g_meshComponents )
-				{
-					if( meshComponent == nullptr || meshComponent->getShowWireframe() == false
-						|| meshComponent->isVisible() == false )
-						continue;
+			//	for( const auto meshComponent : BMeshComponent::g_meshComponents )
+			//	{
+			//		if( meshComponent == nullptr || meshComponent->getShowWireframe() == false
+			//			|| meshComponent->isVisible() == false )
+			//			continue;
 
-					const Color32Bit lineColor = meshComponent->getColor().getRGB();
-					auto& edges = meshComponent->getMeshData().edges;
+			//		const Color32Bit lineColor = meshComponent->getColor().getRGB();
+			//		auto& edges = meshComponent->getMeshData().edges;
 
-					for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
-					{
-						renderThreadPool.push_task( Draw3DLine, viewport, *edge, lineColor );
-					}
-				}
+			//		for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
+			//		{
+			//			renderThreadPool.push_task( Draw3DLine, viewport, *edge, lineColor );
+			//		}
+			//	}
 
-				auto& lines3D = camera->GetLine3DBuffer();
+			//	auto& lines3D = camera->GetLine3DBuffer();
 
-				for( auto& line3D : lines3D )
-				{
-					renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
-				}
+			//	for( auto& line3D : lines3D )
+			//	{
+			//		renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
+			//	}
 
-				camera->ClearLine3DBuffer();
+			//	camera->ClearLine3DBuffer();
 
-				auto& lines2D = camera->GetLine2DBuffer();
+			//	auto& lines2D = camera->GetLine2DBuffer();
 
-				for( auto& line2D : lines2D )
-				{
-					renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
-				}
+			//	for( auto& line2D : lines2D )
+			//	{
+			//		renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
+			//	}
 
-				camera->ClearLine2DBuffer();
-			}
+			//	camera->ClearLine2DBuffer();
+			//}
 
 #pragma endregion
 
@@ -248,7 +259,7 @@ namespace bgl
 		BDraw::DrawLine( viewport, line, color );
 	}
 
-	void BGraphicsDriverGeneric::RenderLines( BViewport* viewport, const uint32_t renderThreadIndex )
+	void BGraphicsDriverGeneric::RenderLines( BRenderStage* renderStage, BViewport* viewport, const uint32_t renderThreadIndex )
 	{
 		if( viewport == nullptr )
 		{
@@ -336,27 +347,16 @@ namespace bgl
 				triangleScanParams.dir = vRayDir;
 
 				// Getting scene triangles
-
-				auto meshComponents = BEngine::Scene().getMeshComponents();
-
-				for( const auto meshComp : meshComponents )
+				
+				if( intrinsicsMode == BEIntrinsicsMode::Off )
 				{
-					// Skipping not visible components
-					if( meshComp->isVisible() == false )
-					{
-						continue;
-					}
-
-					if( intrinsicsMode == BEIntrinsicsMode::Off )
-					{
-						auto& compTris = meshComp->getTriangles();
-						ScanTriangles_Sequential( compTris, triangleScanParams );
-					}
-					else if( intrinsicsMode == BEIntrinsicsMode::AVX )
-					{
-						auto& compTris = meshComp->getTriangles_SIMD();
-						ScanTriangles_SIMD( compTris, triangleScanParams );
-					}
+					auto& tris = renderStage->triangles;
+					ScanTriangles_Sequential( tris, triangleScanParams );
+				}
+				else if( intrinsicsMode == BEIntrinsicsMode::AVX )
+				{
+					auto& trisSIMD = renderStage->triangles_SIMD;
+					ScanTriangles_SIMD( trisSIMD, triangleScanParams );
 				}
 
 				if( triangleScanParams.bHit )

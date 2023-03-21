@@ -1,12 +1,16 @@
 #pragma once
 
+#include "Module.h"
+#include "Settings.h"
 #include "Types.h"
+#include "BagualEngine.h"
 #include <memory>
 #include <mutex>
 #include <semaphore>
 
 namespace bgl
 {
+	class BScene;
 	class BNode;
 	class BViewport;
 	class BCamera;
@@ -18,15 +22,18 @@ namespace bgl
 	class BObject
 	{
 	protected:
-		std::string m_name{ "" };
+		std::string m_name;
+
+		BModule* m_module{ nullptr };
 
 	public:
-		BObject( const char* name = "None" )
+		BObject( const char* name = "None", BModule* module = nullptr )
+			: m_module( module )
 		{
 			m_name = std::string( name );
 		}
 
-		const std::string& getName() const
+		[[nodiscard]] const std::string& getName() const
 		{
 			return m_name;
 		}
@@ -43,9 +50,34 @@ namespace bgl
 				m_name = std::string( name );
 			}
 		}
+
+		BModule* getModule() const
+		{
+			return m_module;
+		}
 	};
 
-	class BComponent : public BObject
+	class BSceneObject : public BObject
+	{
+		friend class BModule;
+
+	protected:
+		BScene* m_scene{ nullptr };
+
+		void setSceneDirty() const;
+
+	public:
+		BSceneObject( BScene* scene, const char* name = "None", BModule* module = nullptr )
+			: BObject( name, module )
+		{
+			if( name )
+			{
+				m_name = name;
+			}
+		}
+	};
+
+	class BComponent : public BSceneObject
 	{
 		BTransform< float > m_dummyTransform;
 
@@ -53,20 +85,31 @@ namespace bgl
 
 	protected:
 		BNode* m_owner{ nullptr };
-		BModule* m_module{ nullptr };
 
 	public:
-		BComponent( BNode* owner = nullptr, const char* name = "None" );
-		virtual ~BComponent() = default;
+		BComponent() = delete;
+		BComponent( BScene* scene, BNode* owner, BModule* module = nullptr, const char* name = "None" );
+		virtual ~BComponent()
+		{
+			if( m_module )
+			{
+				m_module->getComponents().remove( this );
+			}
 
-		bool isVisible() const;
+			if( BSettings::isDebugFlagsSet( DBF_SceneConstruction ) )
+			{
+				std::cout << "~BComponent: " << getName() << std::endl;
+			}
+		}
+
+		[[nodiscard]] bool isVisible() const;
 		void setOwner( BNode* owner );
 
-		BTransform< float >& getTransform_mutable();
-		BTransform< float > getTransform() const;
-		BVec3f getLocation() const;
-		BRotf getRotation() const;
-		BVec3f getScale() const;
+		[[nodiscard]] BTransform< float >& getTransform_mutable();
+		[[nodiscard]] BTransform< float > getTransform() const;
+		[[nodiscard]] BVec3f getLocation() const;
+		[[nodiscard]] BRotf getRotation() const;
+		[[nodiscard]] BVec3f getScale() const;
 
 		void setTransform( const BTransform< float >& transform );
 		void setLocation( const BVec3f& locations );
@@ -102,8 +145,13 @@ namespace bgl
 		BColor color;
 
 	public:
-		BMeshComponent( BNode* owner = nullptr, const char* name = "None", const char* assetPath = nullptr );
-		~BMeshComponent();
+		BMeshComponent(
+			BScene* scene,
+			BNode* owner,
+			BModule* module,
+			const char* name = "None",
+			const char* assetPath = nullptr );
+		~BMeshComponent() override;
 
 		void LoadMesh( const char* assetPath );
 
@@ -140,16 +188,16 @@ namespace bgl
 		BCamera* m_camera;
 
 	public:
-		BCameraComponent( BNode* owner = nullptr, const char* name = "None", BViewport* viewport = nullptr );
+		BCameraComponent( BScene* scene, BNode* owner, BModule* module = nullptr, const char* name = "None", BViewport* viewport = nullptr );
 		~BCameraComponent();
 
-		BViewport* getViewport() const;
+		[[nodiscard]] BViewport* getViewport() const;
 		void setViewport( BViewport* viewport );
 
-		BCamera* getCamera() const;
+		[[nodiscard]] BCamera* getCamera() const;
 	};
 
-	class BNode : public BObject
+	class BNode : public BSceneObject
 	{
 		friend class BScene;
 
@@ -157,14 +205,14 @@ namespace bgl
 		BNode* m_parent{ nullptr };
 		BArray< BNode* > m_children;
 		BArray< BComponent* > m_components;
-		BModule* m_module{ nullptr };
 
 		BTransform< float > m_transform;
 
 		bool m_bHidden{ false };
 
 	public:
-		BNode( BNode* parent = nullptr, const char* name = "None", BModule* owningModule = nullptr );
+		BNode( BScene* scene, BNode* parent, const char* name, BModule* owningModule = nullptr );
+		~BNode();
 
 		BNode* getParent();
 		[[nodiscard]] BArray< BNode* > getChildren( bool recursive = false ) const;
@@ -185,14 +233,14 @@ namespace bgl
 			return nullptr;
 		}
 
-		bool isVisible() const;
+		[[nodiscard]] bool isVisible() const;
 		void setHidden( bool bHidden );
 
 		BTransform< float >& getTransform_mutable();
-		const BTransform< float > getTransform() const;
-		const BVec3f getLocation() const;
-		const BRotf getRotation() const;
-		const BVec3f getScale() const;
+		[[nodiscard]] const BTransform< float > getTransform() const;
+		[[nodiscard]] const BVec3f getLocation() const;
+		[[nodiscard]] const BRotf getRotation() const;
+		[[nodiscard]] const BVec3f getScale() const;
 
 		void setTransform( const BTransform< float >& transform );
 		void setLocation( const BVec3f& location );
@@ -204,11 +252,41 @@ namespace bgl
 		void removeChild( BNode* node );
 	};
 
+	class BRenderStage
+	{
+	public:
+		BArray< BTriangle< float > > triangles;
+		BTriangle< BArray< float > > triangles_SIMD;
+
+		class EdgeData
+		{
+		public:
+			BLine< BVec3f > line3D;
+			Color32Bit color{ BSettings::lineColor };
+		};
+
+		BArray< EdgeData > edges;
+
+		enum class State : uint8_t
+		{
+			New,
+			Staged,
+			Claimed,
+			Old
+		};
+
+		State state{ State::New };
+	};
+
 	class BScene
 	{
+		friend class BSceneObject;
+
 		std::unique_ptr< BNode > m_sceneRoot;
 		BArray< BNode* > m_nodes;
 		BArray< BComponent* > m_components;
+
+		bool m_bDirty{ false };
 
 	public:
 		BScene();
@@ -225,7 +303,13 @@ namespace bgl
 				delete component;
 			}
 		}
-		
+
+		void update();
+
+		BRenderStage* getNextRenderStage();
+
+		BArray< BRenderStage* > renderStages;
+
 		std::counting_semaphore< 2 > sceneSemaphore{ 2 };
 
 		static BArray< BArray< BTriangle< float > >* >& getMeshComponentTriangles()
@@ -242,9 +326,18 @@ namespace bgl
 		T* addComponent( BNode* node, P... args )
 		{
 			static_assert( std::is_base_of< BComponent, T >::value, "Type should inherit from BComponent" );
-			T* newComponent = new T( node, args... );
+			auto* moduleContext = BEngine::Instance().getModuleContext();
+			T* newComponent = new T( this, node, moduleContext, args... );
 			m_components.push_back( newComponent );
 			node->m_components.add( newComponent );
+			BComponent* comp = dynamic_cast< BComponent* >( newComponent );
+			if( comp )
+			{
+				if(BModule* module = comp->getModule())
+				{
+					module->getComponents().add( comp );
+				}
+			}
 			return newComponent;
 		}
 

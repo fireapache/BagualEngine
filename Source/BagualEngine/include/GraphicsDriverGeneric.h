@@ -5,6 +5,7 @@
 namespace bgl
 {
 	class BViewport;
+	class BRenderStage;
 }
 
 namespace bgl
@@ -15,14 +16,7 @@ namespace bgl
 		Fast,
 		VeryFast
 	};
-
-	enum class BESceneSetup
-	{
-		Empty,
-		WithObjects,
-		ObjectsCharacter
-	};
-
+	
 	enum class BERenderThreadMode
 	{
 		SingleThread,
@@ -69,7 +63,7 @@ namespace bgl
 		BGraphicsDriverGeneric();
 		~BGraphicsDriverGeneric();
 
-		static void RenderLines( BViewport* viewport, const uint32_t renderThreadIndex );
+		static void RenderLines( BRenderStage* renderStage, BViewport* viewport, const uint32_t renderThreadIndex );
 		static void Draw3DLine( BViewport* viewport, const BLine< BVec3f >& line, const Color32Bit color );
 		static void Draw2DLine( BViewport* viewport, const BLine< BPixelPos >& line, const Color32Bit color );
 		static void PaintPixel(

@@ -78,10 +78,14 @@ namespace bgl
 					const auto duration = std::chrono::duration< double >( BSettings::simulationFrequency );
 					const auto endTime = startTime + duration;
 
-					//std::cout << "sim: " << simulationCount << std::endl;
+					if( BSettings::isDebugFlagsSet( DBF_ThreadsTick ) )
+					{
+						std::cout << "sim: " << simulationCount << std::endl;
+					}
 
 					ModulesLoop();
 					ProcessInput();
+					updateScene();
 
 					std::this_thread::sleep_until( endTime );
 					Scene().sceneSemaphore.release();
@@ -137,9 +141,9 @@ namespace bgl
 		{
 			TickWindows();
 
-			if( m_graphicsPlatform )
+			if( m_graphicsPlatform && m_graphicsPlatform->getGraphicsDriver() )
 			{
-				m_graphicsPlatform->SwapFrames();
+				m_graphicsPlatform->getGraphicsDriver()->SwapFrames();
 			}
 		}
 	}
@@ -167,19 +171,35 @@ namespace bgl
 
 		for( const auto& module : *m_modules )
 		{
+			m_moduleContext = module.get();
+
 			const bool bInitialized = module->initialized();
 
 			if( !bInitialized && module->pendingTasks.bInitialize )
 			{
-				m_moduleContext = module.get();
 				module->init();
-				m_moduleContext = nullptr;
+				module->pendingTasks.bInitialize = false;
+			}
+			else if( bInitialized && module->pendingTasks.bTerminate )
+			{
+				module->term();
+				module->pendingTasks.bTerminate = false;
 			}
 
 			if( !module->isHidden() )
 			{
 				module->tick();
 			}
+		}
+
+		m_moduleContext = nullptr;
+	}
+
+	void BEngine::updateScene()
+	{
+		if( m_scene )
+		{
+			m_scene->update();
 		}
 	}
 
@@ -241,6 +261,11 @@ namespace bgl
 		{
 			m_guiTickFuncs.add( func );
 		}
+	}
+
+	void BEngine::unregisterGuiTickFunc( GuiTickFuncType* func )
+	{
+		m_guiTickFuncs.remove( func );
 	}
 
 	BArray< GuiTickFuncType* >& BEngine::getGuiTickFuncs()

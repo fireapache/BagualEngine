@@ -7,6 +7,7 @@
 
 namespace bgl
 {
+	uint32_t BSettings::m_debugFlags{ DBF_ThreadsTick };
 	int BSettings::width = 320;
 	int BSettings::height = 240;
 	double BSettings::simulationFrequency{ 1.0 / 30.0 };

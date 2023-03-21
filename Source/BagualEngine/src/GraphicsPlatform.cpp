@@ -20,30 +20,7 @@ namespace bgl
 		m_driverInstance = std::make_unique< BGraphicsDriverGeneric >();
 		m_viewports = BArray< std::shared_ptr< BViewport > >();
 	}
-
-	const BArray< BViewport* > BGraphicsPlatform::GetViewports() const
-	{
-		return m_viewportsRaw;
-	}
-
-	void BGraphicsPlatform::SetEnabled( const bool bValue )
-	{
-		m_driverInstance->SetEnabled( bValue );
-	}
-
-	bool BGraphicsPlatform::IsEnabled() const
-	{
-		return m_driverInstance->IsEnabled();
-	}
-
-	void BGraphicsPlatform::SwapFrames()
-	{
-		if( m_driverInstance )
-		{
-			m_driverInstance->SwapFrames();
-		}
-	}
-
+	
 	BViewport* BGraphicsPlatform::CreateViewport( BCanvas* canvas )
 	{
 		return RegisterViewport( canvas );
@@ -68,29 +45,5 @@ namespace bgl
 	{
 		return RegisterViewport( canvas, x, y, width, height );
 	}
-
-	void BGraphicsPlatform::Delay( const uint32_t&& ms )
-	{
-		if( m_driverInstance )
-		{
-			m_driverInstance->Delay( ms );
-		}
-	}
-
-	void BGraphicsPlatform::Delay( const uint32_t& ms )
-	{
-		if( m_driverInstance )
-		{
-			m_driverInstance->Delay( ms );
-		}
-	}
-
-	void BGraphicsPlatform::RenderCamera( const BCamera& camera )
-	{
-		if( m_driverInstance )
-		{
-			m_driverInstance->RenderCamera( camera );
-		}
-	}
-
+	
 } // namespace bgl

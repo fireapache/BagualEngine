@@ -53,29 +53,67 @@ namespace bgl
 
 				ImGui::Text( moduleName );
 				ImGui::SameLine();
+				ImGui::SetCursorPosX( 160 );
 
 				if( bInitialized )
 				{
-					bool& bhidden = module->isHidden_mutable();
-					imguiId = "Hidden##";
+					if( module->isHidden() )
+					{
+						imguiId = "Show##";
+						imguiId.append( module->getName() );
+
+						if( ImGui::Button( imguiId.c_str() ) )
+						{
+							module->show();
+						}
+					}
+					else
+					{
+						imguiId = "Hide##";
+						imguiId.append( module->getName() );
+
+						if( ImGui::Button( imguiId.c_str() ) )
+						{
+							module->hide();
+						}
+					}
+
+					ImGui::SameLine();
+
+					ImGui::PushStyleColor( ImGuiCol_Button, ImColor( 120, 0, 0 ).Value );
+					ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImColor( 150, 0, 0 ).Value );
+					ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImColor( 180, 0, 0 ).Value );
+					imguiId = "Terminate##";
 					imguiId.append( module->getName() );
-					ImGui::Checkbox( imguiId.c_str(), &bhidden );
+					const bool bTerminatePressed = ImGui::Button( imguiId.c_str() );
+					ImGui::PopStyleColor( 3 );
+
+					if( bTerminatePressed )
+					{
+						module->pendingTasks.bTerminate = true;
+					}
 				}
 				else
 				{
 					if( module->pendingTasks.bInitialize )
 					{
-						ImGui::TextColored( ImVec4( 1.f, 0.1f, 0.1f, 1.f ), "Initializing..." );
+						ImGui::TextColored( ImColor( 0, 180, 0 ).Value, "Initializing..." );
 					}
 					else
 					{
+						ImGui::PushStyleColor( ImGuiCol_Button, ImColor( 0, 120, 0 ).Value );
+						ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImColor( 0, 150, 0 ).Value );
+						ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImColor( 0, 180, 0 ).Value );
 						imguiId = "Initialize##";
 						imguiId.append( module->getName() );
+						const bool bInitializePressed = ImGui::Button( imguiId.c_str() );
+						ImGui::PopStyleColor( 3 );
 
-						if( ImGui::Button( imguiId.c_str() ) )
+						if( bInitializePressed )
 						{
 							module->pendingTasks.bInitialize = true;
 						}
+					
 					}
 				}
 			}

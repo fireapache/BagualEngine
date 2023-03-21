@@ -5,7 +5,7 @@
 
 namespace bgl
 {
-	class BGraphicsPlatform : public BGraphicsDriverInterface
+	class BGraphicsPlatform
 	{
 		friend std::unique_ptr< BGraphicsDriverInterface > std::make_unique< BGraphicsDriverInterface >();
 		friend std::unique_ptr< BArray< std::shared_ptr< BCanvas > > > std::make_unique< BArray< std::shared_ptr< BCanvas > > >();
@@ -28,26 +28,30 @@ namespace bgl
 
 	public:
 		BGraphicsPlatform();
+		
+		[[nodiscard]] const BArray< BViewport* >& GetViewports() const
+		{
+			return m_viewportsRaw;
+		}
 
-		BERenderOutputType& GetRenderOutputType_Mutable();
-		void SetRenderOutputType( BERenderOutputType type );
+		[[nodiscard]] BGraphicsDriverInterface* getGraphicsDriver() const
+		{
+			return m_driverInstance.get();
+		}
 
-		const BArray< BViewport* > GetViewports() const;
+		void SetEnabled( bool bValue )
+		{
+			m_driverInstance->SetEnabled( bValue );
+		}
 
-		virtual void SetEnabled( const bool bValue );
-		virtual bool IsEnabled() const;
-		virtual void SwapFrames() override;
-		virtual void RenderCamera( const BCamera& camera ) override;
-		virtual void Delay( const uint32_t&& ms ) override;
-		virtual void Delay( const uint32_t& ms ) override;
-		virtual BViewport* CreateViewport( BCanvas* canvas );
-		virtual BViewport* CreateViewport( BCanvas* canvas, const BBox< BVector2< float > > normalizedSize );
-		virtual BViewport* CreateViewport( BCanvas* canvas, const uint32_t width, const uint32_t height );
-		virtual BViewport* CreateViewport(
-			BCanvas* canvas,
-			const uint32_t x,
-			const uint32_t y,
-			const uint32_t width,
-			const uint32_t height );
+		bool IsEnabled() const
+		{
+			return m_driverInstance->IsEnabled();
+		}
+
+		BViewport* CreateViewport( BCanvas* canvas );
+		BViewport* CreateViewport( BCanvas* canvas, BBox< BVector2< float > > normalizedSize );
+		BViewport* CreateViewport( BCanvas* canvas, uint32_t width, uint32_t height );
+		BViewport* CreateViewport( BCanvas* canvas, uint32_t x, uint32_t y, uint32_t width, uint32_t height );
 	};
 } // namespace bgl

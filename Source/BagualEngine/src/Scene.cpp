@@ -18,14 +18,32 @@ namespace bgl
 	BArray< BArray< BTriangle< float > >* > BMeshComponent::g_meshComponentTriangles;
 	BArray< BMeshComponent* > BMeshComponent::g_meshComponents;
 
-	BNode::BNode( BNode* parent, const char* name, BModule* owningModule )
+	BNode::BNode( BScene* scene, BNode* parent, const char* name, BModule* owningModule )
+		: BSceneObject( scene, name, owningModule )
 	{
 		m_parent = parent;
-		m_module = owningModule;
 
-		if( name )
+		if( m_module )
 		{
-			this->m_name = std::string( name );
+			m_module->getNodes().add( this );
+		}
+
+		if( BSettings::isDebugFlagsSet( DBF_SceneConstruction ) )
+		{
+			std::cout << "BNode: " << getName() << std::endl;
+		}
+	}
+
+	BNode::~BNode()
+	{
+		if( m_module )
+		{
+			m_module->getNodes().remove( this );
+		}
+
+		if( BSettings::isDebugFlagsSet( DBF_SceneConstruction ) )
+		{
+			std::cout << "~BNode: " << getName() << std::endl;
 		}
 	}
 
@@ -87,6 +105,7 @@ namespace bgl
 
 	void BNode::setHidden( bool bHidden )
 	{
+		setSceneDirty();
 		m_bHidden = bHidden;
 	}
 
@@ -160,22 +179,24 @@ namespace bgl
 		m_children.remove( node );
 	}
 
-	BMeshComponent::BMeshComponent(
-		class BNode* owner /*= nullptr*/,
-		const char* name /*= "None"*/,
-		const char* assetPath /*= nullptr*/ )
-		: BComponent( owner, name )
+	BMeshComponent::BMeshComponent( BScene* scene, BNode* owner, BModule* module, const char* name, const char* assetPath )
+		: BComponent( scene, owner, module, name )
 	{
+		m_scene = scene;
 		g_meshComponentTriangles.add( &m_meshData.triangles );
 		g_meshComponents.add( this );
 		if( assetPath )
+		{
 			LoadMesh( assetPath );
+			setSceneDirty();
+		}
 	}
 
 	BMeshComponent::~BMeshComponent()
 	{
 		g_meshComponentTriangles.remove( &m_meshData.triangles );
 		g_meshComponents.remove( this );
+		setSceneDirty();
 	}
 
 	void BMeshComponent::addUniqueEdge( const BLine< BVec3f >& line )
@@ -284,6 +305,7 @@ namespace bgl
 	void BMeshComponent::setShowWireframe( const bool bValue )
 	{
 		m_showWireframe = bValue;
+		setSceneDirty();
 	}
 
 	bgl::BArray< bgl::BTriangle< float > >& BMeshComponent::getTriangles()
@@ -320,7 +342,114 @@ namespace bgl
 
 	BScene::BScene()
 	{
-		m_sceneRoot = std::make_unique< BNode >( nullptr, "Scene Root" );
+		m_sceneRoot = std::make_unique< BNode >( this, nullptr, "Scene Root" );
+	}
+
+	void BScene::update()
+	{
+		// deleting unused render stages
+		const auto [ first, last ] = std::ranges::remove_if(
+			renderStages,
+			[]( const BRenderStage* rs ) { return rs->state == BRenderStage::State::Old; } );
+		renderStages.erase( first, last );
+
+		if( m_bDirty )
+		{
+			auto* renderStage = new BRenderStage();
+			renderStages.add( renderStage );
+
+			auto& tris = renderStage->triangles;
+			auto& trisSIMD = renderStage->triangles_SIMD;
+			auto& edges = renderStage->edges;
+
+			for( const auto meshComp : BMeshComponent::g_meshComponents )
+			{
+				if( !meshComp )
+				{
+					continue;
+				}
+
+				if( !meshComp->isVisible() )
+				{
+					continue;
+				}
+
+				auto& compTris = meshComp->getTriangles();
+				auto& compTrisSIMD = meshComp->getTriangles_SIMD();
+				auto& compEdges = meshComp->getMeshData().edges;
+
+				tris.insert( tris.end(), compTris.begin(), compTris.end() );
+
+				trisSIMD.v0.x.insert( trisSIMD.v0.x.end(), compTrisSIMD.v0.x.begin(), compTrisSIMD.v0.x.end() );
+				trisSIMD.v0.y.insert( trisSIMD.v0.y.end(), compTrisSIMD.v0.y.begin(), compTrisSIMD.v0.y.end() );
+				trisSIMD.v0.z.insert( trisSIMD.v0.z.end(), compTrisSIMD.v0.z.begin(), compTrisSIMD.v0.z.end() );
+
+				trisSIMD.v1.x.insert( trisSIMD.v1.x.end(), compTrisSIMD.v1.x.begin(), compTrisSIMD.v1.x.end() );
+				trisSIMD.v1.y.insert( trisSIMD.v1.y.end(), compTrisSIMD.v1.y.begin(), compTrisSIMD.v1.y.end() );
+				trisSIMD.v1.z.insert( trisSIMD.v1.z.end(), compTrisSIMD.v1.z.begin(), compTrisSIMD.v1.z.end() );
+
+				trisSIMD.v2.x.insert( trisSIMD.v2.x.end(), compTrisSIMD.v2.x.begin(), compTrisSIMD.v2.x.end() );
+				trisSIMD.v2.y.insert( trisSIMD.v2.y.end(), compTrisSIMD.v2.y.begin(), compTrisSIMD.v2.y.end() );
+				trisSIMD.v2.z.insert( trisSIMD.v2.z.end(), compTrisSIMD.v2.z.begin(), compTrisSIMD.v2.z.end() );
+
+				if( !meshComp->getShowWireframe() )
+				{
+					continue;
+				}
+
+				for( auto& compEdge : compEdges )
+				{
+					edges.emplace_back( BRenderStage::EdgeData{ compEdge, meshComp->getColor().getRGB() } );
+				}
+			}
+
+			m_bDirty = false;
+		}
+	}
+
+	BRenderStage* BScene::getNextRenderStage()
+	{
+		BRenderStage* selectedRenderStage{ nullptr };
+
+		// finds the latest New
+		for( uint32_t i = 0; i < renderStages.size(); ++i )
+		{
+			if( renderStages[ i ]->state == BRenderStage::State::New )
+			{
+				selectedRenderStage = renderStages[ i ];
+			}
+		}
+
+		// lets stick with the last Claimed
+		if( !selectedRenderStage )
+		{
+			for( uint32_t i = 0; i < renderStages.size(); ++i )
+			{
+				if( renderStages[ i ]->state == BRenderStage::State::Claimed )
+				{
+					selectedRenderStage = renderStages[ i ];
+				}
+			}
+
+			return selectedRenderStage;
+		}
+
+		// ok we have the latest New, lets stage it
+		selectedRenderStage->state = BRenderStage::State::Staged;
+
+		// marking all others as Old
+		for( uint32_t i = 0; i < renderStages.size(); ++i )
+		{
+			if( renderStages[ i ]->state != BRenderStage::State::Staged )
+			{
+				renderStages[ i ]->state = BRenderStage::State::Old;
+			}
+		}
+
+		// finally claiming the one selected
+		selectedRenderStage->state = BRenderStage::State::Claimed;
+
+		return selectedRenderStage;
 	}
 
 	BNode* BScene::addNode( const char* name /*= "None"*/ )
@@ -331,7 +460,7 @@ namespace bgl
 	BNode* BScene::addNode( BNode& parent, const char* name /*= "None"*/ )
 	{
 		BModule* moduleContext = BEngine::Instance().getModuleContext();
-		BNode* newNodePtr = new BNode( &parent, name, moduleContext );
+		BNode* newNodePtr = new BNode( this, &parent, name, moduleContext );
 		m_nodes.push_back( newNodePtr );
 		parent.addChild( newNodePtr );
 		if( moduleContext )
@@ -373,12 +502,25 @@ namespace bgl
 		}
 	}
 
-	BComponent::BComponent( BNode* owner, const char* name )
+	void BSceneObject::setSceneDirty() const
+	{
+		if( m_scene )
+		{
+			m_scene->m_bDirty = true;
+		}
+	}
+
+	BComponent::BComponent( BScene* scene, BNode* owner, BModule* module, const char* name )
+		: BSceneObject( scene, name, module )
 	{
 		setOwner( owner );
-		m_name = std::string( name );
+
+		if( BSettings::isDebugFlagsSet( DBF_SceneConstruction ) )
+		{
+			std::cout << "BComponent: " << getName() << std::endl;
+		}
 	}
-	
+
 	bool BComponent::isVisible() const
 	{
 		if( m_module && m_module->isHidden() )
@@ -458,8 +600,8 @@ namespace bgl
 		getTransform_mutable().scale = scale;
 	}
 
-	BCameraComponent::BCameraComponent( BNode* owner, const char* name, BViewport* viewport )
-		: BComponent( owner, name )
+	BCameraComponent::BCameraComponent( BScene* scene, BNode* owner, BModule* module, const char* name, BViewport* viewport )
+		: BComponent( scene, owner, module, name )
 	{
 		m_camera = new BCamera( viewport, this );
 		BCameraManager::AddCamera( m_camera );
