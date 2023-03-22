@@ -105,8 +105,11 @@ namespace bgl
 
 	void BNode::setHidden( bool bHidden )
 	{
-		setSceneDirty();
-		m_bHidden = bHidden;
+		if( m_bHidden != bHidden )
+		{
+			m_bHidden = bHidden;
+			setSceneDirty();
+		}
 	}
 
 	BTransform< float >& BNode::getTransform_mutable()
@@ -304,8 +307,11 @@ namespace bgl
 
 	void BMeshComponent::setShowWireframe( const bool bValue )
 	{
-		m_showWireframe = bValue;
-		setSceneDirty();
+		if( m_showWireframe != bValue )
+		{
+			m_showWireframe = bValue;
+			setSceneDirty();
+		}
 	}
 
 	bgl::BArray< bgl::BTriangle< float > >& BMeshComponent::getTriangles()

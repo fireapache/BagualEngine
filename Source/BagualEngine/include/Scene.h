@@ -1,9 +1,9 @@
 #pragma once
 
+#include "BagualEngine.h"
 #include "Module.h"
 #include "Settings.h"
 #include "Types.h"
-#include "BagualEngine.h"
 #include <memory>
 #include <mutex>
 #include <semaphore>
@@ -69,11 +69,8 @@ namespace bgl
 	public:
 		BSceneObject( BScene* scene, const char* name = "None", BModule* module = nullptr )
 			: BObject( name, module )
+			, m_scene( scene )
 		{
-			if( name )
-			{
-				m_name = name;
-			}
 		}
 	};
 
@@ -188,7 +185,12 @@ namespace bgl
 		BCamera* m_camera;
 
 	public:
-		BCameraComponent( BScene* scene, BNode* owner, BModule* module = nullptr, const char* name = "None", BViewport* viewport = nullptr );
+		BCameraComponent(
+			BScene* scene,
+			BNode* owner,
+			BModule* module = nullptr,
+			const char* name = "None",
+			BViewport* viewport = nullptr );
 		~BCameraComponent();
 
 		[[nodiscard]] BViewport* getViewport() const;
@@ -333,7 +335,7 @@ namespace bgl
 			BComponent* comp = dynamic_cast< BComponent* >( newComponent );
 			if( comp )
 			{
-				if(BModule* module = comp->getModule())
+				if( BModule* module = comp->getModule() )
 				{
 					module->getComponents().add( comp );
 				}

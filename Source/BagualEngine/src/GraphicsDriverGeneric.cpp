@@ -136,16 +136,6 @@ namespace bgl
 
 			BGL_ASSERT( canvas != nullptr && "Got null canvas during render!" );
 
-			auto window = canvas->getWindow();
-
-			BGL_ASSERT( window != nullptr && "Got null window during render!" );
-
-			auto genericWindow = static_cast< BGenericPlatformWindow* >( window );
-
-			BGL_ASSERT( genericWindow != nullptr && "Got null generic window during render!" );
-
-			auto glfwWindow = genericWindow->GetGLFW_Window();
-
 #pragma endregion
 
 			// Getting thread pool ready
@@ -157,55 +147,44 @@ namespace bgl
 
 #pragma region Pushing Geometry Tasks
 
-			{
-				canvas->resetZBuffer();
+			canvas->resetZBuffer();
 
-				for( uint32_t t = 0; t < processorCount; t++ )
-				{
-					renderThreadPool.push_task( RenderLines, renderStage, viewport, t );
-				}
+			for( uint32_t t = 0; t < processorCount; t++ )
+			{
+				renderThreadPool.push_task( RenderLines, renderStage, viewport, t );
 			}
 
 #pragma endregion
 
 #pragma region Pushing 2D and 3D Lines Tasks
 
-			//{
-			//	canvas->resetWireframeBuffer();
+			canvas->resetWireframeBuffer();
 
-			//	for( const auto meshComponent : BMeshComponent::g_meshComponents )
-			//	{
-			//		if( meshComponent == nullptr || meshComponent->getShowWireframe() == false
-			//			|| meshComponent->isVisible() == false )
-			//			continue;
+			const auto edgesData = renderStage->edges.data();
+			const auto edgesLength = renderStage->edges.size();
 
-			//		const Color32Bit lineColor = meshComponent->getColor().getRGB();
-			//		auto& edges = meshComponent->getMeshData().edges;
+			for( auto* edgePtr = edgesData; edgePtr < edgesData + edgesLength; edgePtr++ )
+			{
+				renderThreadPool.push_task( Draw3DLine, viewport, edgePtr->line3D, edgePtr->color );
+			}
 
-			//		for( auto* edge = edges.data(); edge < edges.data() + edges.size(); edge++ )
-			//		{
-			//			renderThreadPool.push_task( Draw3DLine, viewport, *edge, lineColor );
-			//		}
-			//	}
+			auto& lines3D = camera->GetLine3DBuffer();
 
-			//	auto& lines3D = camera->GetLine3DBuffer();
+			for( auto& line3D : lines3D )
+			{
+				renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
+			}
 
-			//	for( auto& line3D : lines3D )
-			//	{
-			//		renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
-			//	}
+			camera->ClearLine3DBuffer();
 
-			//	camera->ClearLine3DBuffer();
+			auto& lines2D = camera->GetLine2DBuffer();
 
-			//	auto& lines2D = camera->GetLine2DBuffer();
+			for( auto& line2D : lines2D )
+			{
+				renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
+			}
 
-			//	for( auto& line2D : lines2D )
-			//	{
-			//		renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
-			//	}
-
-			//	camera->ClearLine2DBuffer();
-			//}
+			camera->ClearLine2DBuffer();
 
 #pragma endregion
 
@@ -347,7 +326,7 @@ namespace bgl
 				triangleScanParams.dir = vRayDir;
 
 				// Getting scene triangles
-				
+
 				if( intrinsicsMode == BEIntrinsicsMode::Off )
 				{
 					auto& tris = renderStage->triangles;

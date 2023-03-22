@@ -101,6 +101,8 @@ namespace bgl
 		BMeshComponent* objectsMeshComp{ nullptr };
 		BMeshComponent* charMeshComp{ nullptr };
 
+		bool wireframes[ 3 ]{ false, false, false };
+
 		BEngineTest_RoomRendering()
 			: BEngineTestBase( "Room Rendering" ){};
 

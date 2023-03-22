@@ -205,7 +205,7 @@ namespace bgl
 			ImGui::SetNextWindowSize( ImVec2( 550, 680 ), ImGuiCond_FirstUseEver );
 
 			ImGuiWindowFlags window_flags = 0;
-			if( !ImGui::Begin( "Bagual Engine Test #2 Settings", nullptr, window_flags ) )
+			if( !ImGui::Begin( "Room Rendering", nullptr, window_flags ) )
 			{
 				ImGui::End();
 				return;
@@ -229,19 +229,28 @@ namespace bgl
 
 			if( roomMeshComp )
 			{
-				ImGui::Checkbox( "Show Room Wireframe", &( roomMeshComp->getShowWireframe_Mutable() ) );
+				if( ImGui::Checkbox( "Show Room Wireframe", &( wireframes[ 0 ] ) ) )
+				{
+					roomMeshComp->setShowWireframe( wireframes[ 0 ] );
+				}
 			}
 
 			if( objectsMeshComp )
 			{
 				ImGui::SameLine();
-				ImGui::Checkbox( "Show Object Wireframe", &( objectsMeshComp->getShowWireframe_Mutable() ) );
+				if( ImGui::Checkbox( "Show Object Wireframe", &( wireframes[ 1 ] ) ) )
+				{
+					objectsMeshComp->setShowWireframe( wireframes[ 1 ] );
+				}
 			}
 
 			if( charMeshComp )
 			{
 				ImGui::SameLine();
-				ImGui::Checkbox( "Show Character Wireframe", &( charMeshComp->getShowWireframe_Mutable() ) );
+				if( ImGui::Checkbox( "Show Character Wireframe", &( wireframes[ 2 ] ) ) )
+				{
+					charMeshComp->setShowWireframe( wireframes[ 2 ] );
+				}
 			}
 
 			if( cameraComp && cameraComp->getCamera() )
