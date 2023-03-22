@@ -35,6 +35,11 @@ namespace bgl
 
 	BViewport::BViewport( BCanvas* canvas )
 	{
+		if( canvas )
+		{
+			canvas->getViewports().add( this );
+		}
+
 		m_canvas = canvas;
 
 		m_bounds.p1.x = 0;
@@ -47,12 +52,22 @@ namespace bgl
 
 	BViewport::BViewport( BCanvas* canvas, const BBox< BVector2< float > > normalizedSize )
 	{
+		if( canvas )
+		{
+			canvas->getViewports().add( this );
+		}
+
 		m_canvas = canvas;
 		SetNormalizedSize( normalizedSize );
 	}
 
 	BViewport::BViewport( BCanvas* canvas, const uint32_t width, const uint32_t height )
 	{
+		if( canvas )
+		{
+			canvas->getViewports().add( this );
+		}
+
 		m_canvas = canvas;
 
 		m_bounds.p1.x = 0;
@@ -65,6 +80,11 @@ namespace bgl
 
 	BViewport::BViewport( BCanvas* canvas, const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height )
 	{
+		if( canvas )
+		{
+			canvas->getViewports().add( this );
+		}
+
 		m_canvas = canvas;
 
 		m_bounds.p1.x = x;
@@ -77,6 +97,10 @@ namespace bgl
 
 	BViewport::~BViewport()
 	{
+		if( m_canvas )
+		{
+			m_canvas->getViewports().remove( this );
+		}
 	}
 
 	void BViewport::SetNormalizedSize( const BBox< BVector2< float > > normalizedSize )

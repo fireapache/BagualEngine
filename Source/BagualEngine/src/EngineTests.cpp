@@ -111,6 +111,10 @@ namespace bgl
 
 	void BEngineTest_FundamentalRendering::destroy()
 	{
+		BEngine::Instance().unregisterGuiTickFunc( &guiTickFunc );
+		auto& scene = BEngine::Scene();
+		scene.deleteNode( trisNode );
+		trisNode = nullptr;
 	}
 
 	void BEngineTest_FundamentalRendering::tick()
@@ -459,7 +463,7 @@ namespace bgl
 			ImGui::SetNextWindowSize( ImVec2( 550, 680 ), ImGuiCond_FirstUseEver );
 
 			ImGuiWindowFlags window_flags = 0;
-			if( !ImGui::Begin( "Bagual Engine Test #4 Settings", nullptr, window_flags ) )
+			if( !ImGui::Begin( "Cube Projection", nullptr, window_flags ) )
 			{
 				ImGui::End();
 				return;
@@ -484,36 +488,38 @@ namespace bgl
 
 	void BEngineTest_CubeProjection::tick()
 	{
-		//if (camera)
-		//{
-		//	BPixelPos pp[8];
-		//	bool bPp[8];
+		if (camera)
+		{
+			BPixelPos pp[8];
+			bool bPp[8];
 
-		//	bPp[0] = BDraw::ProjectPoint(viewport, points[0], pp[0]);
-		//	bPp[1] = BDraw::ProjectPoint(viewport, points[1], pp[1]);
-		//	bPp[2] = BDraw::ProjectPoint(viewport, points[2], pp[2]);
-		//	bPp[3] = BDraw::ProjectPoint(viewport, points[3], pp[3]);
+			bPp[0] = BDraw::ProjectPoint(viewport, points[0], pp[0]);
+			bPp[1] = BDraw::ProjectPoint(viewport, points[1], pp[1]);
+			bPp[2] = BDraw::ProjectPoint(viewport, points[2], pp[2]);
+			bPp[3] = BDraw::ProjectPoint(viewport, points[3], pp[3]);
 
-		//	bPp[4] = BDraw::ProjectPoint(viewport, points[4], pp[4]);
-		//	bPp[5] = BDraw::ProjectPoint(viewport, points[5], pp[5]);
-		//	bPp[6] = BDraw::ProjectPoint(viewport, points[6], pp[6]);
-		//	bPp[7] = BDraw::ProjectPoint(viewport, points[7], pp[7]);
+			bPp[4] = BDraw::ProjectPoint(viewport, points[4], pp[4]);
+			bPp[5] = BDraw::ProjectPoint(viewport, points[5], pp[5]);
+			bPp[6] = BDraw::ProjectPoint(viewport, points[6], pp[6]);
+			bPp[7] = BDraw::ProjectPoint(viewport, points[7], pp[7]);
 
-		//	if (bPp[0] && bPp[1]) BDraw::DrawLine(viewport, pp[0], pp[1]);
-		//	if (bPp[2] && bPp[3]) BDraw::DrawLine(viewport, pp[2], pp[3]);
-		//	if (bPp[0] && bPp[2]) BDraw::DrawLine(viewport, pp[0], pp[2]);
-		//	if (bPp[1] && bPp[3]) BDraw::DrawLine(viewport, pp[1], pp[3]);
+			const Color32Bit color = BSettings::lineColor;
 
-		//	if (bPp[4] && bPp[5]) BDraw::DrawLine(viewport, pp[4], pp[5]);
-		//	if (bPp[6] && bPp[7]) BDraw::DrawLine(viewport, pp[6], pp[7]);
-		//	if (bPp[4] && bPp[6]) BDraw::DrawLine(viewport, pp[4], pp[6]);
-		//	if (bPp[5] && bPp[7]) BDraw::DrawLine(viewport, pp[5], pp[7]);
+			if (bPp[0] && bPp[1]) BDraw::DrawLine(viewport, pp[0], pp[1], color);
+			if (bPp[2] && bPp[3]) BDraw::DrawLine(viewport, pp[2], pp[3], color);
+			if (bPp[0] && bPp[2]) BDraw::DrawLine(viewport, pp[0], pp[2], color);
+			if (bPp[1] && bPp[3]) BDraw::DrawLine(viewport, pp[1], pp[3], color);
 
-		//	if (bPp[0] && bPp[4]) BDraw::DrawLine(viewport, pp[0], pp[4]);
-		//	if (bPp[1] && bPp[5]) BDraw::DrawLine(viewport, pp[1], pp[5]);
-		//	if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6]);
-		//	if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7]);
-		//}
+			if (bPp[4] && bPp[5]) BDraw::DrawLine(viewport, pp[4], pp[5], color);
+			if (bPp[6] && bPp[7]) BDraw::DrawLine(viewport, pp[6], pp[7], color);
+			if (bPp[4] && bPp[6]) BDraw::DrawLine(viewport, pp[4], pp[6], color);
+			if (bPp[5] && bPp[7]) BDraw::DrawLine(viewport, pp[5], pp[7], color);
+
+			if (bPp[0] && bPp[4]) BDraw::DrawLine(viewport, pp[0], pp[4], color);
+			if (bPp[1] && bPp[5]) BDraw::DrawLine(viewport, pp[1], pp[5], color);
+			if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6], color);
+			if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7], color);
+		}
 	}
 
 	bool BEngineTest_CubeProjection::initialized() const
@@ -523,6 +529,10 @@ namespace bgl
 
 	void BEngineTest_CubeProjection::destroy()
 	{
+		BEngine::Instance().unregisterGuiTickFunc( &guiTickFunc );
+		auto& scene = BEngine::Scene();
+		scene.deleteNode( cubeNode );
+		cubeNode = nullptr;
 	}
 
 #pragma endregion

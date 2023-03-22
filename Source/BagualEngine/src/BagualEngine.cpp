@@ -186,7 +186,7 @@ namespace bgl
 				module->pendingTasks.bTerminate = false;
 			}
 
-			if( !module->isHidden() )
+			if( module->initialized() && !module->isHidden() )
 			{
 				module->tick();
 			}
