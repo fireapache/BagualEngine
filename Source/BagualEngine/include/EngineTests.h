@@ -134,10 +134,10 @@ namespace bgl
 		void destroy() override;
 	};
 
-	class BEngineTest_AABBTests : public BEngineTestBase
+	class BEngineTest_BVHTests : public BEngineTestBase
 	{
 	public:
-		BEngineTest_AABBTests()
+		BEngineTest_BVHTests()
 			: BEngineTestBase( "AABB Tests Module" ){};
 
 		BMeshComponent* cubeMeshComp{ nullptr };

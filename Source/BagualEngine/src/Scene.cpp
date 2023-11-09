@@ -12,6 +12,11 @@
 #include "Viewport.h"
 #include <obj_parse.h>
 
+#include <bvh/v2/bvh.h>
+#include <bvh/v2/default_builder.h>
+#include <bvh/v2/thread_pool.h>
+#include <bvh/v2/tri.h>
+
 namespace bgl
 {
 
@@ -409,6 +414,79 @@ namespace bgl
 				}
 			}
 
+			
+#pragma region BVH V2 Code
+			{
+				using Scalar = float;
+				using Vec3 = bvh::v2::Vec< Scalar, 3 >;
+				using Box = bvh::v2::BBox< Scalar, 3 >;
+				using Tri = bvh::v2::Tri< Scalar, 3 >;
+				using Node = bvh::v2::Node< Scalar, 3 >;
+				using Bvh = bvh::v2::Bvh< Node >;
+				using Ray = bvh::v2::Ray< Scalar, 3 >;
+
+				using PrecomputedTri = bvh::v2::PrecomputedTri<Scalar>;
+
+				// This is the original data, which may come in some other data type/structure.
+				std::vector< Tri > bvhTris;
+
+				for( auto& tri : tris )
+				{
+					bvhTris.emplace_back(
+						Tri{
+							Vec3{ tri.v0.x, tri.v0.y, tri.v0.z },
+							Vec3{ tri.v1.x, tri.v1.y, tri.v1.z },
+							Vec3{ tri.v2.x, tri.v2.y, tri.v2.z }
+						} );
+				}
+
+				bvh::v2::ThreadPool thread_pool;
+				bvh::v2::ParallelExecutor executor( thread_pool );
+
+				// Get triangle centers and bounding boxes (required for BVH builder)
+				std::vector< Box > boxes( bvhTris.size() );
+				std::vector< Vec3 > centers( bvhTris.size() );
+				executor.for_each(
+					0,
+					bvhTris.size(),
+					[ & ]( size_t begin, size_t end )
+					{
+						for( size_t i = begin; i < end; ++i )
+						{
+							boxes[ i ] = bvhTris[ i ].get_bbox();
+							centers[ i ] = bvhTris[ i ].get_center();
+						}
+					} );
+
+				typename bvh::v2::DefaultBuilder< Node >::Config config;
+				config.quality = bvh::v2::DefaultBuilder< Node >::Quality::High;
+				renderStage->bvh = bvh::v2::DefaultBuilder< Node >::build( thread_pool, boxes, centers, config );
+
+				// Permuting the primitive data allows to remove indirections during traversal, which makes it faster.
+				const bool should_permute = bPermuteTris;
+
+				if( bPrecomputeTris )
+				{
+					// This precomputes some data to speed up traversal further.
+					renderStage->bvh.precomputed_tris.reserve( bvhTris.size() );
+					executor.for_each(
+						0,
+						bvhTris.size(),
+						[ & ]( size_t begin, size_t end )
+						{
+							for( size_t i = begin; i < end; ++i )
+							{
+								auto j = should_permute ? renderStage->bvh.prim_ids[ i ] : i;
+								renderStage->bvh.precomputed_tris[ i ] = bvhTris[ j ];
+							}
+						} );
+					renderStage->bvh.bPermuted = should_permute;
+					renderStage->bvh.bPrecomputed = true;
+				}
+			}
+#pragma endregion
+
+
 			m_bDirty = false;
 		}
 	}
@@ -512,7 +590,7 @@ namespace bgl
 	{
 		if( m_scene )
 		{
-			m_scene->m_bDirty = true;
+			m_scene->setSceneDirty( true );
 		}
 	}
 

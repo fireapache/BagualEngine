@@ -254,7 +254,19 @@ namespace bgl
 				if( ImGui::Checkbox( "Show Character Wireframe", &( wireframes[ 2 ] ) ) )
 				{
 					charMeshComp->setShowWireframe( wireframes[ 2 ] );
+					BEngine::Scene().setSceneDirty( true );
 				}
+			}
+			
+			if( ImGui::Checkbox( "Permute BVH", &( BEngine::Scene().bPermuteTris ) ) )
+			{
+				BEngine::Scene().setSceneDirty( true );
+			}
+			
+			ImGui::SameLine();
+			if( ImGui::Checkbox( "Precompute BVH", &( BEngine::Scene().bPrecomputeTris ) ) )
+			{
+				 BEngine::Scene().setSceneDirty( true );
 			}
 
 			if( cameraComp && cameraComp->getCamera() )
@@ -488,6 +500,7 @@ namespace bgl
 
 	void BEngineTest_CubeProjection::tick()
 	{
+		// clang-format off
 		if (camera)
 		{
 			BPixelPos pp[8];
@@ -520,6 +533,7 @@ namespace bgl
 			if (bPp[2] && bPp[6]) BDraw::DrawLine(viewport, pp[2], pp[6], color);
 			if (bPp[3] && bPp[7]) BDraw::DrawLine(viewport, pp[3], pp[7], color);
 		}
+		// clang-format on
 	}
 
 	bool BEngineTest_CubeProjection::initialized() const
@@ -537,9 +551,9 @@ namespace bgl
 
 #pragma endregion
 
-#pragma region AABB Tests
+#pragma region BVH Tests
 
-	void BEngineTest_AABBTests::init()
+	void BEngineTest_BVHTests::init()
 	{
 		CreateTestWindowAndScene();
 
@@ -557,9 +571,7 @@ namespace bgl
 		camera->SetFOV( 60.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::Depth );
-		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
-
-		BCubef cube;
+		camera->SetIntrinsicsMode( BEIntrinsicsMode::Off );
 
 		guiTickFunc = [ this ]()
 		{
@@ -599,16 +611,16 @@ namespace bgl
 		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
-	void BEngineTest_AABBTests::tick()
+	void BEngineTest_BVHTests::tick()
 	{
 	}
 
-	bool BEngineTest_AABBTests::initialized() const
+	bool BEngineTest_BVHTests::initialized() const
 	{
 		return cubeNode;
 	}
 
-	void BEngineTest_AABBTests::destroy()
+	void BEngineTest_BVHTests::destroy()
 	{
 	}
 

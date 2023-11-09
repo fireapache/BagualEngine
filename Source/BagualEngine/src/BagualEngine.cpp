@@ -47,7 +47,7 @@ namespace bgl
 			m_modules->add( std::make_shared< BEngineTest_FundamentalRendering >() );
 			m_modules->add( std::make_shared< BEngineTest_RoomRendering >() );
 			m_modules->add( std::make_shared< BEngineTest_CubeProjection >() );
-			m_modules->add( std::make_shared< BEngineTest_AABBTests >() );
+			m_modules->add( std::make_shared< BEngineTest_BVHTests >() );
 
 			for( auto& module : *m_modules )
 			{

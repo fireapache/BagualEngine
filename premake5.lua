@@ -10,6 +10,9 @@
 	Dependencies:
 		GLAD
 		GLFW
+		IMGUI
+		IMGUI-NE
+		BVH
 
 	Windows:
 		Debug, Release
@@ -275,7 +278,8 @@ project "BagualEngine"
 		"Source/IMGUI/",
 		"Source/IMGUI/examples/",
 		"Source/IMGUI-NE/",
-		"Source/OBJ-Loader/"
+		"Source/OBJ-Loader/",
+		"Source/BVH/src/"
 	}
 
 	dependson { "GLAD", "GLFW", "IMGUI", "IMGUI-NE" }

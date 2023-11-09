@@ -10,3 +10,6 @@
 [submodule "Source/IMGUI-NE"]
 	path = Source/IMGUI-NE
 	url = https://github.com/fireapache/imgui-node-editor.git
+[submodule "Source/BVH"]
+	path = Source/BVH
+	url = git@github.com:fireapache/bvh.git

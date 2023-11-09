@@ -4,6 +4,7 @@
 #include "Module.h"
 #include "Settings.h"
 #include "Types.h"
+#include <bvh/v2/bvh.h>
 #include <memory>
 #include <mutex>
 #include <semaphore>
@@ -259,6 +260,7 @@ namespace bgl
 	public:
 		BArray< BTriangle< float > > triangles;
 		BTriangle< BArray< float > > triangles_SIMD;
+		bvh::v2::Bvh< bvh::v2::Node< float, 3 > > bvh;
 
 		class EdgeData
 		{
@@ -314,6 +316,9 @@ namespace bgl
 
 		std::counting_semaphore< 2 > sceneSemaphore{ 2 };
 
+		bool bPermuteTris{ true };
+		bool bPrecomputeTris{ true };
+
 		static BArray< BArray< BTriangle< float > >* >& getMeshComponentTriangles()
 		{
 			return BMeshComponent::g_meshComponentTriangles;
@@ -341,6 +346,11 @@ namespace bgl
 				}
 			}
 			return newComponent;
+		}
+
+		void setSceneDirty( bool bValue )
+		{
+			m_bDirty = bValue;
 		}
 
 		BNode* addNode( const char* name = "None" );

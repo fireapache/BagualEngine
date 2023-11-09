@@ -7,7 +7,6 @@
 
 #include "BagualEngine.h"
 #include "Camera.h"
-#include "CameraManager.h"
 #include "Draw.h"
 #include "GraphicsPlatform.h"
 #include "PlatformGeneric.h"
@@ -24,7 +23,13 @@
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <obj_parse.h>
+#include <bvh/v2/bvh.h>
+#include <bvh/v2/vec.h>
+#include <bvh/v2/ray.h>
+#include <bvh/v2/node.h>
+#include <bvh/v2/thread_pool.h>
+#include <bvh/v2/stack.h>
+#include <bvh/v2/tri.h>
 // clang-format on
 
 namespace bgl
@@ -329,13 +334,11 @@ namespace bgl
 
 				if( intrinsicsMode == BEIntrinsicsMode::Off )
 				{
-					auto& tris = renderStage->triangles;
-					ScanTriangles_Sequential( tris, triangleScanParams );
+					ScanTriangles_Sequential( renderStage, triangleScanParams );
 				}
 				else if( intrinsicsMode == BEIntrinsicsMode::AVX )
 				{
-					auto& trisSIMD = renderStage->triangles_SIMD;
-					ScanTriangles_SIMD( trisSIMD, triangleScanParams );
+					ScanTriangles_SIMD( renderStage, triangleScanParams );
 				}
 
 				if( triangleScanParams.bHit )
@@ -351,24 +354,89 @@ namespace bgl
 		}
 	}
 
-	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential(
-		BArray< BTriangle< float > >& compTris,
-		BFTriangleScanParams& p )
+	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p )
 	{
+		BArray< BTriangle< float > >& compTris = renderStage->triangles;
+
 		// Local copy of ray tracing parameters
 		BFTriangleScanParams lp = p;
 
-		for( auto tri : compTris )
-		{
-			if( BDraw::RayTriangleIntersect( lp.orig, lp.dir, tri, lp.t, lp.u, lp.v ) )
+		//for( auto tri : compTris )
+		//{
+			//if( BDraw::RayTriangleIntersect( lp.orig, lp.dir, tri, lp.t, lp.u, lp.v ) )
+			//{
+			//	if( lp.t < p.t )
+			//	{
+			//		p = lp;
+			//		p.bHit = true;
+			//	}
+			//}
+		//}
+
+		using Scalar = float;
+		using Vec3 = bvh::v2::Vec< Scalar, 3 >;
+		using Box = bvh::v2::BBox< Scalar, 3 >;
+		using Tri = bvh::v2::Tri< Scalar, 3 >;
+		using Node = bvh::v2::Node< Scalar, 3 >;
+		using Bvh = bvh::v2::Bvh< Node >;
+		using Ray = bvh::v2::Ray< Scalar, 3 >;
+
+		const Vec3 rayOrigin{ lp.orig.x, lp.orig.y, lp.orig.z };
+		const Vec3 rayDir = { lp.dir.x, lp.dir.y, lp.dir.z };
+
+		auto ray = bvh::v2::Ray< float, 3 >{
+			rayOrigin, // Ray origin
+			rayDir, // Ray direction
+			0.,					// Minimum intersection distance
+			100.				// Maximum intersection distance
+		};
+
+		static constexpr size_t invalid_id = std::numeric_limits< size_t >::max();
+		static constexpr size_t stack_size = 64;
+		static constexpr bool use_robust_traversal = false;
+
+		auto prim_id = invalid_id;
+		Scalar u, v;
+
+		// Traverse the BVH and get the u, v coordinates of the closest intersection.
+		bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
+		renderStage->bvh.intersect< false, use_robust_traversal >(
+			ray,
+			renderStage->bvh.get_root().index,
+			stack,
+			[ & ]( size_t begin, size_t end )
 			{
-				if( lp.t < p.t )
+				for( size_t i = begin; i < end; ++i )
 				{
-					p = lp;
-					p.bHit = true;
+					size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
+					if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
+					{
+						prim_id = i;
+						std::tie( u, v ) = *hit;
+					}
 				}
-			}
-		}
+				return prim_id != invalid_id;
+			} );
+
+		if (prim_id != invalid_id) 
+		{
+			p.bHit = true;
+			p.u = u;
+			p.v = v;
+			p.t = ray.tmax;
+
+	        //std::cout
+	        //    << "Intersection found\n"
+	        //    << "  primitive: " << prim_id << "\n"
+	        //    << "  distance: " << ray.tmax << "\n"
+	        //    << "  barycentric coords.: " << u << ", " << v << std::endl;
+	    }
+		else
+		{
+			p.bHit = false;
+
+	        //std::cout << "No intersection found" << std::endl;
+	    }
 	}
 
 #pragma region AVX Specialization
@@ -395,8 +463,10 @@ namespace bgl
 
 #pragma endregion
 
-	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD( BTriangle< BArray< float > >& compTris, BFTriangleScanParams& p )
+	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p )
 	{
+		BTriangle< BArray< float > >& compTris = renderStage->triangles_SIMD;
+
 		const size_t triCount = compTris.v0.x.size();
 		const size_t notSimdTriCount = triCount % 8;
 

@@ -54,8 +54,8 @@ namespace bgl
 	{
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 
-		static void ScanTriangles_Sequential( BArray< BTriangle< float > >& compTris, BFTriangleScanParams& p );
-		static void ScanTriangles_SIMD( BTriangle< BArray< float > >& compTris, BFTriangleScanParams& p );
+		static void ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p );
+		static void ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p );
 
 		static void PaintPixelWithShader( BFTriangleScanParams& p );
 
