@@ -278,7 +278,7 @@ namespace bgl
 
 		const auto renderThreadMode = camera->GetRenderThreadMode();
 		const BRotf rRot = camera->GetRotation();
-		const auto intrinsicsMode = camera->GetIntrinsicsMode();
+		const auto renderMode = camera->GetRenderMode();
 
 		// Getting render lines of interest
 
@@ -332,13 +332,17 @@ namespace bgl
 
 				// Getting scene triangles
 
-				if( intrinsicsMode == BEIntrinsicsMode::Off )
+				if( renderMode == BERenderMode::Sequential )
 				{
 					ScanTriangles_Sequential( renderStage, triangleScanParams );
 				}
-				else if( intrinsicsMode == BEIntrinsicsMode::AVX )
+				else if( renderMode == BERenderMode::SIMD )
 				{
 					ScanTriangles_SIMD( renderStage, triangleScanParams );
+				}
+				else if( renderMode == BERenderMode::BVH )
+				{
+					ScanTriangles_BVH( renderStage, triangleScanParams );
 				}
 
 				if( triangleScanParams.bHit )
@@ -358,85 +362,19 @@ namespace bgl
 	{
 		BArray< BTriangle< float > >& compTris = renderStage->triangles;
 
-		// Local copy of ray tracing parameters
 		BFTriangleScanParams lp = p;
 
-		//for( auto tri : compTris )
-		//{
-			//if( BDraw::RayTriangleIntersect( lp.orig, lp.dir, tri, lp.t, lp.u, lp.v ) )
-			//{
-			//	if( lp.t < p.t )
-			//	{
-			//		p = lp;
-			//		p.bHit = true;
-			//	}
-			//}
-		//}
-
-		using Scalar = float;
-		using Vec3 = bvh::v2::Vec< Scalar, 3 >;
-		using Box = bvh::v2::BBox< Scalar, 3 >;
-		using Tri = bvh::v2::Tri< Scalar, 3 >;
-		using Node = bvh::v2::Node< Scalar, 3 >;
-		using Bvh = bvh::v2::Bvh< Node >;
-		using Ray = bvh::v2::Ray< Scalar, 3 >;
-
-		const Vec3 rayOrigin{ lp.orig.x, lp.orig.y, lp.orig.z };
-		const Vec3 rayDir = { lp.dir.x, lp.dir.y, lp.dir.z };
-
-		auto ray = bvh::v2::Ray< float, 3 >{
-			rayOrigin, // Ray origin
-			rayDir, // Ray direction
-			0.,					// Minimum intersection distance
-			100.				// Maximum intersection distance
-		};
-
-		static constexpr size_t invalid_id = std::numeric_limits< size_t >::max();
-		static constexpr size_t stack_size = 64;
-		static constexpr bool use_robust_traversal = false;
-
-		auto prim_id = invalid_id;
-		Scalar u, v;
-
-		// Traverse the BVH and get the u, v coordinates of the closest intersection.
-		bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
-		renderStage->bvh.intersect< false, use_robust_traversal >(
-			ray,
-			renderStage->bvh.get_root().index,
-			stack,
-			[ & ]( size_t begin, size_t end )
+		for( auto tri : compTris )
+		{
+			if( BDraw::RayTriangleIntersect( lp.orig, lp.dir, tri, lp.t, lp.u, lp.v ) )
 			{
-				for( size_t i = begin; i < end; ++i )
+				if( lp.t < p.t )
 				{
-					size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
-					if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
-					{
-						prim_id = i;
-						std::tie( u, v ) = *hit;
-					}
+					p = lp;
+					p.bHit = true;
 				}
-				return prim_id != invalid_id;
-			} );
-
-		if (prim_id != invalid_id) 
-		{
-			p.bHit = true;
-			p.u = u;
-			p.v = v;
-			p.t = ray.tmax;
-
-	        //std::cout
-	        //    << "Intersection found\n"
-	        //    << "  primitive: " << prim_id << "\n"
-	        //    << "  distance: " << ray.tmax << "\n"
-	        //    << "  barycentric coords.: " << u << ", " << v << std::endl;
-	    }
-		else
-		{
-			p.bHit = false;
-
-	        //std::cout << "No intersection found" << std::endl;
-	    }
+			}
+		}
 	}
 
 #pragma region AVX Specialization
@@ -599,6 +537,66 @@ namespace bgl
 				p.v = finalPixel.get()->v[ i ];
 				p.bHit = true;
 			}
+		}
+	}
+
+	inline void BGraphicsDriverGeneric::ScanTriangles_BVH( BRenderStage* renderStage, BFTriangleScanParams& p )
+	{
+		using Scalar = float;
+		using Vec3 = bvh::v2::Vec< Scalar, 3 >;
+		using Box = bvh::v2::BBox< Scalar, 3 >;
+		using Tri = bvh::v2::Tri< Scalar, 3 >;
+		using Node = bvh::v2::Node< Scalar, 3 >;
+		using Bvh = bvh::v2::Bvh< Node >;
+		using Ray = bvh::v2::Ray< Scalar, 3 >;
+
+		const Vec3 rayOrigin{ p.orig.x, p.orig.y, p.orig.z };
+		const Vec3 rayDir = { p.dir.x, p.dir.y, p.dir.z };
+
+		auto ray = bvh::v2::Ray< float, 3 >{
+			rayOrigin, // Ray origin
+			rayDir,	   // Ray direction
+			0.,		   // Minimum intersection distance
+			100.	   // Maximum intersection distance
+		};
+
+		static constexpr size_t invalid_id = std::numeric_limits< size_t >::max();
+		static constexpr size_t stack_size = 64;
+		static constexpr bool use_robust_traversal = false;
+
+		auto prim_id = invalid_id;
+		Scalar u, v;
+
+		// Traverse the BVH and get the u, v coordinates of the closest intersection.
+		bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
+		renderStage->bvh.intersect< false, use_robust_traversal >(
+			ray,
+			renderStage->bvh.get_root().index,
+			stack,
+			[ & ]( size_t begin, size_t end )
+			{
+				for( size_t i = begin; i < end; ++i )
+				{
+					size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
+					if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
+					{
+						prim_id = i;
+						std::tie( u, v ) = *hit;
+					}
+				}
+				return prim_id != invalid_id;
+			} );
+
+		if( prim_id != invalid_id )
+		{
+			p.bHit = true;
+			p.u = u;
+			p.v = v;
+			p.t = ray.tmax;
+		}
+		else
+		{
+			p.bHit = false;
 		}
 	}
 

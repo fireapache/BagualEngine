@@ -25,15 +25,15 @@ namespace bgl
 		BVec2f m_sensorSize = BVec2f( 36.f, 24.f );
 		BERenderSpeed m_renderSpeed = BERenderSpeed::VeryFast;
 		BERenderThreadMode m_renderThreadMode = BERenderThreadMode::MultiThread;
-		BEIntrinsicsMode m_intrinsicsMode = BEIntrinsicsMode::Off;
+		BERenderMode m_renderMode = BERenderMode::Sequential;
 
 	public:
 		BCamera();
 		BCamera( BViewport* viewport, BCameraComponent* owner = nullptr );
 
-		BEIntrinsicsMode& GetIntrinsicsMode_Mutable();
-		const BEIntrinsicsMode GetIntrinsicsMode() const;
-		void SetIntrinsicsMode( const BEIntrinsicsMode intrinsicsMode );
+		BERenderMode& GetRenderMode_Mutable();
+		const BERenderMode GetRenderMode() const;
+		void SetRenderMode( const BERenderMode renderMode );
 
 		BERenderSpeed& GetRenderSpeed_Mutable();
 		const BERenderSpeed GetRenderSpeed() const;

@@ -413,9 +413,8 @@ namespace bgl
 					edges.emplace_back( BRenderStage::EdgeData{ compEdge, meshComp->getColor().getRGB() } );
 				}
 			}
-
 			
-#pragma region BVH V2 Code
+#pragma region ========== BVH V2 Code ==========
 			{
 				using Scalar = float;
 				using Vec3 = bvh::v2::Vec< Scalar, 3 >;
@@ -484,9 +483,8 @@ namespace bgl
 					renderStage->bvh.bPrecomputed = true;
 				}
 			}
-#pragma endregion
-
-
+#pragma endregion ========== BVH V2 Code ==========
+			
 			m_bDirty = false;
 		}
 	}

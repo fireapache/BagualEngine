@@ -24,10 +24,12 @@ namespace bgl
 		HyperThread
 	};
 
-	enum class BEIntrinsicsMode
+	enum class BERenderMode
 	{
-		Off,
-		AVX
+		Sequential,
+		SIMD,
+		BVH,
+		Embree
 	};
 
 	struct BFTriangleScanParams
@@ -56,6 +58,7 @@ namespace bgl
 
 		static void ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p );
 		static void ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p );
+		static void ScanTriangles_BVH( BRenderStage* renderStage, BFTriangleScanParams& p );
 
 		static void PaintPixelWithShader( BFTriangleScanParams& p );
 

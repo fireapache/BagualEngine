@@ -89,22 +89,12 @@ namespace bgl
 
 		auto& scene = BEngine::Scene();
 
-		trisNode = scene.addNode( "SimpleTriangles" );
-		auto meshComp = scene.addComponent< BMeshComponent >( trisNode, "Triangles" );
-		meshComp->addTriangles( tris );
-		meshComp->setShowWireframe( true );
-
-		if( cameraNode )
-		{
-			cameraNode->setLocation( { 0.f, 0.f, 0.f } );
-			cameraNode->setRotation( { 0.f, 0.f, 0.f } );
-		}
 
 		if( camera )
 		{
 			camera->SetRenderOutputType( BERenderOutputType::UvColor );
 			camera->SetRenderSpeed( BERenderSpeed::Normal );
-			camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
+			camera->SetRenderMode( BERenderMode::SIMD );
 			//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 		}
 	}
@@ -189,7 +179,7 @@ namespace bgl
 		camera->SetFOV( 30.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
+		camera->SetRenderMode( BERenderMode::SIMD );
 
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
@@ -308,10 +298,10 @@ namespace bgl
 					renderThreadOptions,
 					IM_ARRAYSIZE( renderThreadOptions ) );
 
-				auto& renderMode = camera->GetIntrinsicsMode_Mutable();
-				const char* renderModeOptions[] = { "Off", "AVX" };
+				auto& renderMode = camera->GetRenderMode_Mutable();
+				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH" };
 				ImGui::Combo(
-					"Intrinsics",
+					"Render Mode",
 					reinterpret_cast< int* >( &renderMode ),
 					renderModeOptions,
 					IM_ARRAYSIZE( renderModeOptions ) );
@@ -450,7 +440,7 @@ namespace bgl
 		camera->SetFOV( 60.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::Depth );
-		camera->SetIntrinsicsMode( BEIntrinsicsMode::AVX );
+		camera->SetRenderMode( BERenderMode::SIMD );
 
 		points[ 0 ] = BVec3f( 1.f, 1.f, 5.f );
 		points[ 1 ] = BVec3f( -1.f, 1.f, 5.f );
@@ -571,7 +561,7 @@ namespace bgl
 		camera->SetFOV( 60.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::Depth );
-		camera->SetIntrinsicsMode( BEIntrinsicsMode::Off );
+		camera->SetRenderMode( BERenderMode::Sequential );
 
 		guiTickFunc = [ this ]()
 		{

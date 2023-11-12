@@ -29,19 +29,19 @@ namespace bgl
 		m_owner = owner;
 	}
 
-	BEIntrinsicsMode& BCamera::GetIntrinsicsMode_Mutable()
+	BERenderMode& BCamera::GetRenderMode_Mutable()
 	{
-		return m_intrinsicsMode;
+		return m_renderMode;
 	}
 
-	const BEIntrinsicsMode BCamera::GetIntrinsicsMode() const
+	const BERenderMode BCamera::GetRenderMode() const
 	{
-		return m_intrinsicsMode;
+		return m_renderMode;
 	}
 
-	void BCamera::SetIntrinsicsMode( const BEIntrinsicsMode intrinsicsMode )
+	void BCamera::SetRenderMode( const BERenderMode renderMode )
 	{
-		m_intrinsicsMode = intrinsicsMode;
+		m_renderMode = renderMode;
 	}
 
 	BERenderSpeed& BCamera::GetRenderSpeed_Mutable()
