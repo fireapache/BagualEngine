@@ -12,4 +12,4 @@
 	url = https://github.com/fireapache/imgui-node-editor.git
 [submodule "Source/BVH"]
 	path = Source/BVH
-	url = git@github.com:fireapache/bvh.git
+	url = https://github.com/fireapache/bvh.git
