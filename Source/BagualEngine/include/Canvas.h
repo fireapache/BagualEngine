@@ -18,9 +18,9 @@ namespace bgl
 		BLine< BPixelPos > edges[ 4 ];
 
 		std::shared_ptr< BBuffer< Color32Bit > > wireframeBuffer;
-		std::shared_ptr< BBuffer< Color32Bit > > colorBuffer;
+		std::array< std::shared_ptr< BBuffer< Color32Bit > >, 2 > colorBuffers;
 		std::shared_ptr< BBuffer< DepthDataType > > zBuffer;
-		std::shared_ptr< BBuffer< Color32Bit > > readyFrameBuffer;
+		uint8_t readyFrameBufferIndex{ 0 };
 
 		inline void UpdateEdges();
 
@@ -44,7 +44,7 @@ namespace bgl
 		[[nodiscard]] BBuffer< DepthDataType >& getZBuffer() const;
 		[[nodiscard]] BBuffer< Color32Bit >& getWireframeBuffer() const;
 		[[nodiscard]] BBuffer< Color32Bit >& getReadyFrameBuffer() const;
-
+		
 		[[nodiscard]] BPlatformWindow* getWindow() const;
 		[[nodiscard]] BArray< BViewport* >& getViewports();
 

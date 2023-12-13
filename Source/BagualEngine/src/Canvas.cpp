@@ -55,10 +55,11 @@ namespace bgl
 	void BCanvas::allocateBuffers()
 	{
 		const size_t frameBufferLength = static_cast< size_t >( width ) * static_cast< size_t >( height );
-		this->colorBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		this->colorBuffers[0] = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		this->colorBuffers[1] = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
 		this->zBuffer = std::make_shared< BBuffer< DepthDataType > >( frameBufferLength, DEFAULT_DEPTH_VALUE );
 		this->wireframeBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
-		this->readyFrameBuffer = std::make_shared< BBuffer< Color32Bit > >( frameBufferLength, DEFAULT_CANVAS_VALUE );
+		readyFrameBufferIndex = 0;
 	}
 
 	void BCanvas::resetZBuffer()
@@ -83,7 +84,7 @@ namespace bgl
 
 	BBuffer< Color32Bit >& BCanvas::getColorBuffer() const
 	{
-		return *colorBuffer;
+		return *( colorBuffers[ ( readyFrameBufferIndex + 1 ) % 2 ] );
 	}
 
 	BBuffer< DepthDataType >& BCanvas::getZBuffer() const
@@ -98,7 +99,7 @@ namespace bgl
 
 	BBuffer< Color32Bit >& BCanvas::getReadyFrameBuffer() const
 	{
-		return *readyFrameBuffer;
+		return *( colorBuffers[ readyFrameBufferIndex ] );
 	}
 
 	BPlatformWindow* BCanvas::getWindow() const
@@ -113,10 +114,12 @@ namespace bgl
 
 	void BCanvas::setSize( const uint16_t newWidth, const uint16_t newHeight )
 	{
-		width = newWidth;
-		height = newHeight;
-		const uint32_t newLength = static_cast< uint32_t >( width ) * static_cast< uint32_t >( height );
-		colorBuffer->SetLength( newLength );
+		if( newWidth != width || newHeight != height )
+		{
+			width = newWidth;
+			height = newHeight;
+			allocateBuffers();
+		}
 	}
 
 } // namespace bgl

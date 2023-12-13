@@ -196,11 +196,11 @@ namespace bgl
 			// syncing all threads
 			renderThreadPool.wait_for_tasks();
 
-			auto& wireframeBuffer = canvas->getWireframeBuffer();
+			auto wireframeBuffer = canvas->getWireframeBuffer();
 			Color32Bit* wireframdeBufferData = wireframeBuffer.GetData();
-			auto& colorBuffer = canvas->getColorBuffer();
+			auto colorBuffer = canvas->getColorBuffer();
 			Color32Bit* colorBufferData = colorBuffer.GetData();
-			auto& readyFrameBuffer = canvas->getReadyFrameBuffer();
+			auto readyFrameBuffer = canvas->getReadyFrameBuffer();
 			Color32Bit* readyFrameBufferData = readyFrameBuffer.GetData();
 
 			// TODO: make wireframe work with zbuffer
@@ -684,68 +684,28 @@ namespace bgl
 
 	void BGraphicsDriverGeneric::SwapGameFrame()
 	{
-		if( m_cachedPlatformWindowPtr )
+		if( m_cachedPlatformWindowPtr && m_cachedPlatformWindowPtr->getCanvas() )
 		{
 #pragma region Rendering Window Canvas to OpenGL
 
+			const auto canvas = m_cachedPlatformWindowPtr->getCanvas();
+
 			auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 			glfwMakeContextCurrent( glfwWindow );
-			glClear( GL_COLOR_BUFFER_BIT );
 
-			const GLfloat windowWidth = m_cachedPlatformWindowPtr->getCanvas()->getWidth();
-			const GLfloat windowHeight = m_cachedPlatformWindowPtr->getCanvas()->getHeight();
-
-			GLuint& tex = m_cachedPlatformWindowPtr->GetglTex();
-
-			if( !glIsTexture( tex ) )
+			const GLsizei windowWidth = canvas->getWidth();
+			const GLsizei windowHeight = canvas->getHeight();
+			
+			const auto pixels = canvas->getReadyFrameBuffer().GetData();
+			
+			if( pixels )
 			{
-				glGenTextures( 1, &tex );
-				m_cachedPlatformWindowPtr->SetglTex( tex );
-			}
-
-			if( m_bGameFrameReady )
-			{
-				glBindTexture( GL_TEXTURE_2D, tex );
-				glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-				glTexImage2D(
-					GL_TEXTURE_2D,
-					0,
-					GL_RGBA,
-					static_cast< GLsizei >( windowWidth ),
-					static_cast< GLsizei >( windowHeight ),
-					0,
-					GL_RGBA,
-					GL_UNSIGNED_BYTE,
-					m_cachedPlatformWindowPtr->getCanvas()->getReadyFrameBuffer().GetData() );
-				glBindTexture( GL_TEXTURE_2D, 0 );
+				/* draw pixels to screen */
+				glRasterPos2i( -1, 1 );
+				glPixelZoom( 1.0f, -1.0f );
+				glDrawPixels( windowWidth, windowHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
 				m_bGameFrameReady = false;
 			}
-
-			// Match projection to window resolution
-			glMatrixMode( GL_PROJECTION );
-			glPushMatrix();
-			glLoadIdentity();
-			glOrtho( 0, windowWidth, 0, windowHeight, -1, 1 );
-			glMatrixMode( GL_MODELVIEW );
-			glPushMatrix();
-
-			// Clear and draw quad with texture
-			glClear( GL_COLOR_BUFFER_BIT );
-			glBindTexture( GL_TEXTURE_2D, tex );
-			glEnable( GL_TEXTURE_2D );
-			glBegin( GL_QUADS );
-			glTexCoord2f( 1, 1 );
-			glVertex3f( windowWidth, 0, 0 );
-			glTexCoord2f( 1, 0 );
-			glVertex3f( windowWidth, windowHeight, 0 );
-			glTexCoord2f( 0, 0 );
-			glVertex3f( 0, windowHeight, 0 );
-			glTexCoord2f( 0, 1 );
-			glVertex3f( 0, 0, 0 );
-			glEnd();
-			glDisable( GL_TEXTURE_2D );
-			glBindTexture( GL_TEXTURE_2D, 0 );
-			glFlush();
 
 #pragma endregion
 		}

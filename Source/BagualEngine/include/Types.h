@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cmath>
 #include <immintrin.h>
+#include <array>
 #include <string>
 #include <vector>
 
