@@ -415,6 +415,7 @@ namespace bgl
 			}
 			
 #pragma region ========== BVH V2 Code ==========
+			if( !tris.empty() )
 			{
 				using Scalar = float;
 				using Vec3 = bvh::v2::Vec< Scalar, 3 >;

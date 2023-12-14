@@ -567,25 +567,28 @@ namespace bgl
 		auto prim_id = invalid_id;
 		Scalar u, v;
 
-		// Traverse the BVH and get the u, v coordinates of the closest intersection.
-		bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
-		renderStage->bvh.intersect< false, use_robust_traversal >(
-			ray,
-			renderStage->bvh.get_root().index,
-			stack,
-			[ & ]( size_t begin, size_t end )
-			{
-				for( size_t i = begin; i < end; ++i )
+		if( !renderStage->bvh.nodes.empty() )
+		{
+			// Traverse the BVH and get the u, v coordinates of the closest intersection.
+			bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
+			renderStage->bvh.intersect< false, use_robust_traversal >(
+				ray,
+				renderStage->bvh.get_root().index,
+				stack,
+				[ & ]( size_t begin, size_t end )
 				{
-					size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
-					if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
+					for( size_t i = begin; i < end; ++i )
 					{
-						prim_id = i;
-						std::tie( u, v ) = *hit;
+						size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
+						if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
+						{
+							prim_id = i;
+							std::tie( u, v ) = *hit;
+						}
 					}
-				}
-				return prim_id != invalid_id;
-			} );
+					return prim_id != invalid_id;
+				} );
+		}
 
 		if( prim_id != invalid_id )
 		{
