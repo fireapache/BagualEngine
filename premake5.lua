@@ -279,18 +279,30 @@ project "BagualEngine"
 		"Source/IMGUI/examples/",
 		"Source/IMGUI-NE/",
 		"Source/OBJ-Loader/",
-		"Source/BVH/src/"
+		"Source/BVH/src/",
+		"Source/Embree/include/"
 	}
 
 	dependson { "GLAD", "GLFW", "IMGUI", "IMGUI-NE" }
-	links { "GLAD.lib", "GLFW.lib", "IMGUI.lib", "IMGUI-NE.lib", "opengl32.lib" }
+	
+	links
+	{
+		"GLAD.lib",
+		"GLFW.lib",
+		"IMGUI.lib",
+		"IMGUI-NE.lib",
+		"opengl32.lib",
+		"embree4.lib",
+		"tbb12.lib"
+	}
 
 	libdirs
 	{
 		("Intermediate/GLAD-" .. outputdir),
 		("Intermediate/GLFW-" .. outputdir),
 		("Intermediate/IMGUI-" .. outputdir),
-		("Intermediate/IMGUI-NE-" .. outputdir)
+		("Intermediate/IMGUI-NE-" .. outputdir),
+		"Source/Embree/lib/"
 	}
 
 	files
@@ -344,6 +356,7 @@ project "BagualGame"
 		cppdialect "C++17"
 		staticruntime "On"
 		systemversion "latest"
+		postbuildcommands { "xcopy /y /d $(ProjectDir)..\\Embree\\bin\\*.dll $(ProjectDir)$(OutDir)" }
 
 	filter "configurations:Debug"
 		symbols "On"

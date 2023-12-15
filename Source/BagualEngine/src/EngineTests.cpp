@@ -38,7 +38,7 @@ namespace bgl
 			return;
 		}
 
-		FWindowSettings windowSettings{ BGL_WINDOW_CENTRALIZED, BGL_WINDOW_CENTRALIZED, 1280, 720, "Bagual Engine Test" };
+		FWindowSettings windowSettings{ BGL_WINDOW_CENTRALIZED, BGL_WINDOW_CENTRALIZED, 960, 600, "Bagual Engine Test" };
 
 		window = BEngine::Platform().createWindow( windowSettings );
 
@@ -179,7 +179,7 @@ namespace bgl
 		camera->SetFOV( 30.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetRenderMode( BERenderMode::SIMD );
+		camera->SetRenderMode( BERenderMode::BVH );
 
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
@@ -299,7 +299,7 @@ namespace bgl
 					IM_ARRAYSIZE( renderThreadOptions ) );
 
 				auto& renderMode = camera->GetRenderMode_Mutable();
-				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH" };
+				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH", "Embree" };
 				ImGui::Combo(
 					"Render Mode",
 					reinterpret_cast< int* >( &renderMode ),

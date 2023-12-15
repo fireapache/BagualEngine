@@ -196,11 +196,11 @@ namespace bgl
 			// syncing all threads
 			renderThreadPool.wait_for_tasks();
 
-			auto wireframeBuffer = canvas->getWireframeBuffer();
+			auto& wireframeBuffer = canvas->getWireframeBuffer();
 			Color32Bit* wireframdeBufferData = wireframeBuffer.GetData();
-			auto colorBuffer = canvas->getColorBuffer();
+			auto& colorBuffer = canvas->getColorBuffer();
 			Color32Bit* colorBufferData = colorBuffer.GetData();
-			auto readyFrameBuffer = canvas->getReadyFrameBuffer();
+			auto& readyFrameBuffer = canvas->getReadyFrameBuffer();
 			Color32Bit* readyFrameBufferData = readyFrameBuffer.GetData();
 
 			// TODO: make wireframe work with zbuffer
@@ -332,19 +332,22 @@ namespace bgl
 
 				// Getting scene triangles
 
-				if( renderMode == BERenderMode::Sequential )
+				switch( renderMode )
 				{
+				case BERenderMode::Sequential:
 					ScanTriangles_Sequential( renderStage, triangleScanParams );
-				}
-				else if( renderMode == BERenderMode::SIMD )
-				{
+					break;
+				case BERenderMode::SIMD:
 					ScanTriangles_SIMD( renderStage, triangleScanParams );
-				}
-				else if( renderMode == BERenderMode::BVH )
-				{
+					break;
+				case BERenderMode::BVH:
 					ScanTriangles_BVH( renderStage, triangleScanParams );
+					break;
+				case BERenderMode::Embree:
+					ScanTriangles_Embree( renderStage, triangleScanParams );
+					break;
 				}
-
+				
 				if( triangleScanParams.bHit )
 				{
 					PaintPixelWithShader( triangleScanParams );
@@ -600,6 +603,33 @@ namespace bgl
 		else
 		{
 			p.bHit = false;
+		}
+	}
+
+	inline void BGraphicsDriverGeneric::ScanTriangles_Embree( BRenderStage* renderStage, BFTriangleScanParams& p )
+	{
+		RTCRayHit rayhit;
+		rayhit.ray.org_x = p.orig.x;
+		rayhit.ray.org_y = p.orig.y;
+		rayhit.ray.org_z = p.orig.z;
+		rayhit.ray.dir_x = p.dir.x;
+		rayhit.ray.dir_y = p.dir.y;
+		rayhit.ray.dir_z = p.dir.z;
+		rayhit.ray.tnear = 0;
+		rayhit.ray.tfar = std::numeric_limits< float >::infinity();
+		rayhit.ray.mask = -1;
+		rayhit.ray.flags = 0;
+		rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+		rayhit.hit.instID[ 0 ] = RTC_INVALID_GEOMETRY_ID;
+
+		rtcIntersect1( renderStage->rtcScene, &rayhit );
+
+		if( rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID )
+		{
+			p.bHit = true;
+			p.t = rayhit.ray.tfar;
+			p.u = rayhit.hit.u;
+			p.v = rayhit.hit.v;
 		}
 	}
 

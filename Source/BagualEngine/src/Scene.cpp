@@ -204,6 +204,7 @@ namespace bgl
 	{
 		g_meshComponentTriangles.remove( &m_meshData.triangles );
 		g_meshComponents.remove( this );
+		rtcReleaseGeometry( rtcGeometry );
 		setSceneDirty();
 	}
 
@@ -242,22 +243,55 @@ namespace bgl
 			return;
 		}
 
-		BTriangle< float > triCache;
-		objl::Vertex vert0, vert1, vert2;
-		uint32_t index0, index1, index2;
+		const objl::Loader triLoader( assetPath );
 
-		objl::Loader triLoader( assetPath );
+		rtcGeometry = rtcNewGeometry( BScene::rtcDevice, RTC_GEOMETRY_TYPE_TRIANGLE );
+		auto rtcVertices = 
+			static_cast< float* >( rtcSetNewGeometryBuffer(
+				rtcGeometry,
+				RTC_BUFFER_TYPE_VERTEX,
+				0,
+				RTC_FORMAT_FLOAT3,
+				3 * sizeof( float ),
+				triLoader.LoadedVertices.size() ) );
+
+		for( size_t i = 0; i < triLoader.LoadedVertices.size(); ++i )
+		{
+			float* x = rtcVertices + ( 3 * i );
+			//float* y = x + 1;
+			//float* z = x + 2;
+			const auto& loadedVertex = triLoader.LoadedVertices[ i ];
+			//*x = loadedVertex.Position.X;
+			//*y = loadedVertex.Position.Y;
+			//*z = loadedVertex.Position.Z;
+			memcpy( x, &( loadedVertex.Position.X ), 3 * sizeof( float ) );
+		}
+
+		unsigned* rtcIndices = 
+			static_cast< unsigned* >( rtcSetNewGeometryBuffer(
+				rtcGeometry,
+				RTC_BUFFER_TYPE_INDEX, 
+				0,
+				RTC_FORMAT_UINT3,
+				3 * sizeof( unsigned ),
+				triLoader.LoadedIndices.size() ) );
+
+		memcpy( rtcIndices, triLoader.LoadedIndices.data(), triLoader.LoadedIndices.size() * sizeof( unsigned ) );
+
+		rtcCommitGeometry( rtcGeometry );
+		rtcAttachGeometry( m_scene->rtcScene, rtcGeometry );
 
 		for( size_t i = 0; i < triLoader.LoadedIndices.size(); i += 3 )
 		{
-			index0 = triLoader.LoadedIndices[ i ];
-			index1 = triLoader.LoadedIndices[ i + 1 ];
-			index2 = triLoader.LoadedIndices[ i + 2 ];
+			const uint32_t index0 = triLoader.LoadedIndices[ i ];
+			const uint32_t index1 = triLoader.LoadedIndices[ i + 1 ];
+			const uint32_t index2 = triLoader.LoadedIndices[ i + 2 ];
 
-			vert0 = triLoader.LoadedVertices[ index0 ];
-			vert1 = triLoader.LoadedVertices[ index1 ];
-			vert2 = triLoader.LoadedVertices[ index2 ];
+			const objl::Vertex vert0 = triLoader.LoadedVertices[ index0 ];
+			const objl::Vertex vert1 = triLoader.LoadedVertices[ index1 ];
+			const objl::Vertex vert2 = triLoader.LoadedVertices[ index2 ];
 
+			BTriangle< float > triCache;
 			triCache.v0.x = vert0.Position.X;
 			triCache.v0.y = vert0.Position.Y;
 			triCache.v0.z = vert0.Position.Z;
@@ -354,7 +388,31 @@ namespace bgl
 	BScene::BScene()
 	{
 		m_sceneRoot = std::make_unique< BNode >( this, nullptr, "Scene Root" );
+
+		if( !rtcDevice )
+		{
+			rtcDevice = rtcNewDevice( nullptr );
+		}
+
+		rtcScene = rtcNewScene( rtcDevice );
 	}
+
+	BScene::~BScene()
+	{
+		for( const auto node : m_nodes )
+		{
+			delete node;
+		}
+
+		for( const auto component : m_components )
+		{
+			delete component;
+		}
+
+		rtcReleaseScene( rtcScene );
+	}
+
+	RTCDevice BScene::rtcDevice = nullptr;
 
 	void BScene::update()
 	{
@@ -372,6 +430,7 @@ namespace bgl
 			auto& tris = renderStage->triangles;
 			auto& trisSIMD = renderStage->triangles_SIMD;
 			auto& edges = renderStage->edges;
+			renderStage->rtcScene = rtcScene;
 
 			for( const auto meshComp : BMeshComponent::g_meshComponents )
 			{
@@ -485,7 +544,13 @@ namespace bgl
 				}
 			}
 #pragma endregion ========== BVH V2 Code ==========
-			
+
+#pragma region ========== Embree Code ==========
+
+			rtcCommitScene( rtcScene );
+
+#pragma endregion ========== Embree Code ==========
+
 			m_bDirty = false;
 		}
 	}

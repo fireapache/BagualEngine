@@ -8,6 +8,7 @@
 #include <memory>
 #include <mutex>
 #include <semaphore>
+#include <embree4/rtcore.h>
 
 namespace bgl
 {
@@ -142,6 +143,9 @@ namespace bgl
 
 		BColor color;
 
+		RTCGeometry rtcGeometry;
+		unsigned rtxGeomID = RTC_INVALID_GEOMETRY_ID;
+
 	public:
 		BMeshComponent(
 			BScene* scene,
@@ -261,6 +265,7 @@ namespace bgl
 		BArray< BTriangle< float > > triangles;
 		BTriangle< BArray< float > > triangles_SIMD;
 		bvh::v2::Bvh< bvh::v2::Node< float, 3 > > bvh;
+		RTCScene rtcScene;
 
 		class EdgeData
 		{
@@ -295,18 +300,10 @@ namespace bgl
 	public:
 		BScene();
 
-		~BScene()
-		{
-			for( const auto node : m_nodes )
-			{
-				delete node;
-			}
+		~BScene();
 
-			for( const auto component : m_components )
-			{
-				delete component;
-			}
-		}
+		static RTCDevice rtcDevice;
+		RTCScene rtcScene = nullptr;
 
 		void update();
 
