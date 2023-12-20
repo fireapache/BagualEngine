@@ -219,7 +219,7 @@ namespace bgl
 		return GetTransform().translation;
 	}
 
-	const BRotf BCamera::GetRotation() const
+	const BRotf BCamera::GetRotator() const
 	{
 		return GetTransform().rotation;
 	}

@@ -75,7 +75,7 @@ namespace bgl
 		BTransform< float >& GetTransform_Mutable();
 		const BTransform< float > GetTransform() const;
 		const BVec3f GetLocation() const;
-		const BRotf GetRotation() const;
+		const BRotf GetRotator() const;
 		const BVec3f GetScale() const;
 
 		void SetTransform( const BTransform< float >& transform );

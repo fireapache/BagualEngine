@@ -259,7 +259,7 @@ namespace bgl
 			return;
 		}
 
-		// Calculating camera sensor settings
+		// camera sensor settings
 
 		const uint32_t width = viewport->GetSize().width;
 		const uint32_t height = viewport->GetSize().height;
@@ -267,7 +267,7 @@ namespace bgl
 		const auto sensorArea = camera->GetSensorArea();
 		const float sensorDistance = camera->GetSensorDistance();
 
-		// Keeping some variables stacked
+		// keeping some variables stacked
 
 		BFTriangleScanParams triangleScanParams;
 		triangleScanParams.renderType = camera->GetRenderOutputType();
@@ -276,11 +276,15 @@ namespace bgl
 		triangleScanParams.renderSpeed = camera->GetRenderSpeed();
 		triangleScanParams.viewport = viewport;
 
+		// camera setup
 		const auto renderThreadMode = camera->GetRenderThreadMode();
-		const BRotf rRot = camera->GetRotation();
+		const auto cameraRotator = camera->GetRotator();
+		const auto cameraMatrix = BMatrix3x3::fromEuler( cameraRotator, ORDER_XYZ );
+		const BSIMDQuaternion cameraRotation{ cameraMatrix.toQuaternion() };
 		const auto renderMode = camera->GetRenderMode();
+		const auto cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
 
-		// Getting render lines of interest
+		// getting render lines of interest
 
 		const auto processorCount
 			= std::thread::hardware_concurrency() * ( renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1 );
@@ -290,7 +294,7 @@ namespace bgl
 		const uint32_t lineStart = renderThreadIndex * lineRange;
 		const uint32_t lineEnd = ( renderThreadIndex + 1 == threadCount ) ? height : ( renderThreadIndex + 1 ) * lineRange;
 
-		// Starting line rendering
+		// starting line rendering
 
 		const bool bRenderNormalSpeed = triangleScanParams.renderSpeed == BERenderSpeed::Normal;
 		const uint32_t renderSpeed = static_cast< uint32_t >( triangleScanParams.renderSpeed ) * 2;
@@ -309,26 +313,41 @@ namespace bgl
 				const float unitX = static_cast< float >( i ) / static_cast< float >( width - 1 ) - 0.5f;
 				const float unitY = static_cast< float >( j ) / static_cast< float >( height - 1 ) - 0.5f;
 
-				BVec3f vRayDir( sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance );
-				vRayDir.normalize();
+				BVec3f rayDirection( sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance );
+				rayDirection.normalize();
 
 				BVec3f vUp( BVec3f::up() );
 				BVec3f vRight( BVec3f::right() );
 				BVec3f vForward( BVec3f::forward() );
+				
+				switch( cameraRotationMethod )
+				{
+				case Naive:
 
-				// yaw
-				vRayDir = BQuatf::rotateVector( rRot.y, vUp, vRayDir );
+					// yaw
+					rayDirection = BQuatf::rotateVector( cameraRotator.y, vUp, rayDirection );
 
-				// pitch
-				vRight = BQuatf::rotateVector( rRot.y, vUp, vRight );
-				vRayDir = BQuatf::rotateVector( rRot.p, vRight, vRayDir );
+					// pitch
+					vRight = BQuatf::rotateVector( cameraRotator.y, vUp, vRight );
+					rayDirection = BQuatf::rotateVector( cameraRotator.p, vRight, rayDirection );
 
-				// roll
-				vForward = BQuatf::rotateVector( rRot.y, BVec3f::up(), vForward );
-				vForward = BQuatf::rotateVector( rRot.p, BVec3f::right(), vForward );
-				vRayDir = BQuatf::rotateVector( rRot.r, vForward, vRayDir );
+					// roll
+					vForward = BQuatf::rotateVector( cameraRotator.y, BVec3f::up(), vForward );
+					vForward = BQuatf::rotateVector( cameraRotator.p, BVec3f::right(), vForward );
+					rayDirection = BQuatf::rotateVector( cameraRotator.r, vForward, rayDirection );
 
-				triangleScanParams.dir = vRayDir;
+					break;
+
+				case Quaternion:
+
+					BSIMDQuaternion rayRotation{ rayDirection };
+					rayRotation.multiply( cameraRotation );
+					rayDirection = rayRotation.v();
+
+					break;
+				}
+				
+				triangleScanParams.dir = rayDirection;
 
 				// Getting scene triangles
 

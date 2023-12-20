@@ -351,7 +351,7 @@ namespace bgl
 		}
 
 		BNode* addNode( const char* name = "None" );
-		BNode* addNode( BNode& parent, const char* name = "None" );
+		BNode* addNode( BNode* parent, const char* name = "None" );
 
 		void deleteNode( BNode* node );
 

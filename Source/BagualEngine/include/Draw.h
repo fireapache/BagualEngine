@@ -61,7 +61,7 @@ namespace bgl
 			// ray plane intersection parameters
 			const float sensorDist = camera->GetSensorDistance();
 			const BVec3f cameraLoc = camera->GetLocation();
-			const BRotf cameraRot = camera->GetRotation();
+			const BRotf cameraRot = camera->GetRotator();
 			const BVec3f planeNormal = BVec3f( 0.f, 0.f, -1.f );
 			const BVec3f planeLoc = planeNormal * sensorDist;
 			BVec3f rayOrig = point - cameraLoc;

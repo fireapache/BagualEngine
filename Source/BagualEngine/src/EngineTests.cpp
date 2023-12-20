@@ -89,21 +89,128 @@ namespace bgl
 
 		auto& scene = BEngine::Scene();
 
+		rootNode = scene.addNode( "Fundamental Rendering Root" );
+		trisNode = scene.addNode( rootNode, "Mesh Node" );
+
+		auto triMeshComp = scene.addComponent< BMeshComponent >( trisNode, "Triangle Mesh" );
+		triMeshComp->addTriangles( tris );
 
 		if( camera )
 		{
 			camera->SetRenderOutputType( BERenderOutputType::UvColor );
 			camera->SetRenderSpeed( BERenderSpeed::Normal );
-			camera->SetRenderMode( BERenderMode::SIMD );
+			camera->SetRenderMode( BERenderMode::Embree );
 			//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 		}
+
+		guiTickFunc = [ this ]()
+		{
+			IM_ASSERT( ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!" );
+
+			ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(
+				ImVec2( main_viewport->GetWorkPos().x + 650, main_viewport->GetWorkPos().y + 20 ),
+				ImGuiCond_FirstUseEver );
+			ImGui::SetNextWindowSize( ImVec2( 550, 680 ), ImGuiCond_FirstUseEver );
+
+			ImGuiWindowFlags window_flags = 0;
+			if( !ImGui::Begin( "Fundamental Rendering", nullptr, window_flags ) )
+			{
+				ImGui::End();
+				return;
+			}
+
+			ImGui::PushItemWidth( ImGui::GetFontSize() * -12 );
+
+			if( ImGui::Button( "Restart Rendering" ) )
+			{
+				if( viewport )
+				{
+					viewport->ResetPixelDepth();
+					BCanvas* canvas = viewport->GetCanvas();
+
+					if( canvas )
+					{
+						canvas->getColorBuffer().SetBufferValue( 0 );
+					}
+				}
+			}
+			
+			if( ImGui::Checkbox( "Permute BVH", &( BEngine::Scene().bPermuteTris ) ) )
+			{
+				BEngine::Scene().setSceneDirty( true );
+			}
+			
+			ImGui::SameLine();
+			if( ImGui::Checkbox( "Precompute BVH", &( BEngine::Scene().bPrecomputeTris ) ) )
+			{
+				 BEngine::Scene().setSceneDirty( true );
+			}
+
+			if( cameraComp && cameraComp->getCamera() )
+			{
+				BCamera* camera = cameraComp->getCamera();
+
+				auto& renderOutputMode = camera->GetRenderOutputType_Mutable();
+				const char* renderOutputOptions[] = { "Pixel Depth", "UV Color" };
+				ImGui::Combo(
+					"Render Output",
+					reinterpret_cast< int* >( &renderOutputMode ),
+					renderOutputOptions,
+					IM_ARRAYSIZE( renderOutputOptions ) );
+
+				const float positionRange = 10.f;
+				BVec3f& camPos = cameraComp->getTransform_mutable().translation;
+				ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
+
+				const float rotRange = 20.f;
+				BRotf& camRot = cameraComp->getTransform_mutable().rotation;
+				ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
+				
+				auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
+				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
+				ImGui::Combo(
+					"Render Thread Mode",
+					reinterpret_cast< int* >( &renderThreadMode ),
+					renderThreadOptions,
+					IM_ARRAYSIZE( renderThreadOptions ) );
+
+				auto& renderMode = camera->GetRenderMode_Mutable();
+				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH", "Embree" };
+				ImGui::Combo(
+					"Render Mode",
+					reinterpret_cast< int* >( &renderMode ),
+					renderModeOptions,
+					IM_ARRAYSIZE( renderModeOptions ) );
+
+				auto& renderSpeed = camera->GetRenderSpeed_Mutable();
+				const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
+				ImGui::Combo(
+					"Render Speed",
+					reinterpret_cast< int* >( &renderSpeed ),
+					renderSpeedOptions,
+					IM_ARRAYSIZE( renderSpeedOptions ) );
+			}
+			
+			constexpr float fovRange = 60.f;
+			constexpr float fovCenter = 90.f;
+			constexpr float leftRange = fovCenter - fovRange;
+			constexpr float rightRange = fovCenter + fovRange;
+			ImGui::SliderFloat( "Camera FOV", &camera->GetFOV_Mutable(), leftRange, rightRange );
+
+			ImGui::End();
+		};
+
+		// Gui update procedure
+		BEngine::Instance().registerGuiTickFunc( &guiTickFunc );
 	}
 
 	void BEngineTest_FundamentalRendering::destroy()
 	{
 		BEngine::Instance().unregisterGuiTickFunc( &guiTickFunc );
 		auto& scene = BEngine::Scene();
-		scene.deleteNode( trisNode );
+		scene.deleteNode( rootNode );
+		rootNode = nullptr;
 		trisNode = nullptr;
 	}
 
@@ -163,9 +270,9 @@ namespace bgl
 		roomRootNode = scene.addNode( "Room Rendering Root" );
 
 		// Creating scene nodes
-		auto roomNode = scene.addNode( *roomRootNode, "Room" );
-		auto objectsNode = scene.addNode( *roomRootNode, "Objects" );
-		auto charNode = scene.addNode( *roomRootNode, "Character" );
+		auto roomNode = scene.addNode( roomRootNode, "Room" );
+		auto objectsNode = scene.addNode( roomRootNode, "Objects" );
+		auto charNode = scene.addNode( roomRootNode, "Character" );
 
 		// Creating mesh components and loading geometry from disk
 		roomMeshComp = scene.addComponent< BMeshComponent >( roomNode, "RoomMesh", "./assets/basemap/basemap.obj" );
@@ -179,7 +286,7 @@ namespace bgl
 		camera->SetFOV( 30.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetRenderMode( BERenderMode::BVH );
+		camera->SetRenderMode( BERenderMode::SIMD );
 
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
@@ -271,16 +378,24 @@ namespace bgl
 					renderOutputOptions,
 					IM_ARRAYSIZE( renderOutputOptions ) );
 
-				const float positionRange = 10.f;
+				constexpr float positionRange = 10.f;
 				BVec3f& camPos = cameraComp->getTransform_mutable().translation;
 				ImGui::SliderFloat3( "Camera Position", reinterpret_cast< float* >( &camPos ), -positionRange, positionRange );
 
-				const float rotRange = 20.f;
+				constexpr float rotRange = 89.f;
 				BRotf& camRot = cameraComp->getTransform_mutable().rotation;
 				ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
+				auto& cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
+				const char* cameraRotationMethodOptions[] = { "Naive", "Quaternion" };
+				ImGui::Combo(
+					"Camera Rotation Method",
+					reinterpret_cast< int* >( &cameraRotationMethod ),
+					cameraRotationMethodOptions,
+					IM_ARRAYSIZE( cameraRotationMethodOptions ) );
+
 				auto& depthDist = camera->GetDepthDistance_Mutable();
-				const float depthDistRange = 500.f;
+				constexpr float depthDistRange = 500.f;
 				ImGui::SliderFloat(
 					"Scene Depth",
 					&depthDist,

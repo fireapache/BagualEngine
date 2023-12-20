@@ -8,6 +8,7 @@
 #include "BagualEngine.h"
 #include "Camera.h"
 #include "CameraManager.h"
+#include "GraphicsPlatform.h"
 #include "Module.h"
 #include "Viewport.h"
 #include <obj_parse.h>
@@ -383,6 +384,39 @@ namespace bgl
 			m_meshData.triangles_SIMD.v2.y.add( tri.v2.y );
 			m_meshData.triangles_SIMD.v2.z.add( tri.v2.z );
 		}
+
+		rtcGeometry = rtcNewGeometry( BScene::rtcDevice, RTC_GEOMETRY_TYPE_TRIANGLE );
+		auto rtcVertices = 
+			static_cast< float* >( rtcSetNewGeometryBuffer(
+				rtcGeometry,
+				RTC_BUFFER_TYPE_VERTEX,
+				0,
+				RTC_FORMAT_FLOAT3,
+				3 * sizeof( float ),
+				m_meshData.triangles.size() * 3 ) );
+
+		unsigned* rtcIndices = 
+			static_cast< unsigned* >( rtcSetNewGeometryBuffer(
+				rtcGeometry,
+				RTC_BUFFER_TYPE_INDEX, 
+				0,
+				RTC_FORMAT_UINT3,
+				3 * sizeof( unsigned ),
+				m_meshData.triangles.size() * 3 ) );
+
+		for( unsigned i = 0; i < m_meshData.triangles.size(); ++i )
+		{
+			float* x = rtcVertices + ( 9 * i );
+			const auto& loadedVertex = m_meshData.triangles[ i ];
+			memcpy( x, &( loadedVertex.v0.x ), 9 * sizeof( float ) );
+			auto indexPtr = rtcIndices + 9 * i;
+			unsigned indexes[ 9 ] = { 9 * i, 9 * i + 1, 9 * i + 2, 9 * i + 3, 9 * i + 4, 9 * i + 5, 9 * i + 6, 9 * i + 7, 9 * i + 8 };
+			memcpy( indexPtr, indexes, 9 * sizeof( float ) );
+		}
+		
+		rtcCommitGeometry( rtcGeometry );
+		rtcAttachGeometry( m_scene->rtcScene, rtcGeometry );
+		setSceneDirty();
 	}
 
 	BScene::BScene()
@@ -431,7 +465,7 @@ namespace bgl
 			auto& trisSIMD = renderStage->triangles_SIMD;
 			auto& edges = renderStage->edges;
 			renderStage->rtcScene = rtcScene;
-
+			
 			for( const auto meshComp : BMeshComponent::g_meshComponents )
 			{
 				if( !meshComp )
@@ -578,39 +612,44 @@ namespace bgl
 					selectedRenderStage = renderStages[ i ];
 				}
 			}
-
-			return selectedRenderStage;
 		}
-
-		// ok we have the latest New, lets stage it
-		selectedRenderStage->state = BRenderStage::State::Staged;
-
-		// marking all others as Old
-		for( uint32_t i = 0; i < renderStages.size(); ++i )
+		else
 		{
-			if( renderStages[ i ]->state != BRenderStage::State::Staged )
+			// ok we have the latest New, lets stage it
+			selectedRenderStage->state = BRenderStage::State::Staged;
+
+			// marking all others as Old
+			for( uint32_t i = 0; i < renderStages.size(); ++i )
 			{
-				renderStages[ i ]->state = BRenderStage::State::Old;
+				if( renderStages[ i ]->state != BRenderStage::State::Staged )
+				{
+					renderStages[ i ]->state = BRenderStage::State::Old;
+				}
 			}
+
+			// finally claiming the one selected
+			selectedRenderStage->state = BRenderStage::State::Claimed;
 		}
-
-		// finally claiming the one selected
-		selectedRenderStage->state = BRenderStage::State::Claimed;
-
+		
 		return selectedRenderStage;
 	}
 
 	BNode* BScene::addNode( const char* name /*= "None"*/ )
 	{
-		return addNode( *m_sceneRoot, name );
+		return addNode( m_sceneRoot.get(), name );
 	}
 
-	BNode* BScene::addNode( BNode& parent, const char* name /*= "None"*/ )
+	BNode* BScene::addNode( BNode* parent, const char* name /*= "None"*/ )
 	{
+		if( parent == nullptr )
+		{
+			return nullptr;
+		}
+
 		BModule* moduleContext = BEngine::Instance().getModuleContext();
-		BNode* newNodePtr = new BNode( this, &parent, name, moduleContext );
+		BNode* newNodePtr = new BNode( this, parent, name, moduleContext );
 		m_nodes.push_back( newNodePtr );
-		parent.addChild( newNodePtr );
+		parent->addChild( newNodePtr );
 		if( moduleContext )
 		{
 			moduleContext->getNodes().add( newNodePtr );

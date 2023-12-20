@@ -86,4 +86,9 @@ namespace bgl
 	void BGraphicsDriverBase::RenderCamera( const BCamera& camera )
 	{
 	}
+
+	ECameraRotationMethod& BGraphicsDriverBase::GetCameraRotationMethod_Mutator()
+	{
+		return cameraRotationMethod;
+	}
 } // namespace bgl

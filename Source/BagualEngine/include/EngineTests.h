@@ -67,6 +67,7 @@ namespace bgl
 		void QueueCameraLineDraw( class BCamera* camera );
 
 	public:
+		BNode* rootNode{ nullptr };
 		BNode* trisNode{ nullptr };
 
 		BEngineTest_FundamentalRendering()

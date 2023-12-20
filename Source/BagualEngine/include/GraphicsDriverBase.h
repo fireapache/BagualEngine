@@ -22,6 +22,7 @@ namespace bgl
 		virtual void RenderCamera( const BCamera& camera ) = 0;
 		virtual void Delay( const uint32_t&& ms ) = 0;
 		virtual void Delay( const uint32_t& ms ) = 0;
+		virtual ECameraRotationMethod& GetCameraRotationMethod_Mutator() = 0;
 	};
 	
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
@@ -38,15 +39,17 @@ namespace bgl
 
 		uint64_t frameCount{ 0 };
 		double lastRenderTime{ 0.0 };
+		ECameraRotationMethod cameraRotationMethod{ DefaultCameraRotationMethod };
 
-		virtual void SetEnabled( const bool bValue );
-		virtual bool IsEnabled() const;
+		void SetEnabled( const bool bValue ) override;
+		bool IsEnabled() const override;
 		void StartGameFrameRenderingThread();
 		void StopGameFrameRenderingThread();
-		virtual void SwapFrames();
+		void SwapFrames() override;
 		virtual void RenderGameFrame();
 		virtual void SwapUIFrame();
 		virtual void SwapGameFrame();
-		virtual void RenderCamera( const BCamera& camera );
+		void RenderCamera( const BCamera& camera ) override;
+		ECameraRotationMethod& GetCameraRotationMethod_Mutator() override;
 	};
 } // namespace bgl

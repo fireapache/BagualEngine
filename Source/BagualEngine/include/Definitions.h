@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <limits>
 
+#define BGL_OPTIMIZATION_OFF __pragma( optimize( "", off ) )
+#define BGL_OPTIMIZATION_ON __pragma( optimize( "", on ) )
+
 namespace bgl
 {
 
@@ -24,6 +27,16 @@ namespace bgl
 		Depth,
 		UvColor
 	};
+	
+	enum EEulerOrder
+	{
+		ORDER_XYZ,
+		ORDER_YZX,
+		ORDER_ZXY,
+		ORDER_ZYX,
+		ORDER_YXZ,
+		ORDER_XZY
+	};
 
 	enum class EBAxis : uint8_t
 	{
@@ -39,5 +52,13 @@ namespace bgl
 		DBF_SceneConstruction = 1,
 		DBF_ThreadsTick = 1 << 1
 	};
+
+	enum ECameraRotationMethod
+	{
+		Naive,
+		Quaternion
+	};
+
+	constexpr ECameraRotationMethod DefaultCameraRotationMethod{ Naive };
 
 } // namespace bgl
