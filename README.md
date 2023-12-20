@@ -1,6 +1,6 @@
 # Bagual Engine
 
-It's a general purpose game engine using a custom made pathtracing renderer, no OpenGL, Vulkan or DirectX raytracing functionalities are used here.
+It's a general purpose game engine using a custom made pathtracing renderer, no OpenGL, Vulkan or DirectX rendering functionalities are used to render viewports.
 
 ## Goal
 
@@ -19,7 +19,7 @@ To learn and create a custom game engine and a 3D renderer from scratch, mainly 
 Note: You can change engine test module being used by editing BEngine::RegisterModules() function.
 
 **Linux**:
-* Doesn't compile atm, support to be added asap
+* Doesn't compile atm, support not in plans for now
 
 ## Current State
 
@@ -31,7 +31,7 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 
 * Scene with node and component structure
 * Multithread CPU renderer
-* SIMD and non-SIMD renderer implementations
+* 4 rendering methods including BVH and Embree
 * OBJ mesh file importer (only triangles for now, materials not supported atm)
 * Super simple to use straight in main.cpp
 * Very customizable and easy to improve uppon
@@ -52,5 +52,5 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 
 ## Current goal
 
-Improve rendering performance by adding a fast BVH solution to find the minimal triangle set to test ray intersection with.
+Optimizing rendering and implementing SIMD for math types (BSIMDVector3, BSIMDMatrix3x3, ..)
 
