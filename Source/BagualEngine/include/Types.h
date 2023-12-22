@@ -551,9 +551,9 @@ namespace bgl
 			data = _mm_loadu_ps( values.data() );
 		}
 
-		BSIMDQuaternion( const float s, const float x, const float y, const float z )
+		BSIMDQuaternion( const float w, const float x, const float y, const float z )
 		{
-			const std::array values{ s, x, y, z };
+			const std::array values{ w, x, y, z };
 			data = _mm_loadu_ps( values.data() );
 		}
 
@@ -572,7 +572,7 @@ namespace bgl
 			memcpy( &( vec.x ), result.data() + 1, sizeof( float ) * 3 );
 			return vec;
 		}
-		
+
 		// based on https://stackoverflow.com/a/22219399
 		void multiply( const BSIMDQuaternion& q )
 		{
@@ -594,6 +594,24 @@ namespace bgl
 			__m128 t0 = _mm_mul_ps( a0000, b );
 			__m128 t03 = _mm_sub_ps( t0, t3 );
 			data = _mm_add_ps( t03, t12m );
+		}
+
+		[[nodiscard]] BVec3f toVec3f() const
+		{
+			std::array< float, 4 > simdData{};
+			_mm_storeu_ps( simdData.data(), data );
+			const float& x = simdData[ 1 ];
+			const float& y = simdData[ 2 ];
+			const float& z = simdData[ 3 ];
+			const float& w = simdData[ 0 ];
+			// clang-format off
+			return
+			{
+				2.0f * ( x * z + w * y ),
+				2.0f * ( y * z - w * x ),
+				1.0f - 2.0f * ( x * x + y * y )
+			};
+			// clang-format on
 		}
 	};
 
@@ -840,7 +858,22 @@ namespace bgl
 		{
 			return *( ( data + i * 3 ) + j );
 		}
-		
+
+		void rotateVector( BVec3f& vec ) const
+		{
+			size_t j = 0;
+			for( size_t i = 0; i < 3; i++ )
+			{
+				const __m128 row = _mm_loadu_ps( ( data + j ) );
+				const __m128 vector = _mm_loadu_ps( &( vec.x ) );
+				__m128 mul = _mm_mul_ps( row, vector );
+				mul = _mm_add_ps( mul, _mm_movehl_ps( mul, mul ) );
+				mul = _mm_add_ss( mul, _mm_shuffle_ps( mul, mul, 1 ) );
+				_mm_store_ss( &( vec.x ) + i, mul );
+				j += 3;
+			}
+		}
+
 		// Based on https://stackoverflow.com/a/1569893
 		static BMatrix3x3 fromEuler( const BRotf& rotator, EEulerOrder eulerOrder )
 		{
@@ -932,7 +965,7 @@ namespace bgl
 			}
 			return ( Mx );
 		}
-		
+
 		[[nodiscard]] BSIMDQuaternion toQuaternion() const
 		{
 			// Ref: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/

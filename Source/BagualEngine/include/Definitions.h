@@ -55,8 +55,10 @@ namespace bgl
 
 	enum ECameraRotationMethod
 	{
+		None,
 		Naive,
-		Quaternion
+		Quaternion,
+		Matrix
 	};
 
 	constexpr ECameraRotationMethod DefaultCameraRotationMethod{ Naive };

@@ -18,6 +18,8 @@
 #include <limits>
 #include <thread>
 
+//BGL_OPTIMIZATION_OFF
+
 // clang-format off
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -284,6 +286,12 @@ namespace bgl
 		const auto renderMode = camera->GetRenderMode();
 		const auto cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
 
+		//const BRotf rX45D{ 45.0f, 0.0f, 0.0f };
+		//const BMatrix3x3 mX45D{ BMatrix3x3::fromEuler( rX45D, ORDER_XYZ ) };
+		//BSIMDQuaternion qX45D{ mX45D.toQuaternion() };
+		//BSIMDQuaternion qResult{ BVec3f::forward() };
+		//const BVec3f vX45D{ qX45D.toVec3f() };
+
 		// getting render lines of interest
 
 		const auto processorCount
@@ -316,13 +324,13 @@ namespace bgl
 				BVec3f rayDirection( sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance );
 				rayDirection.normalize();
 
-				BVec3f vUp( BVec3f::up() );
-				BVec3f vRight( BVec3f::right() );
-				BVec3f vForward( BVec3f::forward() );
-				
 				switch( cameraRotationMethod )
 				{
 				case Naive:
+				{
+					BVec3f vUp( BVec3f::up() );
+					BVec3f vRight( BVec3f::right() );
+					BVec3f vForward( BVec3f::forward() );
 
 					// yaw
 					rayDirection = BQuatf::rotateVector( cameraRotator.y, vUp, rayDirection );
@@ -337,16 +345,24 @@ namespace bgl
 					rayDirection = BQuatf::rotateVector( cameraRotator.r, vForward, rayDirection );
 
 					break;
-
+				}
 				case Quaternion:
-
+				{
 					BSIMDQuaternion rayRotation{ rayDirection };
 					rayRotation.multiply( cameraRotation );
-					rayDirection = rayRotation.v();
+					rayDirection = rayRotation.toVec3f();
 
 					break;
 				}
-				
+				case Matrix:
+				{
+					cameraMatrix.rotateVector( rayDirection );
+					break;
+				}
+				case None:
+					break;
+				}
+
 				triangleScanParams.dir = rayDirection;
 
 				// Getting scene triangles
@@ -366,7 +382,7 @@ namespace bgl
 					ScanTriangles_Embree( renderStage, triangleScanParams );
 					break;
 				}
-				
+
 				if( triangleScanParams.bHit )
 				{
 					PaintPixelWithShader( triangleScanParams );
@@ -747,9 +763,9 @@ namespace bgl
 
 			const GLsizei windowWidth = canvas->getWidth();
 			const GLsizei windowHeight = canvas->getHeight();
-			
+
 			const auto pixels = canvas->getReadyFrameBuffer().GetData();
-			
+
 			if( pixels )
 			{
 				/* draw pixels to screen */

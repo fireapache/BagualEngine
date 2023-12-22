@@ -387,7 +387,7 @@ namespace bgl
 				ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 
 				auto& cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
-				const char* cameraRotationMethodOptions[] = { "Naive", "Quaternion" };
+				const char* cameraRotationMethodOptions[] = { "None", "Naive", "Quaternion", "Matrix" };
 				ImGui::Combo(
 					"Camera Rotation Method",
 					reinterpret_cast< int* >( &cameraRotationMethod ),
