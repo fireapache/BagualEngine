@@ -14,6 +14,8 @@
 #include "Settings.h"
 #include "Types.h"
 
+BGL_OPTIMIZATION_OFF
+
 namespace bgl
 {
 	std::unique_ptr< BEngine > BEngine::m_instance( nullptr );
@@ -80,7 +82,7 @@ namespace bgl
 
 					if( BSettings::isDebugFlagsSet( DBF_ThreadsTick ) )
 					{
-						std::cout << "sim: " << simulationCount << std::endl;
+						std::cout << "sim: " << simulationCount << '\n';
 					}
 
 					ModulesLoop();

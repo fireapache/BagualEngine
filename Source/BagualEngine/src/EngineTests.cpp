@@ -287,7 +287,7 @@ namespace bgl
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
 		camera->SetRenderMode( BERenderMode::SIMD );
-
+		
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
 		// Ways to access scene nodes

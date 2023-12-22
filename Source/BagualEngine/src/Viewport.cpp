@@ -168,10 +168,8 @@ namespace bgl
 		{
 			return colorBuffer[ index ];
 		}
-		else
-		{
-			return colorBuffer[ lastIndex ];
-		}
+
+		return colorBuffer[ lastIndex ];
 	}
 
 	DepthDataType BViewport::GetPixelDepth( const size_t x, const size_t y )

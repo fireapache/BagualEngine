@@ -115,7 +115,7 @@ namespace bgl
 
 		if( BSettings::isDebugFlagsSet( DBF_ThreadsTick ) )
 		{
-			std::cout << "frame: " << frameCount << std::endl;
+			std::cout << "frame: " << frameCount << '\n';
 		}
 
 		const auto renderStartTime = std::chrono::system_clock::now();
@@ -290,12 +290,17 @@ namespace bgl
 		const auto cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
 
 		// creating rotation matrices for each axis
-		const glm::mat4 pitchMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
-		const glm::mat4 yawMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
-		const glm::mat4 rollMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.z, glm::vec3( 0.0f, 0.0f, 1.0f ) );
+		const glm::mat4 pitchMatrix{ glm::rotate( glm::mat4( 1.0f ), cameraRadians.x, glm::vec3( 1.0f, 0.0f, 0.0f ) ) };
+		const glm::mat4 yawMatrix{ glm::rotate( glm::mat4( 1.0f ), cameraRadians.y, glm::vec3( 0.0f, 1.0f, 0.0f ) ) };
+		const glm::mat4 rollMatrix{ glm::rotate( glm::mat4( 1.0f ), cameraRadians.z, glm::vec3( 0.0f, 0.0f, 1.0f ) ) };
 
 		// combining the rotation matrices
-		const glm::mat4 glmCameraMatrix = yawMatrix * pitchMatrix * rollMatrix;
+		const glm::mat4 glmCameraMatrix{ yawMatrix * pitchMatrix * rollMatrix };
+
+		// sensor area directions
+		const glm::vec3 glmSensorXDir{ glmCameraMatrix * glm::vec4{ 1.0f, 0.0f, 0.0f, 0.0f } };
+		const glm::vec3 glmSensorYDir{ glmCameraMatrix * glm::vec4{ 0.0f, 1.0f, 0.0f, 0.0f } };
+		const glm::vec3 glmSensorZDir{ glmCameraMatrix * glm::vec4{ 0.0f, 0.0f, 1.0f, 0.0f } };
 
 		// getting render lines of interest
 
@@ -326,8 +331,8 @@ namespace bgl
 				const float unitX = static_cast< float >( i ) / static_cast< float >( width - 1 ) - 0.5f;
 				const float unitY = static_cast< float >( j ) / static_cast< float >( height - 1 ) - 0.5f;
 
-				BVec3f rayDirection( sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance );
-				rayDirection.normalize();
+				const glm::vec3 glmRayDirection{ glm::normalize( glm::vec3{ sensorArea.x * unitX, -sensorArea.y * unitY, sensorDistance } ) };
+				BVec3f rayDirection{ glmRayDirection.x, glmRayDirection.y, glmRayDirection.z };
 
 				switch( cameraRotationMethod )
 				{
@@ -367,8 +372,13 @@ namespace bgl
 				case None:
 					break;
 				case glm:
-					const glm::vec3 glmRayDir
-						= glmCameraMatrix * glm::vec4{ rayDirection.x, rayDirection.y, rayDirection.z, 1.0f };
+					glm::vec3 glmRayDir
+					{
+						glm::vec3{ glmSensorXDir * sensorArea.x * unitX }
+						+ glm::vec3{ - glmSensorYDir * sensorArea.y * unitY }
+						+ glm::vec3{ glmSensorZDir * sensorDistance }
+					};
+					glmRayDir = glm::normalize( glmRayDir );
 					rayDirection.x = glmRayDir.x;
 					rayDirection.y = glmRayDir.y;
 					rayDirection.z = glmRayDir.z;
