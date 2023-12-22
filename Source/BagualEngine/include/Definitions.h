@@ -58,7 +58,8 @@ namespace bgl
 		None,
 		Naive,
 		Quaternion,
-		Matrix
+		Matrix,
+		glm
 	};
 
 	constexpr ECameraRotationMethod DefaultCameraRotationMethod{ Naive };

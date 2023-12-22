@@ -14,6 +14,8 @@
 #include "Settings.h"
 #include "ThreadPool.h"
 #include "Viewport.h"
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <imgui.h>
 #include <limits>
 #include <thread>
@@ -282,15 +284,18 @@ namespace bgl
 		const auto renderThreadMode = camera->GetRenderThreadMode();
 		const auto cameraRotator = camera->GetRotator();
 		const auto cameraMatrix = BMatrix3x3::fromEuler( cameraRotator, ORDER_XYZ );
+		const glm::vec3 cameraRadians = glm::radians( glm::vec3{ cameraRotator.p, cameraRotator.y, cameraRotator.r } );
 		const BSIMDQuaternion cameraRotation{ cameraMatrix.toQuaternion() };
 		const auto renderMode = camera->GetRenderMode();
 		const auto cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
 
-		//const BRotf rX45D{ 45.0f, 0.0f, 0.0f };
-		//const BMatrix3x3 mX45D{ BMatrix3x3::fromEuler( rX45D, ORDER_XYZ ) };
-		//BSIMDQuaternion qX45D{ mX45D.toQuaternion() };
-		//BSIMDQuaternion qResult{ BVec3f::forward() };
-		//const BVec3f vX45D{ qX45D.toVec3f() };
+		// creating rotation matrices for each axis
+		const glm::mat4 pitchMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.x, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+		const glm::mat4 yawMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.y, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+		const glm::mat4 rollMatrix = glm::rotate( glm::mat4( 1.0f ), cameraRadians.z, glm::vec3( 0.0f, 0.0f, 1.0f ) );
+
+		// combining the rotation matrices
+		const glm::mat4 glmCameraMatrix = yawMatrix * pitchMatrix * rollMatrix;
 
 		// getting render lines of interest
 
@@ -360,6 +365,13 @@ namespace bgl
 					break;
 				}
 				case None:
+					break;
+				case glm:
+					const glm::vec3 glmRayDir
+						= glmCameraMatrix * glm::vec4{ rayDirection.x, rayDirection.y, rayDirection.z, 1.0f };
+					rayDirection.x = glmRayDir.x;
+					rayDirection.y = glmRayDir.y;
+					rayDirection.z = glmRayDir.z;
 					break;
 				}
 
