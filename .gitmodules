@@ -13,3 +13,6 @@
 [submodule "Source/BVH"]
 	path = Source/BVH
 	url = https://github.com/fireapache/bvh.git
+[submodule "Source/glm"]
+	path = Source/glm
+	url = https://github.com/fireapache/glm.git

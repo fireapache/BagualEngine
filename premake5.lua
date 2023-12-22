@@ -280,7 +280,8 @@ project "BagualEngine"
 		"Source/IMGUI-NE/",
 		"Source/OBJ-Loader/",
 		"Source/BVH/src/",
-		"Source/Embree/include/"
+		"Source/Embree/include/",
+		"Source/glm/",
 	}
 
 	dependson { "GLAD", "GLFW", "IMGUI", "IMGUI-NE" }
