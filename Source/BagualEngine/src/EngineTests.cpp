@@ -284,9 +284,10 @@ namespace bgl
 		camera->SetRotation( BRotf( 8.19f, 20.f, 0.f ) );
 		camera->SetDepthDistance( 800.f );
 		camera->SetFOV( 30.f );
+		BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator() = ECameraRotationMethod::glm;
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetRenderMode( BERenderMode::SIMD );
+		camera->SetRenderMode( BERenderMode::Embree );
 		
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
