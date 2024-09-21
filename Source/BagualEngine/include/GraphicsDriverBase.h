@@ -23,8 +23,9 @@ namespace bgl
 		virtual void Delay( const uint32_t&& ms ) = 0;
 		virtual void Delay( const uint32_t& ms ) = 0;
 		virtual ECameraRotationMethod& GetCameraRotationMethod_Mutator() = 0;
+		virtual std::chrono::steady_clock::duration FrameTime() = 0;
 	};
-	
+
 	class BGraphicsDriverBase : public BGraphicsDriverInterface
 	{
 	protected:
@@ -38,7 +39,9 @@ namespace bgl
 		~BGraphicsDriverBase();
 
 		uint64_t frameCount{ 0 };
-		double lastRenderTime{ 0.0 };
+
+		Average< std::chrono::steady_clock::duration, 100 > averageRenderTime;
+
 		ECameraRotationMethod cameraRotationMethod{ DefaultCameraRotationMethod };
 
 		void SetEnabled( const bool bValue ) override;
@@ -51,5 +54,9 @@ namespace bgl
 		virtual void SwapGameFrame();
 		void RenderCamera( const BCamera& camera ) override;
 		ECameraRotationMethod& GetCameraRotationMethod_Mutator() override;
+		virtual std::chrono::steady_clock::duration FrameTime() override
+		{
+			return averageRenderTime.get();
+		}
 	};
 } // namespace bgl

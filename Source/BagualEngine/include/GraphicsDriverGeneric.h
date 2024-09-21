@@ -8,6 +8,8 @@ namespace bgl
 	class BRenderStage;
 }
 
+class thread_pool;
+
 namespace bgl
 {
 	enum class BERenderSpeed
@@ -55,6 +57,7 @@ namespace bgl
 	class BGraphicsDriverGeneric : public BGraphicsDriverBase
 	{
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
+		std::unique_ptr< class thread_pool > renderThreadPool;
 
 		static void ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p );
 		static void ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p );

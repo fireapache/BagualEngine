@@ -10,6 +10,7 @@
 #include <emmintrin.h>
 #include <immintrin.h>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace bgl
@@ -95,6 +96,42 @@ namespace bgl
 		{
 			return ( getRGB() << 8 ) | static_cast< uint32_t >( 255.f * value[ 3 ] );
 		}
+	};
+
+	template< typename T, uint8_t N >
+	class Average
+	{
+		static_assert( N > 1, "Need more than 1 values to make an average!" );
+		//static_assert( std::is_arithmetic< T >::value, "Not an arithmetic type" );
+
+		T _values[ N ];
+		uint8_t _size{ 0 };
+		uint8_t _nextIndex{ 0 };
+		T _average{ 0 };
+
+	public:
+
+		void add( T v )
+		{
+			_values[ _nextIndex ] = v;
+			_nextIndex = ( _nextIndex + 1 ) % N;
+			uint8_t newSize = _size + 1;
+			_size = newSize > N ? N : newSize;
+
+			_average = T( 0 );
+			for( uint8_t i = 0; i < _size; i++ )
+			{
+				_average += _values[ i ];
+			}
+
+			_average /= _size;
+		}
+
+		T get()
+		{
+			return _average;
+		}
+
 	};
 
 	// Based on the implementation from the following link,

@@ -50,7 +50,8 @@ namespace bgl
 	{
 		DBF_None = 0,
 		DBF_SceneConstruction = 1,
-		DBF_ThreadsTick = 1 << 1
+		DBF_ThreadsTick = 1 << 1,
+		DBF_CapFPS = 1 << 2,
 	};
 
 	enum ECameraRotationMethod

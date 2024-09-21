@@ -13,6 +13,9 @@
 #include "Viewport.h"
 #include <Draw.h>
 #include <imgui.h>
+#include <chrono>
+
+BGL_OPTIMIZATION_OFF
 
 namespace bgl
 {
@@ -34,6 +37,17 @@ namespace bgl
 				ImGui::End();
 				return;
 			}
+
+			// FPS display
+
+			const auto lastFrameTime = BEngine::GraphicsPlatform().getGraphicsDriver()->FrameTime();
+			const std::chrono::duration< double, std::milli > timeDelta = lastFrameTime;
+
+			ImGui::Text( "Frame Time: %.2fms", timeDelta );
+			
+			ImGui::Text( "FPS: %.f", 1000.0 / timeDelta.count() );
+
+			// module list
 
 			ImGui::PushItemWidth( ImGui::GetFontSize() * -12 );
 

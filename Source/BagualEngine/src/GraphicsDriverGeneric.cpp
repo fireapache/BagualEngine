@@ -44,6 +44,7 @@ namespace bgl
 	}
 
 	BGraphicsDriverGeneric::BGraphicsDriverGeneric()
+		: renderThreadPool( std::make_unique< thread_pool >() )
 	{
 		BGL_ASSERT( glfwInit() && "Could not start GLFW!" );
 		glfwSetErrorCallback( ErrorCallback );
@@ -71,7 +72,7 @@ namespace bgl
 			{
 				auto glfwWindow = m_cachedPlatformWindowPtr->GetGLFW_Window();
 				glfwMakeContextCurrent( glfwWindow );
-				glClear( GL_COLOR_BUFFER_BIT );
+				//glClear( GL_COLOR_BUFFER_BIT );
 				BGraphicsDriverBase::SwapFrames();
 				glfwSwapBuffers( glfwWindow );
 			}
@@ -118,8 +119,6 @@ namespace bgl
 			std::cout << "frame: " << frameCount << '\n';
 		}
 
-		const auto renderStartTime = std::chrono::system_clock::now();
-
 		const auto viewports = BEngine::GraphicsPlatform().GetViewports();
 
 		// Rendering each viewport
@@ -152,7 +151,6 @@ namespace bgl
 			const bool bUseHyperThread = renderThreadMode == BERenderThreadMode::HyperThread;
 			const auto processorCount = std::thread::hardware_concurrency() * ( bUseHyperThread ? 2 : 1 );
 			uint32_t renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
-			thread_pool renderThreadPool( renderThreadCount );
 
 #pragma region Pushing Geometry Tasks
 
@@ -160,7 +158,7 @@ namespace bgl
 
 			for( uint32_t t = 0; t < processorCount; t++ )
 			{
-				renderThreadPool.push_task( RenderLines, renderStage, viewport, t );
+				renderThreadPool.get()->push_task( RenderLines, renderStage, viewport, t );
 			}
 
 #pragma endregion
@@ -174,14 +172,14 @@ namespace bgl
 
 			for( auto* edgePtr = edgesData; edgePtr < edgesData + edgesLength; edgePtr++ )
 			{
-				renderThreadPool.push_task( Draw3DLine, viewport, edgePtr->line3D, edgePtr->color );
+				renderThreadPool.get()->push_task( Draw3DLine, viewport, edgePtr->line3D, edgePtr->color );
 			}
 
 			auto& lines3D = camera->GetLine3DBuffer();
 
 			for( auto& line3D : lines3D )
 			{
-				renderThreadPool.push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
+				renderThreadPool.get()->push_task( Draw3DLine, viewport, line3D, BSettings::lineColor );
 			}
 
 			camera->ClearLine3DBuffer();
@@ -190,7 +188,7 @@ namespace bgl
 
 			for( auto& line2D : lines2D )
 			{
-				renderThreadPool.push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
+				renderThreadPool.get()->push_task( Draw2DLine, viewport, line2D, BSettings::lineColor );
 			}
 
 			camera->ClearLine2DBuffer();
@@ -198,7 +196,7 @@ namespace bgl
 #pragma endregion
 
 			// syncing all threads
-			renderThreadPool.wait_for_tasks();
+			renderThreadPool.get()->wait_for_tasks();
 
 			auto& wireframeBuffer = canvas->getWireframeBuffer();
 			Color32Bit* wireframdeBufferData = wireframeBuffer.GetData();
@@ -221,17 +219,12 @@ namespace bgl
 				Color32Bit* wireframePtr = wireframdeBufferData + memOffset;
 				Color32Bit* destBuffer = readyFrameBufferData + memOffset;
 				const Color32Bit* colorBufferEnd = colorBufferData + bufferTotalSize;
-				renderThreadPool.push_task( composeFinalFrame, colorPtr, wireframePtr, destBuffer, colorBufferEnd );
+				renderThreadPool.get()->push_task( composeFinalFrame, colorPtr, wireframePtr, destBuffer, colorBufferEnd );
 			}
 
 			// syncing all threads one last time to have final composed frame
-			renderThreadPool.wait_for_tasks();
+			renderThreadPool.get()->wait_for_tasks();
 		}
-
-		const auto renderEndTime = std::chrono::system_clock::now();
-		const auto renderDuration = renderEndTime - renderStartTime;
-
-		lastRenderTime = static_cast< double >( renderDuration.count() );
 
 		BEngine::Scene().sceneSemaphore.release();
 		frameCount++;

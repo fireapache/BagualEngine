@@ -76,8 +76,8 @@ namespace bgl
 				{
 					Scene().sceneSemaphore.acquire();
 
-					const auto startTime = std::chrono::system_clock::now();
-					const auto duration = std::chrono::duration< double >( BSettings::simulationFrequency );
+					const auto startTime = std::chrono::high_resolution_clock::now();
+					const auto duration = std::chrono::duration< double, std::milli >( BSettings::simulationFrequency );
 					const auto endTime = startTime + duration;
 
 					if( BSettings::isDebugFlagsSet( DBF_ThreadsTick ) )
@@ -89,7 +89,11 @@ namespace bgl
 					ProcessInput();
 					updateScene();
 
-					std::this_thread::sleep_until( endTime );
+					if( std::chrono::high_resolution_clock::now() < endTime )
+					{
+						std::this_thread::sleep_until( endTime );
+					}
+					
 					Scene().sceneSemaphore.release();
 					simulationCount++;
 				}
