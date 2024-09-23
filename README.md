@@ -4,7 +4,7 @@ It's a general purpose game engine using a custom made pathtracing renderer, no 
 
 ## Goal
 
-To learn and create a custom game engine and a 3D renderer from scratch, mainly to understand the basics of how a game engine works and to experiment stuff with C++20.
+To learn and create a custom game engine and a 3D renderer from scratch, mainly to understand the basics of how a game engine works and to experiment stuff with C++17.
 
 ## Compiling
 
@@ -49,8 +49,4 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 * Input Bindings
 * GPU Rendering
 * Editor
-
-## Current goal
-
-Optimizing rendering and implementing SIMD for math types (BSIMDVector3, BSIMDMatrix3x3, ..)
 
