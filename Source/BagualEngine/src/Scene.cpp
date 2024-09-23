@@ -190,6 +190,9 @@ namespace bgl
 
 	BMeshComponent::BMeshComponent( BScene* scene, BNode* owner, BModule* module, const char* name, const char* assetPath )
 		: BComponent( scene, owner, module, name )
+		, rtcGeometry( nullptr )
+		, rtxGeomID( RTC_INVALID_GEOMETRY_ID )
+		, m_showWireframe( false )
 	{
 		m_scene = scene;
 		g_meshComponentTriangles.add( &m_meshData.triangles );

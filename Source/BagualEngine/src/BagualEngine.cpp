@@ -14,8 +14,6 @@
 #include "Settings.h"
 #include "Types.h"
 
-BGL_OPTIMIZATION_OFF
-
 namespace bgl
 {
 	std::unique_ptr< BEngine > BEngine::m_instance( nullptr );

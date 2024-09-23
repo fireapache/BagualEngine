@@ -139,12 +139,12 @@ namespace bgl
 		//BRawMeshData m_sourceMeshData;
 		BRawMeshData m_meshData;
 
-		bool m_showWireframe{ false };
+		bool m_showWireframe;
 
 		BColor color;
 
 		RTCGeometry rtcGeometry;
-		unsigned rtxGeomID = RTC_INVALID_GEOMETRY_ID;
+		unsigned rtxGeomID;
 
 	public:
 		BMeshComponent(

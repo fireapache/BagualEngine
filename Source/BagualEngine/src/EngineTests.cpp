@@ -168,7 +168,7 @@ namespace bgl
 				ImGui::SliderFloat3( "Camera Rotation", reinterpret_cast< float* >( &camRot ), -rotRange, rotRange );
 				
 				auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
-				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
+				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread" };
 				ImGui::Combo(
 					"Render Thread Mode",
 					reinterpret_cast< int* >( &renderThreadMode ),
@@ -407,7 +407,7 @@ namespace bgl
 				ImGui::InputFloat2( "Sensor Size", reinterpret_cast< float* >( &sensorSize ) );
 
 				auto& renderThreadMode = camera->GetRenderThreadMode_Mutable();
-				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread", "Hyper Thread" };
+				const char* renderThreadOptions[] = { "Single Thread", "Multi Thread" };
 				ImGui::Combo(
 					"Render Thread Mode",
 					reinterpret_cast< int* >( &renderThreadMode ),

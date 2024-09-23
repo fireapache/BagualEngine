@@ -40,7 +40,7 @@ namespace bgl
 
 		uint64_t frameCount{ 0 };
 
-		Average< std::chrono::steady_clock::duration, 100 > averageRenderTime;
+		Average< std::chrono::steady_clock::duration, 50 > averageRenderTime;
 
 		ECameraRotationMethod cameraRotationMethod{ DefaultCameraRotationMethod };
 

@@ -22,8 +22,7 @@ namespace bgl
 	enum class BERenderThreadMode
 	{
 		SingleThread,
-		MultiThread,
-		HyperThread
+		MultiThread
 	};
 
 	enum class BERenderMode

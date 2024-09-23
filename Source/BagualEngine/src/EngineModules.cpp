@@ -15,8 +15,6 @@
 #include <imgui.h>
 #include <chrono>
 
-BGL_OPTIMIZATION_OFF
-
 namespace bgl
 {
 	void BModuleManager::init()
@@ -43,9 +41,17 @@ namespace bgl
 			const auto lastFrameTime = BEngine::GraphicsPlatform().getGraphicsDriver()->FrameTime();
 			const std::chrono::duration< double, std::milli > timeDelta = lastFrameTime;
 
-			ImGui::Text( "Frame Time: %.2fms", timeDelta );
+			if( timeDelta.count() < 0.01 )
+			{
+				ImGui::TextUnformatted( "Frame Time: 0.00ms" );
+				ImGui::TextUnformatted( "FPS: 0" );
+			}
+			else
+			{
+				ImGui::Text( "Frame Time: %.2fms", timeDelta );
+				ImGui::Text( "FPS: %.f", 1000.0 / timeDelta.count() );
+			}
 			
-			ImGui::Text( "FPS: %.f", 1000.0 / timeDelta.count() );
 
 			// module list
 

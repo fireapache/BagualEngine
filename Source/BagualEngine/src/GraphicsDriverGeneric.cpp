@@ -20,8 +20,6 @@
 #include <limits>
 #include <thread>
 
-//BGL_OPTIMIZATION_OFF
-
 // clang-format off
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -148,15 +146,14 @@ namespace bgl
 
 			// Getting thread pool ready
 			const auto renderThreadMode = camera->GetRenderThreadMode();
-			const bool bUseHyperThread = renderThreadMode == BERenderThreadMode::HyperThread;
-			const auto processorCount = std::thread::hardware_concurrency() * ( bUseHyperThread ? 2 : 1 );
-			uint32_t renderThreadCount = renderThreadMode == BERenderThreadMode::SingleThread ? 1 : processorCount;
+			uint32_t renderThreadCount
+				= renderThreadMode == BERenderThreadMode::MultiThread ? std::thread::hardware_concurrency() : 1;
 
 #pragma region Pushing Geometry Tasks
 
 			canvas->resetZBuffer();
 
-			for( uint32_t t = 0; t < processorCount; t++ )
+			for( uint32_t t = 0; t < renderThreadCount; t++ )
 			{
 				renderThreadPool.get()->push_task( RenderLines, renderStage, viewport, t );
 			}
@@ -296,10 +293,7 @@ namespace bgl
 		const glm::vec3 glmSensorZDir{ glmCameraMatrix * glm::vec4{ 0.0f, 0.0f, 1.0f, 0.0f } };
 
 		// getting render lines of interest
-
-		const auto processorCount
-			= std::thread::hardware_concurrency() * ( renderThreadMode == BERenderThreadMode::HyperThread ? 2 : 1 );
-		const uint32_t threadCount = processorCount <= 0 ? 1 : processorCount;
+		const uint32_t threadCount = renderThreadMode == BERenderThreadMode::MultiThread ? std::thread::hardware_concurrency() : 1;
 
 		const uint32_t lineRange = height / threadCount;
 		const uint32_t lineStart = renderThreadIndex * lineRange;
