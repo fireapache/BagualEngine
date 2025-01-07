@@ -191,7 +191,7 @@ namespace bgl
 	BMeshComponent::BMeshComponent( BScene* scene, BNode* owner, BModule* module, const char* name, const char* assetPath )
 		: BComponent( scene, owner, module, name )
 		, rtcGeometry( nullptr )
-		, rtxGeomID( RTC_INVALID_GEOMETRY_ID )
+		, rtcGeomIds( {} )
 		, m_showWireframe( false )
 	{
 		m_scene = scene;
@@ -199,7 +199,7 @@ namespace bgl
 		g_meshComponents.add( this );
 		if( assetPath )
 		{
-			LoadMesh( assetPath );
+			loadMesh( assetPath );
 			setSceneDirty();
 		}
 	}
@@ -239,7 +239,7 @@ namespace bgl
 		addUniqueEdge( BLine< BVec3f >( tri.v1, tri.v2 ) );
 	}
 
-	void BMeshComponent::LoadMesh( const char* assetPath )
+	void BMeshComponent::loadMesh( const char* assetPath )
 	{
 		if( assetPath == nullptr )
 		{
@@ -283,7 +283,6 @@ namespace bgl
 		memcpy( rtcIndices, triLoader.LoadedIndices.data(), triLoader.LoadedIndices.size() * sizeof( unsigned ) );
 
 		rtcCommitGeometry( rtcGeometry );
-		rtcAttachGeometry( m_scene->rtcScene, rtcGeometry );
 
 		for( size_t i = 0; i < triLoader.LoadedIndices.size(); i += 3 )
 		{
@@ -335,6 +334,26 @@ namespace bgl
 			m_meshData.triangles_SIMD.v2.x.add( dummy );
 			m_meshData.triangles_SIMD.v2.y.add( dummy );
 			m_meshData.triangles_SIMD.v2.z.add( dummy );
+		}
+	}
+
+	void BMeshComponent::detachFromScene( RTCScene rtcScene )
+	{
+		auto geomIdItr = rtcGeomIds.find( rtcScene );
+		if( geomIdItr != rtcGeomIds.end() )
+		{
+			rtcDetachGeometry( rtcScene, geomIdItr->second );
+			rtcGeomIds.erase( rtcScene );
+		}
+	}
+
+	void BMeshComponent::attachToScene( RTCScene rtcScene )
+	{
+		auto geomIdItr = rtcGeomIds.find( rtcScene );
+		if( geomIdItr == rtcGeomIds.end() )
+		{
+			auto newGeomId = rtcAttachGeometry( rtcScene, rtcGeometry );
+			rtcGeomIds.insert( { rtcScene, newGeomId } );
 		}
 	}
 
@@ -418,7 +437,6 @@ namespace bgl
 		}
 		
 		rtcCommitGeometry( rtcGeometry );
-		rtcAttachGeometry( m_scene->rtcScene, rtcGeometry );
 		setSceneDirty();
 	}
 
@@ -430,8 +448,6 @@ namespace bgl
 		{
 			rtcDevice = rtcNewDevice( nullptr );
 		}
-
-		rtcScene = rtcNewScene( rtcDevice );
 	}
 
 	BScene::~BScene()
@@ -446,19 +462,17 @@ namespace bgl
 			delete component;
 		}
 
-		rtcReleaseScene( rtcScene );
+		// releaseing rtc scenes
+		for( auto renderStage : renderStages )
+		{
+			rtcReleaseScene( renderStage->rtcScene );
+		}
 	}
 
 	RTCDevice BScene::rtcDevice = nullptr;
 
 	void BScene::update()
 	{
-		// deleting unused render stages
-		const auto [ first, last ] = std::ranges::remove_if(
-			renderStages,
-			[]( const BRenderStage* rs ) { return rs->state == BRenderStage::State::Old; } );
-		renderStages.erase( first, last );
-
 		if( m_bDirty )
 		{
 			auto* renderStage = new BRenderStage();
@@ -467,9 +481,9 @@ namespace bgl
 			auto& tris = renderStage->triangles;
 			auto& trisSIMD = renderStage->triangles_SIMD;
 			auto& edges = renderStage->edges;
-			renderStage->rtcScene = rtcScene;
+			renderStage->rtcScene = rtcNewScene( rtcDevice );
 			
-			for( const auto meshComp : BMeshComponent::g_meshComponents )
+			for( auto meshComp : BMeshComponent::g_meshComponents )
 			{
 				if( !meshComp )
 				{
@@ -480,6 +494,8 @@ namespace bgl
 				{
 					continue;
 				}
+
+				meshComp->attachToScene( renderStage->rtcScene );
 
 				auto& compTris = meshComp->getTriangles();
 				auto& compTrisSIMD = meshComp->getTriangles_SIMD();
@@ -584,28 +600,44 @@ namespace bgl
 
 #pragma region ========== Embree Code ==========
 
-			rtcCommitScene( rtcScene );
+			rtcCommitScene( renderStage->rtcScene );
 
 #pragma endregion ========== Embree Code ==========
 
+			renderStage->state = BRenderStage::State::Ready;
 			m_bDirty = false;
 		}
+
+		// releaseing old rtc scenes
+		for( auto renderStage : renderStages )
+		{
+			if( renderStage->state == BRenderStage::State::Old )
+			{
+				rtcReleaseScene( renderStage->rtcScene );
+			}
+		}
+
+		// deleting unused render stages
+		const auto [ first, last ] = std::ranges::remove_if(
+			renderStages,
+			[]( const BRenderStage* rs ) { return rs->state == BRenderStage::State::Old; } );
+		renderStages.erase( first, last );
 	}
 
 	BRenderStage* BScene::getNextRenderStage()
 	{
 		BRenderStage* selectedRenderStage{ nullptr };
 
-		// finds the latest New
+		// finds the latest ready render stage
 		for( uint32_t i = 0; i < renderStages.size(); ++i )
 		{
-			if( renderStages[ i ]->state == BRenderStage::State::New )
+			if( renderStages[ i ]->state == BRenderStage::State::Ready )
 			{
 				selectedRenderStage = renderStages[ i ];
 			}
 		}
 
-		// lets stick with the last Claimed
+		// lets stick with the last Claimed if no ready one found
 		if( !selectedRenderStage )
 		{
 			for( uint32_t i = 0; i < renderStages.size(); ++i )
@@ -618,10 +650,10 @@ namespace bgl
 		}
 		else
 		{
-			// ok we have the latest New, lets stage it
+			// stagging the ready one
 			selectedRenderStage->state = BRenderStage::State::Staged;
 
-			// marking all others as Old
+			// marking all staged ones as old
 			for( uint32_t i = 0; i < renderStages.size(); ++i )
 			{
 				if( renderStages[ i ]->state != BRenderStage::State::Staged )

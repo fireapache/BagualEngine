@@ -144,7 +144,7 @@ namespace bgl
 		BColor color;
 
 		RTCGeometry rtcGeometry;
-		unsigned rtxGeomID;
+		std::unordered_map< RTCScene, unsigned > rtcGeomIds;
 
 	public:
 		BMeshComponent(
@@ -155,7 +155,9 @@ namespace bgl
 			const char* assetPath = nullptr );
 		~BMeshComponent() override;
 
-		void LoadMesh( const char* assetPath );
+		void loadMesh( const char* assetPath );
+		void detachFromScene( RTCScene rtcScene );
+		void attachToScene( RTCScene rtcScene );
 
 		[[nodiscard]] bool getShowWireframe() const;
 		bool& getShowWireframe_Mutable();
@@ -279,6 +281,7 @@ namespace bgl
 		enum class State : uint8_t
 		{
 			New,
+			Ready,
 			Staged,
 			Claimed,
 			Old
@@ -303,7 +306,6 @@ namespace bgl
 		~BScene();
 
 		static RTCDevice rtcDevice;
-		RTCScene rtcScene = nullptr;
 
 		void update();
 
