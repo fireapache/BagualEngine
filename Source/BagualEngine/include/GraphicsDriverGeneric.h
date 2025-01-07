@@ -25,14 +25,6 @@ namespace bgl
 		MultiThread
 	};
 
-	enum class BERenderMode
-	{
-		Sequential,
-		SIMD,
-		BVH,
-		Embree
-	};
-
 	struct BFTriangleScanParams
 	{
 		// Ray direction
@@ -58,9 +50,6 @@ namespace bgl
 		class BGenericPlatformWindow* m_cachedPlatformWindowPtr = nullptr;
 		std::unique_ptr< class thread_pool > renderThreadPool;
 
-		static void ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p );
-		static void ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p );
-		static void ScanTriangles_BVH( BRenderStage* renderStage, BFTriangleScanParams& p );
 		static void ScanTriangles_Embree( BRenderStage* renderStage, BFTriangleScanParams& p );
 
 		static void PaintPixelWithShader( BFTriangleScanParams& p );

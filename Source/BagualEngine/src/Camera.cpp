@@ -29,21 +29,6 @@ namespace bgl
 		m_owner = owner;
 	}
 
-	BERenderMode& BCamera::GetRenderMode_Mutable()
-	{
-		return m_renderMode;
-	}
-
-	const BERenderMode BCamera::GetRenderMode() const
-	{
-		return m_renderMode;
-	}
-
-	void BCamera::SetRenderMode( const BERenderMode renderMode )
-	{
-		m_renderMode = renderMode;
-	}
-
 	BERenderSpeed& BCamera::GetRenderSpeed_Mutable()
 	{
 		return m_renderSpeed;

@@ -191,7 +191,7 @@ namespace bgl
 	BMeshComponent::BMeshComponent( BScene* scene, BNode* owner, BModule* module, const char* name, const char* assetPath )
 		: BComponent( scene, owner, module, name )
 		, rtcGeometry( nullptr )
-		, rtcGeomIds( {} )
+		, rtcGeomId( RTC_INVALID_GEOMETRY_ID )
 		, m_showWireframe( false )
 	{
 		m_scene = scene;
@@ -262,12 +262,7 @@ namespace bgl
 		for( size_t i = 0; i < triLoader.LoadedVertices.size(); ++i )
 		{
 			float* x = rtcVertices + ( 3 * i );
-			//float* y = x + 1;
-			//float* z = x + 2;
 			const auto& loadedVertex = triLoader.LoadedVertices[ i ];
-			//*x = loadedVertex.Position.X;
-			//*y = loadedVertex.Position.Y;
-			//*z = loadedVertex.Position.Z;
 			memcpy( x, &( loadedVertex.Position.X ), 3 * sizeof( float ) );
 		}
 
@@ -283,78 +278,16 @@ namespace bgl
 		memcpy( rtcIndices, triLoader.LoadedIndices.data(), triLoader.LoadedIndices.size() * sizeof( unsigned ) );
 
 		rtcCommitGeometry( rtcGeometry );
-
-		for( size_t i = 0; i < triLoader.LoadedIndices.size(); i += 3 )
-		{
-			const uint32_t index0 = triLoader.LoadedIndices[ i ];
-			const uint32_t index1 = triLoader.LoadedIndices[ i + 1 ];
-			const uint32_t index2 = triLoader.LoadedIndices[ i + 2 ];
-
-			const objl::Vertex vert0 = triLoader.LoadedVertices[ index0 ];
-			const objl::Vertex vert1 = triLoader.LoadedVertices[ index1 ];
-			const objl::Vertex vert2 = triLoader.LoadedVertices[ index2 ];
-
-			BTriangle< float > triCache;
-			triCache.v0.x = vert0.Position.X;
-			triCache.v0.y = vert0.Position.Y;
-			triCache.v0.z = vert0.Position.Z;
-			triCache.v1.x = vert1.Position.X;
-			triCache.v1.y = vert1.Position.Y;
-			triCache.v1.z = vert1.Position.Z;
-			triCache.v2.x = vert2.Position.X;
-			triCache.v2.y = vert2.Position.Y;
-			triCache.v2.z = vert2.Position.Z;
-
-			m_meshData.triangles.add( triCache );
-
-			addUniqueTriEdges( triCache );
-
-			m_meshData.triangles_SIMD.v0.x.add( triCache.v0.x );
-			m_meshData.triangles_SIMD.v0.y.add( triCache.v0.y );
-			m_meshData.triangles_SIMD.v0.z.add( triCache.v0.z );
-			m_meshData.triangles_SIMD.v1.x.add( triCache.v1.x );
-			m_meshData.triangles_SIMD.v1.y.add( triCache.v1.y );
-			m_meshData.triangles_SIMD.v1.z.add( triCache.v1.z );
-			m_meshData.triangles_SIMD.v2.x.add( triCache.v2.x );
-			m_meshData.triangles_SIMD.v2.y.add( triCache.v2.y );
-			m_meshData.triangles_SIMD.v2.z.add( triCache.v2.z );
-		}
-
-		const size_t simdFillerCount = ( 8 - m_meshData.triangles_SIMD.v0.x.size() % 8 ) % 8;
-
-		for( size_t i = 0; i < simdFillerCount; i++ )
-		{
-			constexpr float dummy = 0.f;
-			m_meshData.triangles_SIMD.v0.x.add( dummy );
-			m_meshData.triangles_SIMD.v0.y.add( dummy );
-			m_meshData.triangles_SIMD.v0.z.add( dummy );
-			m_meshData.triangles_SIMD.v1.x.add( dummy );
-			m_meshData.triangles_SIMD.v1.y.add( dummy );
-			m_meshData.triangles_SIMD.v1.z.add( dummy );
-			m_meshData.triangles_SIMD.v2.x.add( dummy );
-			m_meshData.triangles_SIMD.v2.y.add( dummy );
-			m_meshData.triangles_SIMD.v2.z.add( dummy );
-		}
 	}
 
 	void BMeshComponent::detachFromScene( RTCScene rtcScene )
 	{
-		auto geomIdItr = rtcGeomIds.find( rtcScene );
-		if( geomIdItr != rtcGeomIds.end() )
-		{
-			rtcDetachGeometry( rtcScene, geomIdItr->second );
-			rtcGeomIds.erase( rtcScene );
-		}
+		rtcDetachGeometry( rtcScene, rtcGeomId );
 	}
 
 	void BMeshComponent::attachToScene( RTCScene rtcScene )
 	{
-		auto geomIdItr = rtcGeomIds.find( rtcScene );
-		if( geomIdItr == rtcGeomIds.end() )
-		{
-			auto newGeomId = rtcAttachGeometry( rtcScene, rtcGeometry );
-			rtcGeomIds.insert( { rtcScene, newGeomId } );
-		}
+		rtcGeomId = rtcAttachGeometry( rtcScene, rtcGeometry );
 	}
 
 	bool BMeshComponent::getShowWireframe() const
@@ -381,11 +314,6 @@ namespace bgl
 		return m_meshData.triangles;
 	}
 
-	BTriangle< BArray< float > >& BMeshComponent::getTriangles_SIMD()
-	{
-		return m_meshData.triangles_SIMD;
-	}
-
 	void BMeshComponent::addTriangles( const BArray< BTriangle< float > >& triangles )
 	{
 		m_meshData.triangles.add( triangles );
@@ -393,18 +321,6 @@ namespace bgl
 		for( auto& tri : triangles )
 		{
 			addUniqueTriEdges( tri );
-
-			m_meshData.triangles_SIMD.v0.x.add( tri.v0.x );
-			m_meshData.triangles_SIMD.v0.y.add( tri.v0.y );
-			m_meshData.triangles_SIMD.v0.z.add( tri.v0.z );
-
-			m_meshData.triangles_SIMD.v1.x.add( tri.v1.x );
-			m_meshData.triangles_SIMD.v1.y.add( tri.v1.y );
-			m_meshData.triangles_SIMD.v1.z.add( tri.v1.z );
-
-			m_meshData.triangles_SIMD.v2.x.add( tri.v2.x );
-			m_meshData.triangles_SIMD.v2.y.add( tri.v2.y );
-			m_meshData.triangles_SIMD.v2.z.add( tri.v2.z );
 		}
 
 		rtcGeometry = rtcNewGeometry( BScene::rtcDevice, RTC_GEOMETRY_TYPE_TRIANGLE );
@@ -478,8 +394,6 @@ namespace bgl
 			auto* renderStage = new BRenderStage();
 			renderStages.add( renderStage );
 
-			auto& tris = renderStage->triangles;
-			auto& trisSIMD = renderStage->triangles_SIMD;
 			auto& edges = renderStage->edges;
 			renderStage->rtcScene = rtcNewScene( rtcDevice );
 			
@@ -497,23 +411,7 @@ namespace bgl
 
 				meshComp->attachToScene( renderStage->rtcScene );
 
-				auto& compTris = meshComp->getTriangles();
-				auto& compTrisSIMD = meshComp->getTriangles_SIMD();
 				auto& compEdges = meshComp->getMeshData().edges;
-
-				tris.insert( tris.end(), compTris.begin(), compTris.end() );
-
-				trisSIMD.v0.x.insert( trisSIMD.v0.x.end(), compTrisSIMD.v0.x.begin(), compTrisSIMD.v0.x.end() );
-				trisSIMD.v0.y.insert( trisSIMD.v0.y.end(), compTrisSIMD.v0.y.begin(), compTrisSIMD.v0.y.end() );
-				trisSIMD.v0.z.insert( trisSIMD.v0.z.end(), compTrisSIMD.v0.z.begin(), compTrisSIMD.v0.z.end() );
-
-				trisSIMD.v1.x.insert( trisSIMD.v1.x.end(), compTrisSIMD.v1.x.begin(), compTrisSIMD.v1.x.end() );
-				trisSIMD.v1.y.insert( trisSIMD.v1.y.end(), compTrisSIMD.v1.y.begin(), compTrisSIMD.v1.y.end() );
-				trisSIMD.v1.z.insert( trisSIMD.v1.z.end(), compTrisSIMD.v1.z.begin(), compTrisSIMD.v1.z.end() );
-
-				trisSIMD.v2.x.insert( trisSIMD.v2.x.end(), compTrisSIMD.v2.x.begin(), compTrisSIMD.v2.x.end() );
-				trisSIMD.v2.y.insert( trisSIMD.v2.y.end(), compTrisSIMD.v2.y.begin(), compTrisSIMD.v2.y.end() );
-				trisSIMD.v2.z.insert( trisSIMD.v2.z.end(), compTrisSIMD.v2.z.begin(), compTrisSIMD.v2.z.end() );
 
 				if( !meshComp->getShowWireframe() )
 				{
@@ -525,84 +423,8 @@ namespace bgl
 					edges.emplace_back( BRenderStage::EdgeData{ compEdge, meshComp->getColor().getRGB() } );
 				}
 			}
-			
-#pragma region ========== BVH V2 Code ==========
-			if( !tris.empty() )
-			{
-				using Scalar = float;
-				using Vec3 = bvh::v2::Vec< Scalar, 3 >;
-				using Box = bvh::v2::BBox< Scalar, 3 >;
-				using Tri = bvh::v2::Tri< Scalar, 3 >;
-				using Node = bvh::v2::Node< Scalar, 3 >;
-				using Bvh = bvh::v2::Bvh< Node >;
-				using Ray = bvh::v2::Ray< Scalar, 3 >;
-
-				using PrecomputedTri = bvh::v2::PrecomputedTri<Scalar>;
-
-				// This is the original data, which may come in some other data type/structure.
-				std::vector< Tri > bvhTris;
-
-				for( auto& tri : tris )
-				{
-					bvhTris.emplace_back(
-						Tri{
-							Vec3{ tri.v0.x, tri.v0.y, tri.v0.z },
-							Vec3{ tri.v1.x, tri.v1.y, tri.v1.z },
-							Vec3{ tri.v2.x, tri.v2.y, tri.v2.z }
-						} );
-				}
-
-				bvh::v2::ThreadPool thread_pool;
-				bvh::v2::ParallelExecutor executor( thread_pool );
-
-				// Get triangle centers and bounding boxes (required for BVH builder)
-				std::vector< Box > boxes( bvhTris.size() );
-				std::vector< Vec3 > centers( bvhTris.size() );
-				executor.for_each(
-					0,
-					bvhTris.size(),
-					[ & ]( size_t begin, size_t end )
-					{
-						for( size_t i = begin; i < end; ++i )
-						{
-							boxes[ i ] = bvhTris[ i ].get_bbox();
-							centers[ i ] = bvhTris[ i ].get_center();
-						}
-					} );
-
-				typename bvh::v2::DefaultBuilder< Node >::Config config;
-				config.quality = bvh::v2::DefaultBuilder< Node >::Quality::High;
-				renderStage->bvh = bvh::v2::DefaultBuilder< Node >::build( thread_pool, boxes, centers, config );
-
-				// Permuting the primitive data allows to remove indirections during traversal, which makes it faster.
-				const bool should_permute = bPermuteTris;
-
-				if( bPrecomputeTris )
-				{
-					// This precomputes some data to speed up traversal further.
-					renderStage->bvh.precomputed_tris.reserve( bvhTris.size() );
-					executor.for_each(
-						0,
-						bvhTris.size(),
-						[ & ]( size_t begin, size_t end )
-						{
-							for( size_t i = begin; i < end; ++i )
-							{
-								auto j = should_permute ? renderStage->bvh.prim_ids[ i ] : i;
-								renderStage->bvh.precomputed_tris[ i ] = bvhTris[ j ];
-							}
-						} );
-					renderStage->bvh.bPermuted = should_permute;
-					renderStage->bvh.bPrecomputed = true;
-				}
-			}
-#pragma endregion ========== BVH V2 Code ==========
-
-#pragma region ========== Embree Code ==========
 
 			rtcCommitScene( renderStage->rtcScene );
-
-#pragma endregion ========== Embree Code ==========
 
 			renderStage->state = BRenderStage::State::Ready;
 			m_bDirty = false;

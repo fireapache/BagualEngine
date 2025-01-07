@@ -120,7 +120,6 @@ namespace bgl
 	{
 	public:
 		BArray< BTriangle< float > > triangles;
-		BTriangle< BArray< float > > triangles_SIMD;
 		BArray< BLine< BVec3f > > edges;
 	};
 
@@ -144,7 +143,7 @@ namespace bgl
 		BColor color;
 
 		RTCGeometry rtcGeometry;
-		std::unordered_map< RTCScene, unsigned > rtcGeomIds;
+		unsigned rtcGeomId;
 
 	public:
 		BMeshComponent(
@@ -177,7 +176,6 @@ namespace bgl
 		}
 
 		BArray< BTriangle< float > >& getTriangles();
-		BTriangle< BArray< float > >& getTriangles_SIMD();
 
 		[[nodiscard]] const BRawMeshData& getMeshData() const
 		{
@@ -264,9 +262,6 @@ namespace bgl
 	class BRenderStage
 	{
 	public:
-		BArray< BTriangle< float > > triangles;
-		BTriangle< BArray< float > > triangles_SIMD;
-		bvh::v2::Bvh< bvh::v2::Node< float, 3 > > bvh;
 		RTCScene rtcScene;
 
 		class EdgeData

@@ -276,7 +276,6 @@ namespace bgl
 		const auto cameraMatrix = BMatrix3x3::fromEuler( cameraRotator, ORDER_XYZ );
 		const glm::vec3 cameraRadians = glm::radians( glm::vec3{ cameraRotator.p, cameraRotator.y, cameraRotator.r } );
 		const BSIMDQuaternion cameraRotation{ cameraMatrix.toQuaternion() };
-		const auto renderMode = camera->GetRenderMode();
 		const auto cameraRotationMethod = BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator();
 
 		// creating rotation matrices for each axis
@@ -376,21 +375,7 @@ namespace bgl
 
 				// Getting scene triangles
 
-				switch( renderMode )
-				{
-				case BERenderMode::Sequential:
-					ScanTriangles_Sequential( renderStage, triangleScanParams );
-					break;
-				case BERenderMode::SIMD:
-					ScanTriangles_SIMD( renderStage, triangleScanParams );
-					break;
-				case BERenderMode::BVH:
-					ScanTriangles_BVH( renderStage, triangleScanParams );
-					break;
-				case BERenderMode::Embree:
-					ScanTriangles_Embree( renderStage, triangleScanParams );
-					break;
-				}
+				ScanTriangles_Embree( renderStage, triangleScanParams );
 
 				if( triangleScanParams.bHit )
 				{
@@ -400,25 +385,6 @@ namespace bgl
 				{
 					auto& p = triangleScanParams;
 					PaintPixel( p.viewport, p.renderSpeed, p.px, p.py, 0x00 );
-				}
-			}
-		}
-	}
-
-	inline void BGraphicsDriverGeneric::ScanTriangles_Sequential( BRenderStage* renderStage, BFTriangleScanParams& p )
-	{
-		BArray< BTriangle< float > >& compTris = renderStage->triangles;
-
-		BFTriangleScanParams lp = p;
-
-		for( auto tri : compTris )
-		{
-			if( BDraw::RayTriangleIntersect( lp.orig, lp.dir, tri, lp.t, lp.u, lp.v ) )
-			{
-				if( lp.t < p.t )
-				{
-					p = lp;
-					p.bHit = true;
 				}
 			}
 		}
@@ -447,208 +413,6 @@ namespace bgl
 	}
 
 #pragma endregion
-
-	inline void BGraphicsDriverGeneric::ScanTriangles_SIMD( BRenderStage* renderStage, BFTriangleScanParams& p )
-	{
-		BTriangle< BArray< float > >& compTris = renderStage->triangles_SIMD;
-
-		const size_t triCount = compTris.v0.x.size();
-		const size_t notSimdTriCount = triCount % 8;
-
-		// Stacking data and variables
-
-		BTriangle< float* > triData;
-		triData.v0.x = compTris.v0.x.data();
-		triData.v0.y = compTris.v0.y.data();
-		triData.v0.z = compTris.v0.z.data();
-
-		triData.v1.x = compTris.v1.x.data();
-		triData.v1.y = compTris.v1.y.data();
-		triData.v1.z = compTris.v1.z.data();
-
-		triData.v2.x = compTris.v2.x.data();
-		triData.v2.y = compTris.v2.y.data();
-		triData.v2.z = compTris.v2.z.data();
-
-		BTriangle< __m256 > tri;
-		BVector3< __m256 > orig, dir1, dir2, pvec;
-		BVector3< __m256 > tvec, qvec;
-		__m256 u, v, t, uv, culling, det, invDet, uvgrt1;
-		__m256 fail1, fail2, uless0, ugrt1, vless0, invalidHit;
-
-		__m256 pixelDepth = _mm256_set1_ps( std::numeric_limits< float >::max() );
-		__m256 validDepth;
-		__m256i canCopy;
-
-		// Getting aligned floats for efficient output of SIMD
-		constexpr size_t dataAlignment = 32;
-		constexpr size_t floatCount = 8;
-
-		struct finalPixelInfo
-		{
-			float t[ floatCount ];
-			float u[ floatCount ];
-			float v[ floatCount ];
-		};
-
-		BStackAligned< dataAlignment, finalPixelInfo > finalPixel;
-
-		_mm256_store_ps( finalPixel.get()->t, _mm256_set1_ps( std::numeric_limits< float >::max() ) );
-
-		// Core loop
-
-		for( size_t i = 0; i < triCount; i += 8 )
-		{
-			// @TODO: make these loads aligned!
-			tri.v0.x = _mm256_loadu_ps( triData.v0.x + i );
-			tri.v0.y = _mm256_loadu_ps( triData.v0.y + i );
-			tri.v0.z = _mm256_loadu_ps( triData.v0.z + i );
-
-			tri.v1.x = _mm256_loadu_ps( triData.v1.x + i );
-			tri.v1.y = _mm256_loadu_ps( triData.v1.y + i );
-			tri.v1.z = _mm256_loadu_ps( triData.v1.z + i );
-
-			tri.v2.x = _mm256_loadu_ps( triData.v2.x + i );
-			tri.v2.y = _mm256_loadu_ps( triData.v2.y + i );
-			tri.v2.z = _mm256_loadu_ps( triData.v2.z + i );
-
-			pixelDepth = _mm256_load_ps( finalPixel.get()->t );
-
-			orig.x = _mm256_set1_ps( p.orig.x );
-			orig.y = _mm256_set1_ps( p.orig.y );
-			orig.z = _mm256_set1_ps( p.orig.z );
-
-			dir1.x = _mm256_set1_ps( p.dir.x );
-			dir1.y = _mm256_set1_ps( p.dir.y );
-			dir1.z = _mm256_set1_ps( p.dir.z );
-
-			dir2 = dir1;
-
-			// ==================================================================
-			// === starting vectorization of BDraw::RayTriangleIntersect(...) ===
-			// ==================================================================
-
-			BVector3< __m256 >& v0v1 = tri.v1.Subtract( tri.v0 );
-			BVector3< __m256 >& v0v2 = tri.v2.Subtract( tri.v0 );
-			BVector3< __m256 >& pvec = dir1.CrossProduct( v0v2 );
-
-			det = DotProduct( v0v1, pvec );
-
-			// Checking if triangle is backfacing (true means it should be discarded)
-			culling = _mm256_cmp_ps( det, _mm256_set1_ps( kEpsilon ), 1 );
-
-			// invDet = 1 / det;
-			invDet = _mm256_div_ps( _mm256_set1_ps( 1.f ), det );
-
-			BVector3< __m256 >& tvec = orig.Subtract( tri.v0 );
-
-			u = DotProduct( tvec, pvec ) * invDet;
-
-			// if (u < 0 || u > 1) return false;
-			uless0 = _mm256_cmp_ps( u, _mm256_set1_ps( 0.f ), 1 );
-			ugrt1 = _mm256_cmp_ps( u, _mm256_set1_ps( 1.f ), 14 );
-			fail1 = _mm256_or_ps( uless0, ugrt1 );
-
-			BVector3< __m256 >& qvec = tvec.CrossProduct( v0v1 );
-			v = dir2.DotProduct( qvec ) * invDet;
-
-			// if (v < 0 || u + v > 1) return false;
-			vless0 = _mm256_cmp_ps( v, _mm256_set1_ps( 0.f ), 1 );
-			uv = u + v;
-			uvgrt1 = _mm256_cmp_ps( uv, _mm256_set1_ps( 1.f ), 14 );
-			fail2 = _mm256_or_ps( vless0, uvgrt1 );
-
-			t = DotProduct( v0v2, qvec ) * invDet;
-
-			invalidHit = _mm256_or_ps( _mm256_or_ps( culling, fail1 ), fail2 );
-			validDepth = _mm256_cmp_ps( t, pixelDepth, 1 );
-			canCopy = _mm256_castps_si256( _mm256_andnot_ps( invalidHit, validDepth ) );
-
-			auto adrT = finalPixel.get()->t;
-			auto adrU = finalPixel.get()->u;
-			auto adrV = finalPixel.get()->v;
-
-			_mm256_maskstore_ps( adrT, canCopy, t );
-			_mm256_maskstore_ps( adrU, canCopy, u );
-			_mm256_maskstore_ps( adrV, canCopy, v );
-		}
-
-		for( size_t i = 0; i < 8; i++ )
-		{
-			const float currentDist = finalPixel.get()->t[ i ];
-
-			if( currentDist < p.t )
-			{
-				p.t = currentDist;
-				p.u = finalPixel.get()->u[ i ];
-				p.v = finalPixel.get()->v[ i ];
-				p.bHit = true;
-			}
-		}
-	}
-
-	inline void BGraphicsDriverGeneric::ScanTriangles_BVH( BRenderStage* renderStage, BFTriangleScanParams& p )
-	{
-		using Scalar = float;
-		using Vec3 = bvh::v2::Vec< Scalar, 3 >;
-		using Box = bvh::v2::BBox< Scalar, 3 >;
-		using Tri = bvh::v2::Tri< Scalar, 3 >;
-		using Node = bvh::v2::Node< Scalar, 3 >;
-		using Bvh = bvh::v2::Bvh< Node >;
-		using Ray = bvh::v2::Ray< Scalar, 3 >;
-
-		const Vec3 rayOrigin{ p.orig.x, p.orig.y, p.orig.z };
-		const Vec3 rayDir = { p.dir.x, p.dir.y, p.dir.z };
-
-		auto ray = bvh::v2::Ray< float, 3 >{
-			rayOrigin, // Ray origin
-			rayDir,	   // Ray direction
-			0.,		   // Minimum intersection distance
-			100.	   // Maximum intersection distance
-		};
-
-		static constexpr size_t invalid_id = std::numeric_limits< size_t >::max();
-		static constexpr size_t stack_size = 64;
-		static constexpr bool use_robust_traversal = false;
-
-		auto prim_id = invalid_id;
-		Scalar u, v;
-
-		if( !renderStage->bvh.nodes.empty() )
-		{
-			// Traverse the BVH and get the u, v coordinates of the closest intersection.
-			bvh::v2::SmallStack< Bvh::Index, stack_size > stack;
-			renderStage->bvh.intersect< false, use_robust_traversal >(
-				ray,
-				renderStage->bvh.get_root().index,
-				stack,
-				[ & ]( size_t begin, size_t end )
-				{
-					for( size_t i = begin; i < end; ++i )
-					{
-						size_t j = renderStage->bvh.bPermuted ? i : renderStage->bvh.prim_ids[ i ];
-						if( auto hit = renderStage->bvh.precomputed_tris[ j ].intersect( ray ) )
-						{
-							prim_id = i;
-							std::tie( u, v ) = *hit;
-						}
-					}
-					return prim_id != invalid_id;
-				} );
-		}
-
-		if( prim_id != invalid_id )
-		{
-			p.bHit = true;
-			p.u = u;
-			p.v = v;
-			p.t = ray.tmax;
-		}
-		else
-		{
-			p.bHit = false;
-		}
-	}
 
 	inline void BGraphicsDriverGeneric::ScanTriangles_Embree( BRenderStage* renderStage, BFTriangleScanParams& p )
 	{

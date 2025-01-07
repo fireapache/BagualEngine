@@ -99,7 +99,6 @@ namespace bgl
 		{
 			camera->SetRenderOutputType( BERenderOutputType::UvColor );
 			camera->SetRenderSpeed( BERenderSpeed::Normal );
-			camera->SetRenderMode( BERenderMode::Embree );
 			//camera->SetRenderThreadMode(BERenderThreadMode::SingleThread);
 		}
 
@@ -174,14 +173,6 @@ namespace bgl
 					reinterpret_cast< int* >( &renderThreadMode ),
 					renderThreadOptions,
 					IM_ARRAYSIZE( renderThreadOptions ) );
-
-				auto& renderMode = camera->GetRenderMode_Mutable();
-				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH", "Embree" };
-				ImGui::Combo(
-					"Render Mode",
-					reinterpret_cast< int* >( &renderMode ),
-					renderModeOptions,
-					IM_ARRAYSIZE( renderModeOptions ) );
 
 				auto& renderSpeed = camera->GetRenderSpeed_Mutable();
 				const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
@@ -287,7 +278,6 @@ namespace bgl
 		BEngine::GraphicsPlatform().getGraphicsDriver()->GetCameraRotationMethod_Mutator() = ECameraRotationMethod::glm;
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::UvColor );
-		camera->SetRenderMode( BERenderMode::Embree );
 		
 		defaultDepthDist = cameraComp->getCamera()->GetDepthDistance();
 
@@ -413,14 +403,6 @@ namespace bgl
 					reinterpret_cast< int* >( &renderThreadMode ),
 					renderThreadOptions,
 					IM_ARRAYSIZE( renderThreadOptions ) );
-
-				auto& renderMode = camera->GetRenderMode_Mutable();
-				const char* renderModeOptions[] = { "Sequential", "SIMD", "BVH", "Embree" };
-				ImGui::Combo(
-					"Render Mode",
-					reinterpret_cast< int* >( &renderMode ),
-					renderModeOptions,
-					IM_ARRAYSIZE( renderModeOptions ) );
 
 				auto& renderSpeed = camera->GetRenderSpeed_Mutable();
 				const char* renderSpeedOptions[] = { "Normal", "Fast", "Very Fast" };
@@ -556,7 +538,6 @@ namespace bgl
 		camera->SetFOV( 60.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::Depth );
-		camera->SetRenderMode( BERenderMode::SIMD );
 
 		points[ 0 ] = BVec3f( 1.f, 1.f, 5.f );
 		points[ 1 ] = BVec3f( -1.f, 1.f, 5.f );
@@ -677,7 +658,6 @@ namespace bgl
 		camera->SetFOV( 60.f );
 		camera->SetRenderSpeed( BERenderSpeed::Normal );
 		camera->SetRenderOutputType( BERenderOutputType::Depth );
-		camera->SetRenderMode( BERenderMode::Sequential );
 
 		guiTickFunc = [ this ]()
 		{
