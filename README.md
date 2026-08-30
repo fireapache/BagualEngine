@@ -1,3 +1,5 @@
+
+
 # Bagual Engine
 
 It's a general purpose game engine using a custom made pathtracing renderer, no OpenGL, Vulkan or DirectX rendering functionalities are used to render viewports.
@@ -16,7 +18,7 @@ To learn and create a custom game engine and a 3D renderer from scratch, mainly 
 * Select **Release** compilation target for best performance
 * Press F5
 
-Note: You can change engine test module being used by editing BEngine::RegisterModules() function.
+Note: You can change engine test module being used by editing BEngine::RegisterModules() function in Source/BagualEngine/src/BagualEngine.cpp.
 
 **Linux**:
 * Doesn't compile atm, support not in plans for now
@@ -49,4 +51,3 @@ The engine compiles a game project with engine test modules. It's using ImGUI to
 * Input Bindings
 * GPU Rendering
 * Editor
-
